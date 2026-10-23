@@ -25,7 +25,7 @@
   --fx-gradient: linear-gradient(90deg, var(--fx-purple), var(--fx-blue));
 
   /* Typography */
-  --fx-font-sans: 'Montserrat', 'Montserrat Fallback', system-ui, sans-serif;
+  --fx-font-sans: 'Inter', 'Inter Fallback', system-ui, sans-serif;
   --fx-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas,
     'Liberation Mono', monospace;
   --fx-text-2xs: 0.625rem; /* 10px */

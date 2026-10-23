@@ -4,7 +4,7 @@
 - **D1 — Docusaurus 3, TypeScript.** Static, fast, versioning and multi-product docs built in.
 - **D2 — Layout ready to grow:** _(content layout superseded by D6 and D11)_ site in `apps/docs`, content in `content/<product>`, pnpm workspace. Costs nothing now; avoids a move later.
 - **D3 — Product list drives the landing page.** _(superseded by D7)_ One data file; CCM is the only entry.
-- **D4 — Fortanix look:** brand colors, fonts and logo from fortanix.com, captured as CSS variables.
+- **D4 — Fortanix look:** brand colors and logo from fortanix.com, captured as CSS variables. Font: Inter (variable, Latin subset, self-hosted under the OFL), with the system monospace stack for code (changed from Montserrat 2026-10-23).
 - **D5 — Hosting serves compressed files.** Any static host is fine if it serves gzip/brotli.
 - **D6 — One technically accurate tree.** See information-architecture.md. Solutions link to product pages; DSM sits under Armor with a "standalone" note on a DSM Overview page (added to the tree 2026-10-23).
 - **D7 — Navigation and home.** GitHub-style sidebar with a Home row; Home = Get familiar banner + Recently viewed + Explore Fortanix. See ux-spec.md.
