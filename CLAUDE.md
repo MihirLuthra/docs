@@ -28,7 +28,8 @@ Docs site for Fortanix products. Static site, no backend yet.
 - Editing = Docusaurus `editUrl` → GitHub's edit page. No custom edit flow.
 - Ask AI panel exists behind a flag, off by default.
 - Design tokens only as CSS variables in `apps/docs/src/css/custom.css`.
-- Lighthouse mobile: median of 5 runs ≥ 95. No layout shift, minimal JS. Works from 360px, light and dark, keyboard-only.
+- Performance: Lighthouse mobile performance ≥ 90 (median of 5 runs), layout shift 0. Ask before adding any dependency that adds noticeable JavaScript.
+- Works from 360px, light and dark, keyboard-only.
 - Never invent technical facts. Unknown → `<!-- TODO(verify): reason -->`. Stub pages carry `status: stub`.
 - Ask before adding a dependency.
 - Small commits; `pnpm build` passes before each.
