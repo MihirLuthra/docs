@@ -25,16 +25,13 @@ type LoadedVersion = {
   sidebars: {[name: string]: SidebarItem[]};
 };
 
-const KINDS: Kind[] = [
-  'Solution',
-  'Product',
-  'Concept',
-  'Quickstart',
-  'Guide',
-  'Reference',
-  'Tutorial',
-  'Section',
-];
+// `doc_type` values from docs-meta/style-guide.md, and the kind each maps to.
+const DOC_TYPE_KINDS: Record<string, Kind> = {
+  concept: 'Concept',
+  'how-to': 'Guide',
+  tutorial: 'Tutorial',
+  reference: 'Reference',
+};
 
 /**
  * Kind of a tree node (ux-spec.md, Kind icons): `doc_type` in front matter
@@ -43,8 +40,13 @@ const KINDS: Kind[] = [
  */
 function kindOf(names: string[], isFolder: boolean, docType?: string): Kind {
   if (docType) {
-    const kind = KINDS.find((k) => k.toLowerCase() === docType.toLowerCase());
-    if (!kind) throw new Error(`docs-tree: unknown doc_type "${docType}"`);
+    const kind = DOC_TYPE_KINDS[docType];
+    if (!kind) {
+      throw new Error(
+        `docs-tree: unknown doc_type "${docType}" on "${names.join(' / ')}"; ` +
+          `use one of ${Object.keys(DOC_TYPE_KINDS).join(', ')} (style-guide.md)`,
+      );
+    }
     return kind;
   }
   const [top] = names;
