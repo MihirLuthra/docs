@@ -3,6 +3,7 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import stubNotice from './src/remark/stub-notice';
 import docsTree from './plugins/docs-tree';
+import {recentsHeadScript} from './src/lib/recents';
 
 // Edit links open GitHub's editor (D12).
 const EDIT_BASE = 'https://github.com/mhrk0/docs/edit/main';
@@ -28,6 +29,8 @@ const config: Config = {
   i18n: {defaultLocale: 'en', locales: ['en']},
 
   headTags: [
+    // Lets the home page reserve space for Recently viewed before hydration.
+    {tagName: 'script', attributes: {}, innerHTML: recentsHeadScript},
     {
       tagName: 'link',
       attributes: {
@@ -63,6 +66,7 @@ const config: Config = {
   ],
 
   plugins: [docsTree],
+  clientModules: ['./src/clientModules/recents.ts'],
 
   themes: [
     [

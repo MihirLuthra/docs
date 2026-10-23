@@ -2,8 +2,8 @@ import {useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardE
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import {useLocation} from '@docusaurus/router';
-import {usePluginData} from '@docusaurus/useGlobalData';
 import type {TreeNode} from './types';
+import {ancestors, findKey, normalize, useTree} from './tree';
 import styles from './styles.module.css';
 
 type Row = {
@@ -12,29 +12,6 @@ type Row = {
   depth: number;
   parentKey: string | null;
 };
-
-const normalize = (path: string) => path.replace(/\/+$/, '') || '/';
-
-/** Key (index path, e.g. "2.0.1.3") of the page at `pathname`, or null. */
-function findKey(nodes: TreeNode[], pathname: string, prefix = ''): string | null {
-  for (let i = 0; i < nodes.length; i++) {
-    const key = prefix ? `${prefix}.${i}` : `${i}`;
-    const node = nodes[i];
-    if (node.href && normalize(node.href) === pathname) return key;
-    if (node.items) {
-      const found = findKey(node.items, pathname, key);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
-/** Keys of all folders containing `key`. */
-function ancestors(key: string | null): string[] {
-  if (!key) return [];
-  const parts = key.split('.');
-  return parts.slice(0, -1).map((_, i) => parts.slice(0, i + 1).join('.'));
-}
 
 function visibleRows(nodes: TreeNode[], open: Set<string>): Row[] {
   const rows: Row[] = [];
@@ -76,7 +53,7 @@ function HomeIcon(): ReactNode {
  * tree, collapsed except along the current page's path.
  */
 export default function DocsTree({onNavigate}: {onNavigate?: () => void}): ReactNode {
-  const {tree} = usePluginData('docs-tree') as {tree: TreeNode[]};
+  const tree = useTree();
   const pathname = normalize(useLocation().pathname);
   const currentKey = useMemo(() => findKey(tree, pathname), [tree, pathname]);
 

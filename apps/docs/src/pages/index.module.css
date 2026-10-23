@@ -1,0 +1,305 @@
+/* 996px is Docusaurus's desktop breakpoint (media queries can't use vars). */
+
+.layout {
+  display: flex;
+  width: 100%;
+}
+
+.sidebar {
+  position: sticky;
+  top: var(--fx-header-height);
+  flex: none;
+  align-self: flex-start;
+  width: var(--fx-sidebar-width);
+  max-height: calc(100vh - var(--fx-header-height));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-right: var(--fx-border-width) solid var(--fx-border);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  max-width: var(--fx-home-max);
+  padding: var(--fx-space-8) var(--fx-space-12) var(--fx-space-12);
+  font-size: var(--fx-text-md);
+}
+
+@media (max-width: 996px) {
+  .sidebar {
+    display: none;
+  }
+
+  .main {
+    padding: var(--fx-space-6) var(--fx-space-4) var(--fx-space-8);
+  }
+}
+
+/* Get familiar banner */
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fx-space-4);
+  margin-bottom: var(--fx-space-8);
+  padding: var(--fx-space-4) var(--fx-space-5);
+  border: var(--fx-border-width) solid var(--fx-accent-border);
+  border-radius: var(--fx-radius-xl);
+  background-color: var(--fx-accent-soft);
+  color: var(--fx-text);
+  transition:
+    border-color var(--fx-duration-fast) var(--fx-ease),
+    box-shadow var(--fx-duration-fast) var(--fx-ease);
+}
+
+.banner:hover {
+  border-color: var(--fx-card-hover-border);
+  box-shadow: var(--fx-shadow-card);
+  color: var(--fx-text);
+  text-decoration: none;
+}
+
+.bannerIcon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--fx-space-10);
+  height: var(--fx-space-10);
+  border-radius: var(--fx-radius-lg);
+  background-color: var(--fx-purple);
+  color: var(--fx-white);
+}
+
+.bannerText {
+  flex: 1 1 18rem;
+}
+
+.bannerTitle {
+  display: block;
+  font-size: var(--fx-text-xl);
+  font-weight: 700;
+}
+
+.bannerLine {
+  display: block;
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-sm);
+}
+
+.bannerCta {
+  flex: none;
+  padding: var(--fx-space-2) var(--fx-space-4);
+  border-radius: var(--fx-radius-lg);
+  background-color: var(--fx-cta-bg);
+  color: var(--fx-cta-text);
+  font-size: var(--fx-text-sm);
+  font-weight: 600;
+}
+
+/* Sections */
+.section {
+  margin-bottom: var(--fx-space-8);
+}
+
+.heading {
+  margin: 0 0 var(--fx-space-3);
+  font-size: var(--fx-text-lg);
+  font-weight: 700;
+}
+
+.heading:focus {
+  outline: none;
+}
+
+/* Recently viewed. The slot reserves the grid's height before hydration from
+   --fx-recent-count and --fx-recent-more (set by the inline head script), so cards appearing
+   doesn't shift the page. */
+.recentSlot {
+  --cols: 3;
+  --rows: round(up, calc(var(--fx-recent-count, 0) / var(--cols)), 1);
+  min-height: calc(
+    max(
+        var(--fx-recent-empty-h),
+        var(--rows) * var(--fx-recent-card-h) + (var(--rows) - 1) * var(--fx-space-2)
+      ) +
+      var(--fx-recent-more, 0) * (var(--fx-recent-more-h) + var(--fx-space-2))
+  );
+}
+
+.recentGrid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: var(--fx-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 767px) {
+  .recentSlot {
+    --cols: 2;
+  }
+}
+
+@media (max-width: 575px) {
+  .recentSlot {
+    --cols: 1;
+  }
+}
+
+.recentItem {
+  position: relative;
+}
+
+.recentCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  height: var(--fx-recent-card-h);
+  padding: var(--fx-space-2) var(--fx-space-8) var(--fx-space-2) var(--fx-space-3);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-lg);
+  background-color: var(--fx-bg);
+  color: var(--fx-text);
+  transition:
+    border-color var(--fx-duration-fast) var(--fx-ease),
+    box-shadow var(--fx-duration-fast) var(--fx-ease);
+}
+
+.recentCard:hover,
+.exploreCard:hover {
+  border-color: var(--fx-card-hover-border);
+  box-shadow: var(--fx-shadow-card);
+  color: var(--fx-text);
+  text-decoration: none;
+}
+
+.recentTitle,
+.recentPath {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.recentTitle {
+  font-weight: 600;
+}
+
+.recentPath {
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-xs);
+}
+
+.remove {
+  position: absolute;
+  top: var(--fx-space-2);
+  right: var(--fx-space-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fx-space-6);
+  height: var(--fx-space-6);
+  padding: 0;
+  border: 0;
+  border-radius: var(--fx-radius-md);
+  background: transparent;
+  color: var(--fx-text-secondary);
+  cursor: pointer;
+  opacity: 0.55;
+  transition:
+    opacity var(--fx-duration-fast) var(--fx-ease),
+    background-color var(--fx-duration-fast) var(--fx-ease);
+}
+
+.recentItem:hover .remove,
+.remove:focus-visible {
+  opacity: 1;
+}
+
+.remove:hover {
+  background-color: var(--fx-chip);
+}
+
+.more {
+  display: block;
+  height: var(--fx-recent-more-h);
+  margin: var(--fx-space-2) auto 0;
+  padding: 0 var(--fx-space-4);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-pill);
+  background-color: var(--fx-bg);
+  color: var(--fx-text-secondary);
+  font: inherit;
+  font-size: var(--fx-text-xs);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.empty {
+  box-sizing: border-box;
+  min-height: var(--fx-recent-empty-h);
+  margin: 0;
+  padding: var(--fx-space-3);
+  border: var(--fx-border-width) dashed var(--fx-border-strong);
+  border-radius: var(--fx-radius-lg);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-sm);
+}
+
+/* Explore Fortanix */
+.exploreGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--fx-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.exploreCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fx-space-1);
+  height: 100%;
+  padding: var(--fx-space-4);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-lg);
+  background-color: var(--fx-bg);
+  color: var(--fx-text);
+  transition:
+    border-color var(--fx-duration-fast) var(--fx-ease),
+    box-shadow var(--fx-duration-fast) var(--fx-ease);
+}
+
+.explorePath {
+  color: var(--fx-text-muted);
+  font-family: var(--fx-font-mono);
+  font-size: var(--fx-text-xs);
+}
+
+.exploreTitle {
+  font-size: var(--fx-text-lg);
+  font-weight: 700;
+}
+
+.exploreLine {
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-sm);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fx-space-1);
+  margin-top: var(--fx-space-1);
+}
+
+.tag {
+  padding: 0 var(--fx-space-2);
+  border-radius: var(--fx-radius-sm);
+  background-color: var(--fx-chip);
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-xs);
+}
