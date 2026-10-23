@@ -97,9 +97,10 @@ function RecentlyViewed(): ReactNode {
             <ul ref={listRef} className={styles.recentGrid}>
               {visible.map((item, i) => (
                 <li key={item.href} className={styles.recentItem}>
-                  <Link to={item.href} className={styles.recentCard}>
+                  <Link to={item.href} className={styles.recentCard} title={item.path.join(' / ')}>
                     <span className={styles.recentTitle}>{item.title}</span>
-                    <span className={styles.recentPath}>{item.path.join(' / ')}</span>
+                    {/* The closest parent section; the full path is in the tooltip. */}
+                    <span className={styles.recentPath}>{item.path[item.path.length - 1]}</span>
                   </Link>
                   <button
                     type="button"
