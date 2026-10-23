@@ -8,8 +8,6 @@ status: stub
 
 :::info[Standalone]
 
-Data Security Manager is standalone today.
+Data Security Manager is currently a separate service, not yet part of the Armor platform.
 
 :::
-
-<!-- TODO(verify): exact wording of the standalone note (information-architecture.md). -->
