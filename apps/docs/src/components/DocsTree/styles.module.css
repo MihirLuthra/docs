@@ -1,5 +1,5 @@
 .nav {
-  padding: var(--fx-space-3);
+  padding: var(--fx-content-top) var(--fx-space-3) var(--fx-space-3);
   font-size: var(--fx-text-md);
 }
 
@@ -11,7 +11,6 @@
   box-sizing: border-box;
   width: 100%;
   height: var(--fx-tree-row-h);
-  margin-bottom: var(--fx-tree-row-gap);
   padding: 0 var(--fx-space-2) 0
     calc(var(--fx-space-2) + var(--depth, 0) * var(--fx-tree-indent));
   border-radius: var(--fx-radius-md);
@@ -45,11 +44,15 @@
   font-weight: 600;
 }
 
-/* Between top-level sections: its own margin, so rows keep one height. */
+/* After Home and between top-level sections: its own margin, so rows keep
+   one height. The block is 12px (6 + 1px line + 5) and rows are 32px with
+   no gap, so every divider sits at the same offset on a 4px grid and renders
+   identically at fractional display scaling (see --fx-content-top). */
 .divider {
-  height: var(--fx-border-width);
-  margin: var(--fx-tree-divider-gap) 0;
-  background-color: var(--fx-border);
+  height: 0;
+  margin: var(--fx-tree-divider-gap) 0
+    calc(var(--fx-tree-divider-gap) - var(--fx-border-width));
+  border-top: var(--fx-border-width) solid var(--fx-border);
 }
 
 /* Thin vertical line per ancestor level, centred under its chevron. */

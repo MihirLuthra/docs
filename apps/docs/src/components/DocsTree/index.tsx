@@ -139,6 +139,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
         </span>
         <span className={styles.label}>Home</span>
       </Link>
+      <div className={styles.divider} aria-hidden="true" />
       <div role="tree" aria-label="Documentation" className={styles.tree}>
         {rows.map((row, index) => {
           const {key, node, depth} = row;

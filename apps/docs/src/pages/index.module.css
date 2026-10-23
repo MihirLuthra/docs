@@ -21,7 +21,7 @@
   flex: 1;
   min-width: 0;
   max-width: var(--fx-home-max);
-  padding: var(--fx-space-8) var(--fx-space-12) var(--fx-space-12);
+  padding: var(--fx-content-top) var(--fx-space-12) var(--fx-space-12);
   font-size: var(--fx-text-md);
 }
 
@@ -31,7 +31,7 @@
   }
 
   .main {
-    padding: var(--fx-space-6) var(--fx-space-4) var(--fx-space-8);
+    padding: var(--fx-content-top) var(--fx-space-4) var(--fx-space-8);
   }
 }
 
