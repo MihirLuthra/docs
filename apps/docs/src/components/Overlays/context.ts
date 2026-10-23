@@ -3,6 +3,8 @@ import {createContext, useContext} from 'react';
 export type Overlays = {
   /** Opens the search modal. */
   openSearch: () => void;
+  /** Starts loading the search modal and index ahead of opening. */
+  prefetchSearch: () => void;
   /** Whether the Ask AI flag is on (customFields.askAI). */
   askAIEnabled: boolean;
   askAIOpen: boolean;

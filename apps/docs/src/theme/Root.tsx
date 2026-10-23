@@ -1,9 +1,12 @@
 import {Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState, type ReactNode} from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {OverlaysContext} from '@site/src/components/Overlays/context';
+import {loadIndex} from '@site/src/components/Search/useIndex';
 
-// Loaded on first open, so pages don't ship their code.
-const SearchModal = lazy(() => import('@site/src/components/Search/SearchModal'));
+// Loaded on first open (or prefetched on hover/focus), so pages don't ship
+// their code.
+const loadSearchModal = () => import('@site/src/components/Search/SearchModal');
+const SearchModal = lazy(loadSearchModal);
 const AskAIPanel = lazy(() => import('@site/src/components/AskAI/AskAIPanel'));
 
 function isTyping(target: EventTarget | null): boolean {
@@ -19,15 +22,39 @@ export default function Root({children}: {children: ReactNode}): ReactNode {
   const returnFocus = useRef<HTMLElement | null>(null);
   const aiReturnFocus = useRef<HTMLElement | null>(null);
 
+  // A ref as well as state: openSearch can run twice in one tick (a click
+  // just after hydration, then its replay), and only the first may record
+  // where focus returns to.
+  const searchOpenRef = useRef(false);
+
   const openSearch = useCallback(() => {
+    if (searchOpenRef.current) return;
+    searchOpenRef.current = true;
     returnFocus.current = document.activeElement as HTMLElement | null;
     setSearchOpen(true);
   }, []);
 
   const closeSearch = useCallback(() => {
+    searchOpenRef.current = false;
     setSearchOpen(false);
     returnFocus.current?.focus();
   }, []);
+
+  const prefetchSearch = useCallback(() => {
+    void loadSearchModal();
+    void loadIndex();
+  }, []);
+
+  // Clicks and shortcuts from before hydration were recorded by the inline
+  // head script (lib/search-early.ts): take over from it, then replay.
+  useEffect(() => {
+    window.__fxSearchReady = true;
+    if (window.__fxSearchQueued) {
+      window.__fxSearchQueued = false;
+      document.documentElement.removeAttribute('data-search-pending');
+      openSearch();
+    }
+  }, [openSearch]);
 
   // ⌘K / Ctrl+K anywhere; "/" when not typing.
   useEffect(() => {
@@ -51,6 +78,7 @@ export default function Root({children}: {children: ReactNode}): ReactNode {
           ? returnFocus.current
           : (document.activeElement as HTMLElement | null);
       }
+      searchOpenRef.current = false;
       setSearchOpen(false);
       setAskAI({open: true, question});
     },
@@ -68,8 +96,8 @@ export default function Root({children}: {children: ReactNode}): ReactNode {
   );
 
   const overlays = useMemo(
-    () => ({openSearch, askAIEnabled, askAIOpen: askAI.open, openAskAI, toggleAskAI}),
-    [openSearch, askAIEnabled, askAI.open, openAskAI, toggleAskAI],
+    () => ({openSearch, prefetchSearch, askAIEnabled, askAIOpen: askAI.open, openAskAI, toggleAskAI}),
+    [openSearch, prefetchSearch, askAIEnabled, askAI.open, openAskAI, toggleAskAI],
   );
 
   return (

@@ -5,6 +5,7 @@ import stubNotice from './src/remark/stub-notice';
 import docsTree from './plugins/docs-tree';
 import {recentsHeadScript} from './src/lib/recents';
 import {FONT_URL, fontFaceCss} from './src/lib/fonts';
+import {searchEarlyScript} from './src/lib/search-early';
 
 // Edit links open GitHub's editor (D12).
 const EDIT_BASE = 'https://github.com/mhrk0/docs/edit/main';
@@ -37,6 +38,8 @@ const config: Config = {
 
   headTags: [
     {tagName: 'style', attributes: {}, innerHTML: fontFaceCss},
+    // Keeps search clicks/shortcuts made before hydration (lib/search-early.ts).
+    {tagName: 'script', attributes: {}, innerHTML: searchEarlyScript},
     // Lets the home page reserve space for Recently viewed before hydration.
     {tagName: 'script', attributes: {}, innerHTML: recentsHeadScript},
     {

@@ -7,6 +7,7 @@ import DocsTree from '@site/src/components/DocsTree';
 import Logo from '@site/src/components/Logo';
 import {useOverlays} from '@site/src/components/Overlays/context';
 import {SparkleIcon} from '@site/src/components/AskAI/SparkleIcon';
+import {SEARCH_TRIGGER_ATTR} from '@site/src/lib/search-early';
 import styles from './styles.module.css';
 
 type HeaderLink = {label: string; to: string};
@@ -42,7 +43,7 @@ function SearchIcon(): ReactNode {
 }
 
 function SearchTrigger(): ReactNode {
-  const {openSearch} = useOverlays();
+  const {openSearch, prefetchSearch} = useOverlays();
   // "Ctrl K" until hydrated; the hint has a fixed width, so swapping it for
   // "⌘K" on Apple devices doesn't move anything.
   const [isApple, setIsApple] = useState(false);
@@ -54,6 +55,10 @@ function SearchTrigger(): ReactNode {
       type="button"
       className={styles.searchTrigger}
       onClick={openSearch}
+      onPointerEnter={prefetchSearch}
+      onFocus={prefetchSearch}
+      onTouchStart={prefetchSearch}
+      {...{[SEARCH_TRIGGER_ATTR]: ''}}
       aria-label="Search the docs"
       aria-keyshortcuts="Control+K Meta+K /">
       <SearchIcon />

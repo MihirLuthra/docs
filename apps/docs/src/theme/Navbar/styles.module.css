@@ -67,6 +67,12 @@
   border-color: var(--fx-card-hover-border);
 }
 
+/* Clicked before the page finished loading; search opens once it has. */
+:global(html[data-search-pending]) .searchTrigger {
+  border-color: var(--fx-focus);
+  background-color: var(--fx-selected-bg);
+}
+
 .searchText {
   flex: 1;
   overflow: hidden;
