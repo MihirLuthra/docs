@@ -30,11 +30,16 @@
     'Liberation Mono', monospace;
   --fx-text-2xs: 0.625rem; /* 10px */
   --fx-text-xs: 0.6875rem; /* 11px */
+  --fx-text-xs-plus: 0.75rem; /* 12px */
   --fx-text-sm: 0.8125rem; /* 13px */
   --fx-text-md: 0.875rem; /* 14px */
   --fx-text-lg: 1rem;
+  --fx-text-body: 1rem; /* 16px */
   --fx-text-xl: 1.0625rem; /* 17px */
   --fx-text-2xl: 1.125rem; /* 18px */
+  --fx-title-size: 1.75rem; /* 28px, doc page h1 */
+  --fx-h2-size: 1.375rem;
+  --fx-h3-size: 1.125rem;
 
   /* Spacing scale */
   --fx-space-1: 0.25rem;
@@ -257,9 +262,92 @@ body {
   border-right: var(--fx-border-width) solid var(--fx-border) !important;
 }
 
+/* Doc pages: compact, like the home page (prototype proportions). */
+.theme-doc-markdown {
+  --ifm-h2-font-size: var(--fx-h2-size);
+  --ifm-h3-font-size: var(--fx-h3-size);
+  font-size: var(--fx-text-body);
+}
+
+.markdown h1:first-child {
+  --ifm-h1-font-size: var(--fx-title-size);
+  margin-bottom: var(--fx-space-4);
+  letter-spacing: -0.02em;
+}
+
+/* Stub note (src/remark/stub-notice.ts): a small pill, not an admonition. */
+.stub-note {
+  display: inline-block;
+  margin-bottom: var(--fx-space-6);
+  padding: var(--fx-space-1) var(--fx-space-3);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-pill);
+  background-color: var(--fx-surface);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-sm);
+}
+
+.stub-note strong {
+  margin-right: var(--fx-space-1);
+  color: var(--fx-text-secondary);
+}
+
+.theme-doc-footer {
+  margin-top: var(--fx-space-6);
+}
+
+.theme-edit-this-page {
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-sm);
+}
+
+.theme-edit-this-page:hover {
+  color: var(--fx-link-hover);
+}
+
+.theme-edit-this-page svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
+/* Previous / Next: compact cards, no « » */
+.pagination-nav {
+  margin-top: var(--fx-space-6);
+}
+
+.pagination-nav__link {
+  padding: var(--fx-space-3) var(--fx-space-4);
+  border-color: var(--fx-border);
+  border-radius: var(--fx-radius-lg);
+  transition: border-color var(--fx-duration-fast) var(--fx-ease);
+}
+
+.pagination-nav__link:hover {
+  border-color: var(--fx-card-hover-border);
+}
+
+.pagination-nav__sublabel {
+  margin-bottom: 0;
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-xs);
+}
+
+.pagination-nav__label {
+  color: var(--fx-text);
+  font-size: var(--fx-text-md);
+  font-weight: 600;
+}
+
+.pagination-nav__link--prev .pagination-nav__label::before,
+.pagination-nav__link--next .pagination-nav__label::after {
+  content: none;
+}
+
 /* Breadcrumbs: a quiet path line above the title. */
 .breadcrumbs {
-  font-size: var(--fx-text-xs);
+  margin-bottom: var(--fx-space-2);
+  font-size: var(--fx-text-xs-plus);
 }
 
 .breadcrumbs__link {
