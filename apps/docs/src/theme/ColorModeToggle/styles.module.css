@@ -1,0 +1,28 @@
+.toggle {
+  width: var(--fx-space-8);
+  height: var(--fx-space-8);
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--fx-radius-pill);
+  color: var(--fx-text-secondary);
+  transition: background-color var(--fx-duration-fast) var(--fx-ease);
+}
+
+.button:hover {
+  background-color: var(--fx-hover);
+}
+
+.dark,
+:global(html[data-theme='dark']) .light {
+  display: none;
+}
+
+:global(html[data-theme='dark']) .dark {
+  display: inline;
+}
