@@ -56,7 +56,9 @@ function RecentlyViewed(): ReactNode {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  useEffect(() => setPaths(readRecents()), []);
+  useEffect(() => {
+    setPaths(readRecents());
+  }, []);
 
   const items = (paths ?? []).flatMap((p) => {
     const loc = locate(tree, p);

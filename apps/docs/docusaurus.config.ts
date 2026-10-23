@@ -28,6 +28,12 @@ const config: Config = {
 
   i18n: {defaultLocale: 'en', locales: ['en']},
 
+  customFields: {
+    // Ask AI panel (D9): off unless built with DOCS_ASK_AI=1. There is no
+    // backend yet, so with it on the panel only lists related pages.
+    askAI: process.env.DOCS_ASK_AI === '1',
+  },
+
   headTags: [
     // Lets the home page reserve space for Recently viewed before hydration.
     {tagName: 'script', attributes: {}, innerHTML: recentsHeadScript},

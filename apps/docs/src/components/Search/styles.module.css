@@ -181,6 +181,32 @@
   font-size: inherit;
 }
 
+.askAI {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-2);
+  max-width: var(--fx-ai-footer-max);
+  margin-left: auto;
+  padding: var(--fx-space-1) var(--fx-space-3);
+  border: var(--fx-border-width) solid var(--fx-accent-border);
+  border-radius: var(--fx-radius-lg);
+  background-color: var(--fx-bg);
+  color: var(--fx-selected-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.askAI svg {
+  flex: none;
+}
+
+.askAIText {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 @media (max-width: 575px) {
   .backdrop {
     padding: var(--fx-space-2);

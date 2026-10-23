@@ -88,6 +88,9 @@
   --fx-search-results-max: 440px;
   --fx-search-trigger-w: 420px;
   --fx-control-h: 36px;
+  --fx-ai-width: 400px;
+  --fx-ai-input-h: 44px;
+  --fx-ai-footer-max: 320px;
   --fx-kind-tile-md: 30px;
   --fx-kind-icon-md: 15px;
   --fx-kind-tile-sm: 20px;
@@ -124,6 +127,7 @@
   --fx-cta-text: var(--fx-white);
   --fx-shadow-card: 0 4px 14px rgb(19 19 19 / 0.06);
   --fx-shadow-drawer: 16px 0 40px rgb(19 19 19 / 0.12);
+  --fx-shadow-panel: -16px 0 40px rgb(19 19 19 / 0.08);
   --fx-backdrop: rgb(19 19 19 / 0.14);
 
   /* Search modal (ux-spec.md): translucent glass, solid fallback */
@@ -206,6 +210,7 @@
   --fx-cta-text: var(--fx-dark-gray);
   --fx-shadow-card: 0 4px 14px rgb(0 0 0 / 0.4);
   --fx-shadow-drawer: 16px 0 40px rgb(0 0 0 / 0.5);
+  --fx-shadow-panel: -16px 0 40px rgb(0 0 0 / 0.5);
   --fx-backdrop: rgb(0 0 0 / 0.5);
 
   --fx-glass-bg: rgb(27 27 31 / 0.8);

@@ -4,21 +4,10 @@ import {KindIcon, KindPill} from '../KindIcon';
 import {suggested} from '@site/src/data/suggested';
 import {search, splitMatch} from './rank';
 import type {IndexEntry} from './types';
+import {useIndex} from './useIndex';
+import {useOverlays} from '../Overlays/context';
+import {SparkleIcon} from '../AskAI/SparkleIcon';
 import styles from './styles.module.css';
-
-function useIndex(): IndexEntry[] | null {
-  const [index, setIndex] = useState<IndexEntry[] | null>(null);
-  useEffect(() => {
-    let live = true;
-    import('@generated/docs-tree/default/search-index.json').then((m) => {
-      if (live) setIndex(m.default);
-    });
-    return () => {
-      live = false;
-    };
-  }, []);
-  return index;
-}
 
 const sameNames = (entry: IndexEntry, names: string[]) =>
   [...entry.path, entry.title].join('\u0000') === names.join('\u0000');
@@ -44,6 +33,7 @@ function CloseIcon(): ReactNode {
 export default function SearchModal({onClose}: {onClose: () => void}): ReactNode {
   const index = useIndex();
   const history = useHistory();
+  const {askAIEnabled, openAskAI} = useOverlays();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -178,7 +168,7 @@ export default function SearchModal({onClose}: {onClose: () => void}): ReactNode
           </ul>
           {index && trimmed && entries.length === 0 && (
             <p className={styles.empty} role="status">
-              No pages match “{trimmed}”. Try other words.
+              No pages match “{trimmed}”. Try other words{askAIEnabled ? ', or ask AI below' : ''}.
             </p>
           )}
         </div>
@@ -193,6 +183,12 @@ export default function SearchModal({onClose}: {onClose: () => void}): ReactNode
           <span>
             <kbd>esc</kbd> close
           </span>
+          {askAIEnabled && (
+            <button type="button" className={styles.askAI} onClick={() => openAskAI(trimmed || undefined)}>
+              <SparkleIcon size={13} />
+              <span className={styles.askAIText}>{trimmed ? `Ask AI about “${trimmed}”` : 'Ask AI'}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

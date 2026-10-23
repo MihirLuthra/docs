@@ -56,3 +56,31 @@ export function splitMatch(title: string, query: string): [string, string, strin
   if (at === -1) return [title, '', ''];
   return [title.slice(0, at), title.slice(at, at + q.length), title.slice(at + q.length)];
 }
+
+const STOPWORDS = new Set(
+  'a an and are can do does for from how i in is it my of on or should the to use what when where which who why with need run'.split(
+    ' ',
+  ),
+);
+
+/**
+ * Pages related to a free-text question: each meaningful word is scored on
+ * its own and the scores are summed, so a question needn't match every word.
+ */
+export function related(index: IndexEntry[], question: string, limit = 3): IndexEntry[] {
+  const words = question
+    .toLowerCase()
+    .split(/[^a-z0-9#+-]+/)
+    .filter((w) => w.length > 1 && !STOPWORDS.has(w));
+  const totals = new Map<IndexEntry, number>();
+  for (const word of words) {
+    for (const entry of index) {
+      const s = score(entry, word);
+      if (s > 0) totals.set(entry, (totals.get(entry) ?? 0) + s);
+    }
+  }
+  return [...totals]
+    .sort((a, b) => b[1] - a[1] || a[0].depth - b[0].depth)
+    .slice(0, limit)
+    .map(([entry]) => entry);
+}

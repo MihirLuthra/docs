@@ -6,6 +6,7 @@ import NavbarColorModeToggle from '@theme/Navbar/ColorModeToggle';
 import DocsTree from '@site/src/components/DocsTree';
 import Logo from '@site/src/components/Logo';
 import {useOverlays} from '@site/src/components/Overlays/context';
+import {SparkleIcon} from '@site/src/components/AskAI/SparkleIcon';
 import styles from './styles.module.css';
 
 type HeaderLink = {label: string; to: string};
@@ -45,7 +46,9 @@ function SearchTrigger(): ReactNode {
   // "Ctrl K" until hydrated; the hint has a fixed width, so swapping it for
   // "⌘K" on Apple devices doesn't move anything.
   const [isApple, setIsApple] = useState(false);
-  useEffect(() => setIsApple(/Mac|iPhone|iPad/.test(navigator.platform)), []);
+  useEffect(() => {
+    setIsApple(/Mac|iPhone|iPad/.test(navigator.platform));
+  }, []);
   return (
     <button
       type="button"
@@ -58,6 +61,17 @@ function SearchTrigger(): ReactNode {
       <kbd className={styles.searchKbd} aria-hidden="true">
         {isApple ? '⌘K' : 'Ctrl K'}
       </kbd>
+    </button>
+  );
+}
+
+function AskAIButton(): ReactNode {
+  const {askAIEnabled, askAIOpen, toggleAskAI} = useOverlays();
+  if (!askAIEnabled) return null;
+  return (
+    <button type="button" className={styles.askAI} onClick={toggleAskAI} aria-pressed={askAIOpen}>
+      <SparkleIcon />
+      <span className={styles.askAIText}>Ask AI</span>
     </button>
   );
 }
@@ -133,7 +147,9 @@ export default function Navbar(): ReactNode {
   const menuButton = useRef<HTMLButtonElement>(null);
   const {pathname} = useLocation();
 
-  useEffect(() => setDrawerOpen(false), [pathname]);
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
 
   const closeDrawer = () => {
     setDrawerOpen(false);
@@ -160,6 +176,7 @@ export default function Navbar(): ReactNode {
       </Link>
       <div className={styles.center}>
         <SearchTrigger />
+        <AskAIButton />
       </div>
       <nav aria-label="Site" className={styles.links}>
         {links.map((l) => (

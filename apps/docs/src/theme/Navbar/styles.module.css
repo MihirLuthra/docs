@@ -88,6 +88,28 @@
   text-align: center;
 }
 
+.askAI {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--fx-space-2);
+  height: var(--fx-control-h);
+  padding: 0 var(--fx-space-3);
+  border: var(--fx-border-width) solid var(--fx-border-strong);
+  border-radius: var(--fx-radius-lg);
+  background-color: var(--fx-bg);
+  color: var(--fx-selected-text);
+  font: inherit;
+  font-size: var(--fx-text-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.askAI[aria-pressed='true'] {
+  border-color: var(--fx-accent-border);
+  background-color: var(--fx-selected-bg);
+}
+
 .links {
   display: flex;
   flex: none;
@@ -155,8 +177,15 @@
   }
 
   .searchText,
-  .searchKbd {
+  .searchKbd,
+  .askAIText {
     display: none;
+  }
+
+  .askAI {
+    justify-content: center;
+    width: var(--fx-control-h);
+    padding: 0;
   }
 }
 
