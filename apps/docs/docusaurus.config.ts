@@ -4,6 +4,9 @@ import type * as Preset from '@docusaurus/preset-classic';
 import type {Options as DocsOptions} from '@docusaurus/plugin-content-docs';
 import {products, productPath} from './src/data/products';
 
+// Edit links open GitHub's editor (D12).
+const EDIT_BASE = 'https://github.com/mhrk0/docs/edit/main';
+
 const docsPlugins = products.map((product) => [
   '@docusaurus/plugin-content-docs',
   {
@@ -11,6 +14,7 @@ const docsPlugins = products.map((product) => [
     path: `../../content/${product.id}`,
     routeBasePath: product.id,
     sidebarPath: false,
+    editUrl: ({docPath}) => `${EDIT_BASE}/content/${product.id}/${docPath}`,
   } satisfies DocsOptions,
 ]);
 
