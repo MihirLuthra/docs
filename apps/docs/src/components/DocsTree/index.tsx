@@ -130,7 +130,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
     <nav className={styles.nav} aria-label="Documentation">
       <Link
         to="/"
-        className={clsx(styles.row, styles.home, pathname === '/' && styles.selected)}
+        className={clsx(styles.row, styles.home, styles.top, pathname === '/' && styles.selected)}
         aria-current={pathname === '/' ? 'page' : undefined}
         onClick={onNavigate}>
         <HomeIcon />
@@ -152,7 +152,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
             tabIndex: key === tabKey ? 0 : -1,
             onKeyDown: (e: KeyboardEvent) => onKeyDown(e, row, index),
             onFocus: () => setFocusKey(key),
-            className: clsx(styles.row, isCurrent && styles.selected, isFolder && styles.folder),
+            className: clsx(styles.row, depth === 0 && styles.top, isCurrent && styles.selected),
             style: {'--depth': depth} as CSSProperties,
             title: node.label,
           };

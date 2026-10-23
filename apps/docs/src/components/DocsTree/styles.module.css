@@ -1,6 +1,6 @@
 .nav {
   padding: var(--fx-space-3);
-  font-size: var(--fx-text-sm);
+  font-size: var(--fx-text-md);
 }
 
 .row {
@@ -14,6 +14,7 @@
     calc(var(--fx-space-2) + var(--depth, 0) * var(--fx-tree-indent));
   border-radius: var(--fx-radius-md);
   color: var(--fx-text);
+  font-weight: 400;
   line-height: 1.5;
   cursor: pointer;
   user-select: none;
@@ -40,11 +41,11 @@
 .home {
   gap: var(--fx-space-2);
   margin-bottom: var(--fx-space-1);
-  font-weight: 600;
 }
 
-.folder {
-  font-weight: 500;
+/* Home and the top-level sections. */
+.top {
+  font-weight: 600;
 }
 
 .divided {
