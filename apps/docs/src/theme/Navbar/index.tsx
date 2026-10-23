@@ -175,6 +175,7 @@ export default function Navbar(): ReactNode {
       </button>
       <Link to="/" className={styles.brand} aria-label="Fortanix Docs, home">
         <Logo className={styles.logo} />
+        <span className={styles.brandDivider} aria-hidden="true" />
         <span className={styles.brandDocs} aria-hidden="true">
           Docs
         </span>

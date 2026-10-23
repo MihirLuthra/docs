@@ -64,8 +64,13 @@
   --fx-header-height: 56px;
   --fx-sidebar-width: 300px;
   --fx-tree-indent: 16px;
-  --fx-tree-row-y: 5px;
+  --fx-tree-row-h: 32px;
   --fx-tree-row-gap: 1px;
+  --fx-tree-divider-gap: 6px;
+  --fx-brand-divider-h: 18px;
+  /* "Docs" in the header lockup: Inter caps at the logo's letter height
+     (16.6px rendered) need 22.75px. */
+  --fx-brand-docs-size: 22.75px;
   --fx-home-max: 980px;
   --fx-recent-card-h: 62px;
   --fx-recent-empty-h: 48px;
@@ -104,6 +109,7 @@
   --fx-border-strong: #d9dce2;
   --fx-link: #7a12cc;
   --fx-link-hover: #4b0a80;
+  --fx-brand-docs: #7a12cc;
   --fx-hover: rgb(19 19 19 / 0.05);
   --fx-selected-bg: #f5edff;
   --fx-selected-text: #4b0a80;
@@ -186,6 +192,7 @@
   --fx-border: #2e2e36;
   --fx-border-strong: #3a3a44;
   --fx-link: #d3a6ff;
+  --fx-brand-docs: #d3a6ff;
   --fx-link-hover: var(--fx-white);
   --fx-hover: rgb(255 255 255 / 0.06);
   --fx-selected-bg: #2c1640;

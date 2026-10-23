@@ -8,14 +8,16 @@
   display: flex;
   align-items: center;
   gap: var(--fx-space-1);
+  box-sizing: border-box;
   width: 100%;
+  height: var(--fx-tree-row-h);
   margin-bottom: var(--fx-tree-row-gap);
-  padding: var(--fx-tree-row-y) var(--fx-space-2) var(--fx-tree-row-y)
+  padding: 0 var(--fx-space-2) 0
     calc(var(--fx-space-2) + var(--depth, 0) * var(--fx-tree-indent));
   border-radius: var(--fx-radius-md);
   color: var(--fx-text);
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.25;
   cursor: pointer;
   user-select: none;
   transition: background-color var(--fx-duration-fast) var(--fx-ease);
@@ -38,20 +40,16 @@
   font-weight: 600;
 }
 
-.home {
-  gap: var(--fx-space-2);
-  margin-bottom: var(--fx-space-1);
-}
-
 /* Home and the top-level sections. */
 .top {
   font-weight: 600;
 }
 
-.divided {
-  margin-top: var(--fx-space-2);
-  padding-top: var(--fx-space-2);
-  border-top: var(--fx-border-width) solid var(--fx-border);
+/* Between top-level sections: its own margin, so rows keep one height. */
+.divider {
+  height: var(--fx-border-width);
+  margin: var(--fx-tree-divider-gap) 0;
+  background-color: var(--fx-border);
 }
 
 /* Thin vertical line per ancestor level, centred under its chevron. */

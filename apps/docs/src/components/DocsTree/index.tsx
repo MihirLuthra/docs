@@ -36,7 +36,7 @@ function Chevron(): ReactNode {
 
 function HomeIcon(): ReactNode {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
       <path
         d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"
         fill="none"
@@ -130,11 +130,14 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
     <nav className={styles.nav} aria-label="Documentation">
       <Link
         to="/"
-        className={clsx(styles.row, styles.home, styles.top, pathname === '/' && styles.selected)}
+        className={clsx(styles.row, styles.top, pathname === '/' && styles.selected)}
         aria-current={pathname === '/' ? 'page' : undefined}
         onClick={onNavigate}>
-        <HomeIcon />
-        Home
+        {/* The icon takes the chevron's slot, so "Home" lines up with the sections. */}
+        <span className={styles.twisty} aria-hidden="true">
+          <HomeIcon />
+        </span>
+        <span className={styles.label}>Home</span>
       </Link>
       <div role="tree" aria-label="Documentation" className={styles.tree}>
         {rows.map((row, index) => {
@@ -169,7 +172,8 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
             </>
           );
           return (
-            <div key={key} className={clsx(depth === 0 && index > 0 && styles.divided)}>
+            <div key={key}>
+              {depth === 0 && index > 0 && <div className={styles.divider} aria-hidden="true" />}
               {isFolder ? (
                 <div {...common} aria-expanded={isOpen} onClick={() => toggle(key)}>
                   {content}

@@ -18,7 +18,7 @@
   display: flex;
   flex: none;
   align-items: center;
-  gap: var(--fx-space-2);
+  gap: var(--fx-space-3);
   color: var(--fx-text);
 }
 
@@ -31,10 +31,21 @@
   display: block;
 }
 
+/* Lockup: logo | Docs */
+.brandDivider {
+  flex: none;
+  width: var(--fx-border-width);
+  height: var(--fx-brand-divider-h);
+  background-color: var(--fx-border);
+}
+
+/* line-height 1 puts Inter's capitals at the centre of the box, so flex
+   centring lines them up with the logo's letters. */
 .brandDocs {
-  color: var(--fx-link);
-  font-size: var(--fx-text-lg);
-  font-weight: 700;
+  color: var(--fx-brand-docs);
+  font-size: var(--fx-brand-docs-size);
+  font-weight: 600;
+  line-height: 1;
 }
 
 .center {
