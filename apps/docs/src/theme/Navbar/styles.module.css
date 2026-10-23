@@ -1,0 +1,164 @@
+/* 996px is Docusaurus's desktop breakpoint (media queries can't use vars). */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--ifm-z-index-fixed);
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-4);
+  height: var(--fx-header-height);
+  padding: 0 var(--fx-space-5);
+  border-bottom: var(--fx-border-width) solid var(--fx-border);
+  background-color: var(--fx-bg);
+  color: var(--fx-text);
+}
+
+.brand {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--fx-space-2);
+  color: var(--fx-text);
+}
+
+.brand:hover {
+  color: var(--fx-text);
+  text-decoration: none;
+}
+
+.logo {
+  display: block;
+}
+
+.brandDocs {
+  color: var(--fx-link);
+  font-size: var(--fx-text-lg);
+  font-weight: 700;
+}
+
+.center {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  gap: var(--fx-space-2);
+  min-width: 0;
+}
+
+.links {
+  display: flex;
+  flex: none;
+  gap: var(--fx-space-4);
+  font-size: var(--fx-text-sm);
+}
+
+.link {
+  color: var(--fx-text-muted);
+}
+
+.link:hover {
+  color: var(--fx-link-hover);
+}
+
+.colorMode {
+  flex: none;
+}
+
+.iconButton {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--fx-space-8);
+  height: var(--fx-space-8);
+  padding: 0;
+  border: 0;
+  border-radius: var(--fx-radius-md);
+  background: transparent;
+  color: var(--fx-text-secondary);
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  background-color: var(--fx-hover);
+}
+
+.menuButton {
+  display: none;
+}
+
+@media (max-width: 996px) {
+  .header {
+    gap: var(--fx-space-2);
+    padding: 0 var(--fx-space-3);
+  }
+
+  .menuButton {
+    display: flex;
+  }
+
+  .links {
+    display: none;
+  }
+}
+
+/* Drawer */
+.drawerRoot {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--ifm-z-index-fixed) + 1);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--fx-backdrop);
+  animation: fade var(--fx-duration-panel) var(--fx-ease);
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(var(--fx-sidebar-width), 85vw);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background-color: var(--fx-bg);
+  box-shadow: var(--fx-shadow-drawer);
+  animation: slide-in var(--fx-duration-panel) var(--fx-ease-out);
+}
+
+.drawerHead {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: var(--fx-header-height);
+  padding: 0 var(--fx-space-3);
+  border-bottom: var(--fx-border-width) solid var(--fx-border);
+}
+
+.drawerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fx-space-2) var(--fx-space-4);
+  padding: var(--fx-space-3) var(--fx-space-5);
+  border-bottom: var(--fx-border-width) solid var(--fx-border);
+  font-size: var(--fx-text-sm);
+}
+
+.drawerLinks a {
+  color: var(--fx-text-secondary);
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(-100%);
+  }
+}

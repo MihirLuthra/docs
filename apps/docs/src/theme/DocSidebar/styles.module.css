@@ -1,0 +1,7 @@
+.sidebar {
+  position: sticky;
+  top: var(--fx-header-height);
+  max-height: calc(100vh - var(--fx-header-height));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}

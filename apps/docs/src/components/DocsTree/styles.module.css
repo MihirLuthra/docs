@@ -1,0 +1,101 @@
+.nav {
+  padding: var(--fx-space-3);
+  font-size: var(--fx-text-sm);
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-1);
+  width: 100%;
+  margin-bottom: var(--fx-tree-row-gap);
+  padding: var(--fx-tree-row-y) var(--fx-space-2) var(--fx-tree-row-y)
+    calc(var(--fx-space-2) + var(--depth, 0) * var(--fx-tree-indent));
+  border-radius: var(--fx-radius-md);
+  color: var(--fx-text);
+  line-height: 1.5;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--fx-duration-fast) var(--fx-ease);
+}
+
+.row:hover {
+  background-color: var(--fx-hover);
+  color: var(--fx-text);
+  text-decoration: none;
+}
+
+.row:focus-visible {
+  outline: var(--fx-focus-width) solid var(--fx-focus);
+  outline-offset: calc(-1 * var(--fx-focus-width));
+}
+
+.row.selected {
+  background-color: var(--fx-selected-bg);
+  color: var(--fx-selected-text);
+  font-weight: 600;
+}
+
+.home {
+  gap: var(--fx-space-2);
+  margin-bottom: var(--fx-space-1);
+  font-weight: 600;
+}
+
+.folder {
+  font-weight: 500;
+}
+
+.divided {
+  margin-top: var(--fx-space-2);
+  padding-top: var(--fx-space-2);
+  border-top: var(--fx-border-width) solid var(--fx-border);
+}
+
+/* Thin vertical line per ancestor level, centred under its chevron. */
+.guide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(
+    var(--fx-space-2) + var(--level) * var(--fx-tree-indent) +
+      var(--fx-tree-indent) / 2
+  );
+  width: var(--fx-border-width);
+  background-color: var(--fx-border);
+}
+
+.twisty {
+  display: flex;
+  flex: none;
+  justify-content: center;
+  width: var(--fx-tree-indent);
+  color: var(--fx-text-muted);
+}
+
+.chevron {
+  transition: transform var(--fx-duration-chevron) var(--fx-ease);
+}
+
+[aria-expanded='true'] > .twisty .chevron {
+  transform: rotate(90deg);
+}
+
+.label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  flex: none;
+  margin-left: auto;
+  padding: 0 var(--fx-space-2);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-pill);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-2xs);
+  font-weight: 600;
+  line-height: 1.6;
+}

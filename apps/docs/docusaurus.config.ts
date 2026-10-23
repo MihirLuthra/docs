@@ -2,6 +2,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import stubNotice from './src/remark/stub-notice';
+import docsTree from './plugins/docs-tree';
 
 // Edit links open GitHub's editor (D12).
 const EDIT_BASE = 'https://github.com/mhrk0/docs/edit/main';
@@ -61,6 +62,8 @@ const config: Config = {
     ],
   ],
 
+  plugins: [docsTree],
+
   themes: [
     [
       '@easyops-cn/docusaurus-search-local',
@@ -78,21 +81,15 @@ const config: Config = {
 
   themeConfig: {
     colorMode: {respectPrefersColorScheme: true},
+    // Read by the custom header (src/theme/Navbar); not part of the tree.
     navbar: {
-      title: '',
-      style: 'dark',
-      logo: {
-        alt: 'Fortanix',
-        src: 'img/fortanix-logo.svg',
-        width: 120,
-        height: 24,
-      },
       items: [
-        {type: 'search', position: 'right'},
+        {label: 'Release notes', to: '/release-notes'},
+        {label: 'Advisories', to: '/advisories'},
+        {label: 'Downloads', to: '/downloads'},
       ],
     },
     footer: {
-      style: 'dark',
       copyright: `© ${new Date().getFullYear()} Fortanix, Inc.`,
     },
     prism: {

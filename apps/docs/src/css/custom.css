@@ -1,6 +1,7 @@
 /**
  * Design tokens. The only place raw colors, fonts, spacing and radii live.
- * Brand values are taken from the --ftx-* variables on fortanix.com.
+ * Brand values are the --ftx-* variables on fortanix.com; UI neutrals and
+ * states follow docs-meta/ux-spec.md and its prototype.
  */
 
 @font-face {
@@ -38,67 +39,84 @@
   --fx-dark-gray: #131313;
   --fx-soft-gray: #f2f4f8;
   --fx-white: #ffffff;
-  --fx-grey-1: #343038;
-  --fx-grey-2: #463b4f;
-  --fx-grey-3: #766484;
-  --fx-grey-4: #b2a5bc;
-  --fx-grey-5: #d0c8d7;
-  --fx-grey-6: #eae1f1;
-  --fx-grey-7: #f7f1fb;
   --fx-gradient: linear-gradient(90deg, var(--fx-purple), var(--fx-blue));
 
   /* Typography */
   --fx-font-sans: 'Montserrat', 'Montserrat Fallback', system-ui, sans-serif;
-  --fx-font-mono: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo,
-    Consolas, monospace;
+  --fx-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas,
+    'Liberation Mono', monospace;
+  --fx-text-2xs: 0.625rem; /* 10px */
+  --fx-text-xs: 0.6875rem; /* 11px */
+  --fx-text-sm: 0.8125rem; /* 13px */
+  --fx-text-md: 0.875rem; /* 14px */
+  --fx-text-lg: 1rem;
 
   /* Spacing scale */
   --fx-space-1: 0.25rem;
   --fx-space-2: 0.5rem;
   --fx-space-3: 0.75rem;
   --fx-space-4: 1rem;
+  --fx-space-5: 1.25rem;
   --fx-space-6: 1.5rem;
   --fx-space-8: 2rem;
   --fx-space-12: 3rem;
-  --fx-space-16: 4rem;
 
   /* Radius */
   --fx-radius-sm: 4px;
-  --fx-radius-md: 8px;
-  --fx-radius-lg: 12px;
+  --fx-radius-md: 6px;
+  --fx-radius-lg: 10px;
+  --fx-radius-xl: 14px;
   --fx-radius-pill: 999px;
 
   /* Layout */
-  --fx-content-max: 1140px;
-  --fx-search-max: 560px;
+  --fx-header-height: 56px;
+  --fx-sidebar-width: 300px;
+  --fx-tree-indent: 16px;
+  --fx-tree-row-y: 5px;
+  --fx-tree-row-gap: 1px;
   --fx-border-width: 1px;
+  --fx-focus-width: 2px;
+
+  /* Motion */
+  --fx-duration-fast: 100ms;
+  --fx-duration-chevron: 150ms;
+  --fx-duration-panel: 200ms;
+  --fx-ease: ease;
+  --fx-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* Semantic colors: light mode */
   --fx-bg: var(--fx-white);
-  --fx-surface: var(--fx-soft-gray);
+  --fx-surface: #f7f8fa;
+  --fx-chip: #f2f3f6;
   --fx-text: var(--fx-dark-gray);
-  --fx-text-muted: var(--fx-grey-3);
-  --fx-link: var(--fx-purple);
-  --fx-link-hover: var(--fx-purple-dark);
-  --fx-border: var(--fx-grey-6);
-  --fx-header-bg: var(--fx-dark-gray);
-  --fx-header-text: var(--fx-white);
-  --fx-header-input-bg: var(--fx-grey-1);
-  --fx-header-input-border: var(--fx-grey-2);
+  --fx-text-secondary: #3d4250;
+  --fx-text-muted: #5b6170;
+  --fx-border: #e6e8ec;
+  --fx-border-strong: #d9dce2;
+  --fx-link: #7a12cc;
+  --fx-link-hover: #4b0a80;
+  --fx-hover: rgb(19 19 19 / 0.05);
+  --fx-selected-bg: #f5edff;
+  --fx-selected-text: #4b0a80;
   --fx-focus: var(--fx-purple);
-  --fx-shadow: 0 8px 24px rgb(64 0 114 / 0.08);
+  --fx-accent-soft: #f7efff;
+  --fx-accent-border: var(--fx-purple-light);
+  --fx-card-hover-border: #c9a2ff;
+  --fx-shadow-card: 0 4px 14px rgb(19 19 19 / 0.06);
+  --fx-shadow-drawer: 16px 0 40px rgb(19 19 19 / 0.12);
+  --fx-backdrop: rgb(19 19 19 / 0.14);
 
   /* Infima mapping */
   --ifm-font-family-base: var(--fx-font-sans);
   --ifm-heading-font-family: var(--fx-font-sans);
   --ifm-font-family-monospace: var(--fx-font-mono);
-  --ifm-color-primary: var(--fx-purple);
-  --ifm-color-primary-dark: var(--fx-purple-dark);
-  --ifm-color-primary-darker: var(--fx-purple-dark);
+  --ifm-color-primary: var(--fx-link);
+  --ifm-color-primary-dark: var(--fx-link-hover);
+  --ifm-color-primary-darker: var(--fx-link-hover);
   --ifm-color-primary-darkest: var(--fx-purple-darkest);
   --ifm-color-primary-light: var(--fx-purple);
   --ifm-color-primary-lighter: var(--fx-purple-light);
-  --ifm-color-primary-lightest: var(--fx-purple-light);
+  --ifm-color-primary-lightest: var(--fx-accent-soft);
   --ifm-background-color: var(--fx-bg);
   --ifm-background-surface-color: var(--fx-bg);
   --ifm-font-color-base: var(--fx-text);
@@ -107,80 +125,101 @@
   --ifm-link-hover-color: var(--fx-link-hover);
   --ifm-toc-border-color: var(--fx-border);
   --ifm-hr-background-color: var(--fx-border);
-  --ifm-code-background: var(--fx-surface);
+  --ifm-color-emphasis-300: var(--fx-border);
+  --ifm-code-background: var(--fx-chip);
   --ifm-global-radius: var(--fx-radius-md);
   --ifm-code-font-size: 95%;
-  --ifm-navbar-background-color: var(--fx-header-bg);
-  --ifm-footer-background-color: var(--fx-header-bg);
+  --ifm-navbar-height: var(--fx-header-height);
+  --ifm-footer-background-color: var(--fx-bg);
+  --doc-sidebar-width: var(--fx-sidebar-width);
   --docusaurus-highlighted-code-line-bg: rgb(153 23 255 / 0.1);
 }
 
 [data-theme='dark'] {
-  /* Semantic colors: dark mode. Links use the light purple because
-     --fx-purple is under 4.5:1 on the dark background. */
   --fx-bg: var(--fx-dark-gray);
-  --fx-surface: var(--fx-grey-1);
-  --fx-text: var(--fx-white);
-  --fx-text-muted: var(--fx-grey-4);
-  --fx-link: var(--fx-purple-light);
+  --fx-surface: #1b1b1f;
+  --fx-chip: #26262c;
+  --fx-text: #f2f2f5;
+  --fx-text-secondary: #c5c9d3;
+  --fx-text-muted: #a3a8b5;
+  --fx-border: #2e2e36;
+  --fx-border-strong: #3a3a44;
+  --fx-link: #d3a6ff;
   --fx-link-hover: var(--fx-white);
-  --fx-border: var(--fx-grey-2);
+  --fx-hover: rgb(255 255 255 / 0.06);
+  --fx-selected-bg: #2c1640;
+  --fx-selected-text: var(--fx-purple-light);
   --fx-focus: var(--fx-purple-light);
-  --fx-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+  --fx-accent-soft: #1f1230;
+  --fx-accent-border: #4b1f75;
+  --fx-card-hover-border: #6b3a99;
+  --fx-shadow-card: 0 4px 14px rgb(0 0 0 / 0.4);
+  --fx-shadow-drawer: 16px 0 40px rgb(0 0 0 / 0.5);
+  --fx-backdrop: rgb(0 0 0 / 0.5);
 
-  --ifm-color-primary: var(--fx-purple-light);
-  --ifm-color-primary-dark: var(--fx-purple-light);
-  --ifm-color-primary-darker: var(--fx-periwinkle);
   --ifm-color-primary-darkest: var(--fx-purple);
   --ifm-color-primary-light: var(--fx-purple-light);
-  --ifm-color-primary-lighter: var(--fx-grey-7);
-  --ifm-color-primary-lightest: var(--fx-white);
+  --ifm-color-primary-lighter: var(--fx-purple-light);
   --docusaurus-highlighted-code-line-bg: rgb(0 0 0 / 0.3);
 }
 
-/* Header: dark in both color modes, as on fortanix.com */
-.navbar {
-  --ifm-navbar-link-color: var(--fx-header-text);
-  --ifm-navbar-link-hover-color: var(--fx-purple-light);
-  --ifm-navbar-link-active-color: var(--fx-purple-light);
-  background-color: var(--fx-header-bg);
-  color: var(--fx-header-text);
-  box-shadow: none;
-  border-bottom: var(--fx-border-width) solid var(--fx-grey-1);
-}
-
-.navbar__logo {
-  height: auto;
-}
-
-.navbar__logo img {
-  width: 120px;
-  height: 24px;
-}
-
-.navbar .navbar__toggle,
-.navbar .clean-btn {
-  color: var(--fx-header-text);
-}
-
-.navbar-sidebar {
+body {
   background-color: var(--fx-bg);
-}
-
-/* Navbar search box (local search plugin) */
-.navbar .navbar__search-input {
-  background-color: var(--fx-header-input-bg);
-  border: var(--fx-border-width) solid var(--fx-header-input-border);
-  color: var(--fx-header-text);
-}
-
-.navbar .navbar__search-input::placeholder {
-  color: var(--fx-grey-4);
+  color: var(--fx-text);
 }
 
 :focus-visible {
-  outline: 2px solid var(--fx-focus);
-  outline-offset: 2px;
+  outline: var(--fx-focus-width) solid var(--fx-focus);
+  outline-offset: var(--fx-focus-width);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Docs layout: the sidebar column starts below the sticky header (Docusaurus
+   pulls it up under its own navbar by default). */
+.theme-doc-sidebar-container {
+  margin-top: 0 !important;
+  clip-path: none !important;
+  border-right: var(--fx-border-width) solid var(--fx-border) !important;
+}
+
+/* Breadcrumbs: a quiet path line above the title. */
+.breadcrumbs {
+  font-size: var(--fx-text-xs);
+}
+
+.breadcrumbs__link {
+  padding: 0;
+  background: none !important;
+  color: var(--fx-text-muted);
+  font-size: inherit;
+}
+
+.breadcrumbs__item--active .breadcrumbs__link {
+  color: var(--fx-text-secondary);
+}
+
+.breadcrumbs__item:not(:last-child)::after {
+  margin: 0 var(--fx-space-1);
+  background: none;
+  content: '/';
+  color: var(--fx-text-muted);
+  opacity: 1;
+}
+
+.footer {
+  border-top: var(--fx-border-width) solid var(--fx-border);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-sm);
 }
 
 .sr-only {
@@ -193,9 +232,4 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
-}
-
-.footer--dark {
-  --ifm-footer-background-color: var(--fx-header-bg);
-  border-top: var(--fx-border-width) solid var(--fx-grey-1);
 }
