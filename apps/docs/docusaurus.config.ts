@@ -4,6 +4,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 import stubNotice from './src/remark/stub-notice';
 import docsTree from './plugins/docs-tree';
 import {recentsHeadScript} from './src/lib/recents';
+import {FONT_URL, fontFaceCss} from './src/lib/fonts';
 
 // Edit links open GitHub's editor (D12).
 const EDIT_BASE = 'https://github.com/mhrk0/docs/edit/main';
@@ -35,13 +36,14 @@ const config: Config = {
   },
 
   headTags: [
+    {tagName: 'style', attributes: {}, innerHTML: fontFaceCss},
     // Lets the home page reserve space for Recently viewed before hydration.
     {tagName: 'script', attributes: {}, innerHTML: recentsHeadScript},
     {
       tagName: 'link',
       attributes: {
         rel: 'preload',
-        href: '/fonts/montserrat-latin-wght-normal.woff2',
+        href: FONT_URL,
         as: 'font',
         type: 'font/woff2',
         crossorigin: 'anonymous',
@@ -75,6 +77,9 @@ const config: Config = {
   clientModules: ['./src/clientModules/recents.ts'],
 
   themeConfig: {
+    // Default for pages without their own description (stubs); pages that
+    // have one replace it.
+    metadata: [{name: 'description', content: 'Documentation for Fortanix products.'}],
     colorMode: {respectPrefersColorScheme: true},
     // Read by the custom header (src/theme/Navbar); not part of the tree.
     navbar: {
