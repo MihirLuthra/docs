@@ -1,0 +1,9 @@
+{
+  "label": "Data Security Manager",
+  "position": 4,
+  "collapsed": true,
+  "link": null,
+  "customProps": {
+    "badge": "standalone"
+  }
+}

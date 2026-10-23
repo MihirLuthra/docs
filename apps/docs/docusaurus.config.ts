@@ -1,22 +1,10 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
-import type {Options as DocsOptions} from '@docusaurus/plugin-content-docs';
-import {products, productPath} from './src/data/products';
+import stubNotice from './src/remark/stub-notice';
 
 // Edit links open GitHub's editor (D12).
 const EDIT_BASE = 'https://github.com/mhrk0/docs/edit/main';
-
-const docsPlugins = products.map((product) => [
-  '@docusaurus/plugin-content-docs',
-  {
-    id: product.id,
-    path: `../../content/${product.id}`,
-    routeBasePath: product.id,
-    sidebarPath: false,
-    editUrl: ({docPath}) => `${EDIT_BASE}/content/${product.id}/${docPath}`,
-  } satisfies DocsOptions,
-]);
 
 const config: Config = {
   title: 'Fortanix Documentation',
@@ -29,7 +17,7 @@ const config: Config = {
 
   onBrokenLinks: 'throw',
   onBrokenAnchors: 'throw',
-  markdown: {hooks: {onBrokenMarkdownLinks: 'throw'}},
+  markdown: {format: 'detect', hooks: {onBrokenMarkdownLinks: 'throw'}},
 
   future: {
     v4: true,
@@ -55,14 +43,23 @@ const config: Config = {
     [
       'classic',
       {
-        docs: false,
+        docs: {
+          path: '../../content',
+          routeBasePath: '/',
+          sidebarPath: './sidebars.ts',
+          // Root-level pages are header links, not part of the tree.
+          sidebarItemsGenerator: async ({defaultSidebarItemsGenerator, ...args}) =>
+            (await defaultSidebarItemsGenerator(args)).filter(
+              (item) => item.type !== 'doc',
+            ),
+          editUrl: ({docPath}) => `${EDIT_BASE}/content/${docPath}`,
+          beforeDefaultRemarkPlugins: [stubNotice],
+        },
         blog: false,
         theme: {customCss: './src/css/custom.css'},
       } satisfies Preset.Options,
     ],
   ],
-
-  plugins: docsPlugins,
 
   themes: [
     [
@@ -71,9 +68,8 @@ const config: Config = {
         hashed: true,
         indexBlog: false,
         indexPages: false,
-        docsRouteBasePath: products.map((p) => p.id),
-        docsDir: products.map((p) => `../../content/${p.id}`),
-        docsPluginIdForPreferredVersion: products[0].id,
+        docsRouteBasePath: '/',
+        docsDir: '../../content',
         highlightSearchTermsOnTargetPage: false,
         searchBarShortcutHint: false,
       },
@@ -92,12 +88,6 @@ const config: Config = {
         height: 24,
       },
       items: [
-        ...products.map((p) => ({
-          to: productPath(p),
-          label: p.shortName,
-          position: 'left' as const,
-          activeBasePath: p.id,
-        })),
         {type: 'search', position: 'right'},
       ],
     },
