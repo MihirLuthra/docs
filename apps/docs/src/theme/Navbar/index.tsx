@@ -5,6 +5,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import NavbarColorModeToggle from '@theme/Navbar/ColorModeToggle';
 import DocsTree from '@site/src/components/DocsTree';
 import Logo from '@site/src/components/Logo';
+import {useOverlays} from '@site/src/components/Overlays/context';
 import styles from './styles.module.css';
 
 type HeaderLink = {label: string; to: string};
@@ -27,6 +28,37 @@ function CloseIcon(): ReactNode {
     <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2.5" />
     </svg>
+  );
+}
+
+function SearchIcon(): ReactNode {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+      <path d="M20 20l-3.5-3.5" fill="none" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  );
+}
+
+function SearchTrigger(): ReactNode {
+  const {openSearch} = useOverlays();
+  // "Ctrl K" until hydrated; the hint has a fixed width, so swapping it for
+  // "⌘K" on Apple devices doesn't move anything.
+  const [isApple, setIsApple] = useState(false);
+  useEffect(() => setIsApple(/Mac|iPhone|iPad/.test(navigator.platform)), []);
+  return (
+    <button
+      type="button"
+      className={styles.searchTrigger}
+      onClick={openSearch}
+      aria-label="Search the docs"
+      aria-keyshortcuts="Control+K Meta+K /">
+      <SearchIcon />
+      <span className={styles.searchText}>Search the docs</span>
+      <kbd className={styles.searchKbd} aria-hidden="true">
+        {isApple ? '⌘K' : 'Ctrl K'}
+      </kbd>
+    </button>
   );
 }
 
@@ -126,7 +158,9 @@ export default function Navbar(): ReactNode {
           Docs
         </span>
       </Link>
-      <div className={styles.center} />
+      <div className={styles.center}>
+        <SearchTrigger />
+      </div>
       <nav aria-label="Site" className={styles.links}>
         {links.map((l) => (
           <Link key={l.to} to={l.to} className={styles.link}>

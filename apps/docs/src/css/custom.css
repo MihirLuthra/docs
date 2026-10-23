@@ -51,6 +51,7 @@
   --fx-text-md: 0.875rem; /* 14px */
   --fx-text-lg: 1rem;
   --fx-text-xl: 1.0625rem; /* 17px */
+  --fx-text-2xl: 1.125rem; /* 18px */
 
   /* Spacing scale */
   --fx-space-1: 0.25rem;
@@ -68,6 +69,7 @@
   --fx-radius-md: 6px;
   --fx-radius-lg: 10px;
   --fx-radius-xl: 14px;
+  --fx-radius-2xl: 16px;
   --fx-radius-pill: 999px;
 
   /* Layout */
@@ -80,6 +82,16 @@
   --fx-recent-card-h: 62px;
   --fx-recent-empty-h: 48px;
   --fx-recent-more-h: 26px;
+  --fx-search-top: 88px;
+  --fx-search-width: 680px;
+  --fx-search-input-h: 60px;
+  --fx-search-results-max: 440px;
+  --fx-search-trigger-w: 420px;
+  --fx-control-h: 36px;
+  --fx-kind-tile-md: 30px;
+  --fx-kind-icon-md: 15px;
+  --fx-kind-tile-sm: 20px;
+  --fx-kind-icon-sm: 11px;
   --fx-border-width: 1px;
   --fx-focus-width: 2px;
 
@@ -113,6 +125,35 @@
   --fx-shadow-card: 0 4px 14px rgb(19 19 19 / 0.06);
   --fx-shadow-drawer: 16px 0 40px rgb(19 19 19 / 0.12);
   --fx-backdrop: rgb(19 19 19 / 0.14);
+
+  /* Search modal (ux-spec.md): translucent glass, solid fallback */
+  --fx-glass-bg: rgb(255 255 255 / 0.8);
+  --fx-glass-solid: var(--fx-white);
+  --fx-glass-filter: blur(28px) saturate(180%);
+  --fx-glass-border: rgb(255 255 255 / 0.6);
+  --fx-glass-divider: rgb(19 19 19 / 0.08);
+  --fx-search-backdrop: rgb(19 19 19 / 0.14);
+  --fx-search-active: rgb(153 23 255 / 0.1);
+  --fx-search-match: rgb(153 23 255 / 0.16);
+  --fx-shadow-modal: 0 30px 80px rgb(19 19 19 / 0.25), inset 0 0 0 1px rgb(19 19 19 / 0.06);
+
+  /* Kinds (ux-spec.md, Kind icons): icon/text colour and tile tint */
+  --fx-kind-solution: #7a12cc;
+  --fx-kind-solution-tint: #f3e8ff;
+  --fx-kind-product: #1f5fcc;
+  --fx-kind-product-tint: #e8f0ff;
+  --fx-kind-concept: #8a5a00;
+  --fx-kind-concept-tint: #fff4d6;
+  --fx-kind-quickstart: #0e7a47;
+  --fx-kind-quickstart-tint: #e3f7ec;
+  --fx-kind-guide: #3d4250;
+  --fx-kind-guide-tint: #eef0f3;
+  --fx-kind-reference: #00708f;
+  --fx-kind-reference-tint: #e2f5fa;
+  --fx-kind-tutorial: #b4235a;
+  --fx-kind-tutorial-tint: #fde8f0;
+  --fx-kind-section: #5b6170;
+  --fx-kind-section-tint: #eef0f3;
 
   /* Infima mapping */
   --ifm-font-family-base: var(--fx-font-sans);
@@ -166,6 +207,32 @@
   --fx-shadow-card: 0 4px 14px rgb(0 0 0 / 0.4);
   --fx-shadow-drawer: 16px 0 40px rgb(0 0 0 / 0.5);
   --fx-backdrop: rgb(0 0 0 / 0.5);
+
+  --fx-glass-bg: rgb(27 27 31 / 0.8);
+  --fx-glass-solid: #1b1b1f;
+  --fx-glass-border: rgb(255 255 255 / 0.08);
+  --fx-glass-divider: rgb(255 255 255 / 0.08);
+  --fx-search-backdrop: rgb(0 0 0 / 0.4);
+  --fx-search-active: rgb(211 166 255 / 0.14);
+  --fx-search-match: rgb(211 166 255 / 0.28);
+  --fx-shadow-modal: 0 30px 80px rgb(0 0 0 / 0.6), inset 0 0 0 1px rgb(255 255 255 / 0.06);
+
+  --fx-kind-solution: #d0a6ff;
+  --fx-kind-solution-tint: #2a1a3d;
+  --fx-kind-product: #9dbcff;
+  --fx-kind-product-tint: #18243d;
+  --fx-kind-concept: #f0c060;
+  --fx-kind-concept-tint: #33280f;
+  --fx-kind-quickstart: #6ad9a0;
+  --fx-kind-quickstart-tint: #12301f;
+  --fx-kind-guide: #c5c9d3;
+  --fx-kind-guide-tint: #26262c;
+  --fx-kind-reference: #6dd3ec;
+  --fx-kind-reference-tint: #0f2d36;
+  --fx-kind-tutorial: #f59bbd;
+  --fx-kind-tutorial-tint: #3a1726;
+  --fx-kind-section: #a3a8b5;
+  --fx-kind-section-tint: #26262c;
 
   --ifm-color-primary-darkest: var(--fx-purple);
   --ifm-color-primary-light: var(--fx-purple-light);

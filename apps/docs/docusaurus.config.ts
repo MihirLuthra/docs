@@ -68,21 +68,6 @@ const config: Config = {
   plugins: [docsTree],
   clientModules: ['./src/clientModules/recents.ts'],
 
-  themes: [
-    [
-      '@easyops-cn/docusaurus-search-local',
-      {
-        hashed: true,
-        indexBlog: false,
-        indexPages: false,
-        docsRouteBasePath: '/',
-        docsDir: '../../content',
-        highlightSearchTermsOnTargetPage: false,
-        searchBarShortcutHint: false,
-      },
-    ],
-  ],
-
   themeConfig: {
     colorMode: {respectPrefersColorScheme: true},
     // Read by the custom header (src/theme/Navbar); not part of the tree.

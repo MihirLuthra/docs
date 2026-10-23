@@ -1,0 +1,74 @@
+.Solution {
+  --kind: var(--fx-kind-solution);
+  --kind-tint: var(--fx-kind-solution-tint);
+}
+.Product {
+  --kind: var(--fx-kind-product);
+  --kind-tint: var(--fx-kind-product-tint);
+}
+.Concept {
+  --kind: var(--fx-kind-concept);
+  --kind-tint: var(--fx-kind-concept-tint);
+}
+.Quickstart {
+  --kind: var(--fx-kind-quickstart);
+  --kind-tint: var(--fx-kind-quickstart-tint);
+}
+.Guide {
+  --kind: var(--fx-kind-guide);
+  --kind-tint: var(--fx-kind-guide-tint);
+}
+.Reference {
+  --kind: var(--fx-kind-reference);
+  --kind-tint: var(--fx-kind-reference-tint);
+}
+.Tutorial {
+  --kind: var(--fx-kind-tutorial);
+  --kind-tint: var(--fx-kind-tutorial-tint);
+}
+.Section {
+  --kind: var(--fx-kind-section);
+  --kind-tint: var(--fx-kind-section-tint);
+}
+
+.tile {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--kind-tint);
+  color: var(--kind);
+}
+
+.md {
+  width: var(--fx-kind-tile-md);
+  height: var(--fx-kind-tile-md);
+  border-radius: var(--fx-radius-lg);
+}
+
+.md svg {
+  width: var(--fx-kind-icon-md);
+  height: var(--fx-kind-icon-md);
+}
+
+.sm {
+  width: var(--fx-kind-tile-sm);
+  height: var(--fx-kind-tile-sm);
+  border-radius: var(--fx-radius-sm);
+}
+
+.sm svg {
+  width: var(--fx-kind-icon-sm);
+  height: var(--fx-kind-icon-sm);
+}
+
+.pill {
+  flex: none;
+  padding: 0 var(--fx-space-2);
+  border-radius: var(--fx-radius-pill);
+  background-color: var(--kind-tint);
+  color: var(--kind);
+  font-size: var(--fx-text-xs);
+  font-weight: 600;
+  line-height: 1.6;
+}
