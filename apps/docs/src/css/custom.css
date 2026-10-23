@@ -1,0 +1,201 @@
+/**
+ * Design tokens. The only place raw colors, fonts, spacing and radii live.
+ * Brand values are taken from the --ftx-* variables on fortanix.com.
+ */
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/montserrat-latin-wght-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Arial adjusted to Montserrat's metrics so the font swap doesn't shift layout. */
+@font-face {
+  font-family: 'Montserrat Fallback';
+  src: local('Arial');
+  ascent-override: 85.79%;
+  descent-override: 22.25%;
+  line-gap-override: 0%;
+  size-adjust: 112.83%;
+}
+
+:root {
+  /* Brand palette (fortanix.com) */
+  --fx-purple: #9917ff;
+  --fx-purple-dark: #6400b3;
+  --fx-purple-darkest: #400072;
+  --fx-purple-light: #e2bcff;
+  --fx-blue: #00bfff;
+  --fx-periwinkle: #a3a7ff;
+  --fx-green: #1bd37d;
+  --fx-yellow: #ffe602;
+  --fx-red: #ff5a4f;
+  --fx-dark-gray: #131313;
+  --fx-soft-gray: #f2f4f8;
+  --fx-white: #ffffff;
+  --fx-grey-1: #343038;
+  --fx-grey-2: #463b4f;
+  --fx-grey-3: #766484;
+  --fx-grey-4: #b2a5bc;
+  --fx-grey-5: #d0c8d7;
+  --fx-grey-6: #eae1f1;
+  --fx-grey-7: #f7f1fb;
+  --fx-gradient: linear-gradient(90deg, var(--fx-purple), var(--fx-blue));
+
+  /* Typography */
+  --fx-font-sans: 'Montserrat', 'Montserrat Fallback', system-ui, sans-serif;
+  --fx-font-mono: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
+
+  /* Spacing scale */
+  --fx-space-1: 0.25rem;
+  --fx-space-2: 0.5rem;
+  --fx-space-3: 0.75rem;
+  --fx-space-4: 1rem;
+  --fx-space-6: 1.5rem;
+  --fx-space-8: 2rem;
+  --fx-space-12: 3rem;
+  --fx-space-16: 4rem;
+
+  /* Radius */
+  --fx-radius-sm: 4px;
+  --fx-radius-md: 8px;
+  --fx-radius-lg: 12px;
+  --fx-radius-pill: 999px;
+
+  /* Layout */
+  --fx-content-max: 1140px;
+  --fx-search-max: 560px;
+  --fx-border-width: 1px;
+
+  /* Semantic colors: light mode */
+  --fx-bg: var(--fx-white);
+  --fx-surface: var(--fx-soft-gray);
+  --fx-text: var(--fx-dark-gray);
+  --fx-text-muted: var(--fx-grey-3);
+  --fx-link: var(--fx-purple);
+  --fx-link-hover: var(--fx-purple-dark);
+  --fx-border: var(--fx-grey-6);
+  --fx-header-bg: var(--fx-dark-gray);
+  --fx-header-text: var(--fx-white);
+  --fx-header-input-bg: var(--fx-grey-1);
+  --fx-header-input-border: var(--fx-grey-2);
+  --fx-focus: var(--fx-purple);
+  --fx-shadow: 0 8px 24px rgb(64 0 114 / 0.08);
+
+  /* Infima mapping */
+  --ifm-font-family-base: var(--fx-font-sans);
+  --ifm-heading-font-family: var(--fx-font-sans);
+  --ifm-font-family-monospace: var(--fx-font-mono);
+  --ifm-color-primary: var(--fx-purple);
+  --ifm-color-primary-dark: var(--fx-purple-dark);
+  --ifm-color-primary-darker: var(--fx-purple-dark);
+  --ifm-color-primary-darkest: var(--fx-purple-darkest);
+  --ifm-color-primary-light: var(--fx-purple);
+  --ifm-color-primary-lighter: var(--fx-purple-light);
+  --ifm-color-primary-lightest: var(--fx-purple-light);
+  --ifm-background-color: var(--fx-bg);
+  --ifm-background-surface-color: var(--fx-bg);
+  --ifm-font-color-base: var(--fx-text);
+  --ifm-heading-color: var(--fx-text);
+  --ifm-link-color: var(--fx-link);
+  --ifm-link-hover-color: var(--fx-link-hover);
+  --ifm-toc-border-color: var(--fx-border);
+  --ifm-hr-background-color: var(--fx-border);
+  --ifm-code-background: var(--fx-surface);
+  --ifm-global-radius: var(--fx-radius-md);
+  --ifm-code-font-size: 95%;
+  --ifm-navbar-background-color: var(--fx-header-bg);
+  --ifm-footer-background-color: var(--fx-header-bg);
+  --docusaurus-highlighted-code-line-bg: rgb(153 23 255 / 0.1);
+}
+
+[data-theme='dark'] {
+  /* Semantic colors: dark mode. Links use the light purple because
+     --fx-purple is under 4.5:1 on the dark background. */
+  --fx-bg: var(--fx-dark-gray);
+  --fx-surface: var(--fx-grey-1);
+  --fx-text: var(--fx-white);
+  --fx-text-muted: var(--fx-grey-4);
+  --fx-link: var(--fx-purple-light);
+  --fx-link-hover: var(--fx-white);
+  --fx-border: var(--fx-grey-2);
+  --fx-focus: var(--fx-purple-light);
+  --fx-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+
+  --ifm-color-primary: var(--fx-purple-light);
+  --ifm-color-primary-dark: var(--fx-purple-light);
+  --ifm-color-primary-darker: var(--fx-periwinkle);
+  --ifm-color-primary-darkest: var(--fx-purple);
+  --ifm-color-primary-light: var(--fx-purple-light);
+  --ifm-color-primary-lighter: var(--fx-grey-7);
+  --ifm-color-primary-lightest: var(--fx-white);
+  --docusaurus-highlighted-code-line-bg: rgb(0 0 0 / 0.3);
+}
+
+/* Header: dark in both color modes, as on fortanix.com */
+.navbar {
+  --ifm-navbar-link-color: var(--fx-header-text);
+  --ifm-navbar-link-hover-color: var(--fx-purple-light);
+  --ifm-navbar-link-active-color: var(--fx-purple-light);
+  background-color: var(--fx-header-bg);
+  color: var(--fx-header-text);
+  box-shadow: none;
+  border-bottom: var(--fx-border-width) solid var(--fx-grey-1);
+}
+
+.navbar__logo {
+  height: auto;
+}
+
+.navbar__logo img {
+  width: 120px;
+  height: 24px;
+}
+
+.navbar .navbar__toggle,
+.navbar .clean-btn {
+  color: var(--fx-header-text);
+}
+
+.navbar-sidebar {
+  background-color: var(--fx-bg);
+}
+
+/* Navbar search box (local search plugin) */
+.navbar .navbar__search-input {
+  background-color: var(--fx-header-input-bg);
+  border: var(--fx-border-width) solid var(--fx-header-input-border);
+  color: var(--fx-header-text);
+}
+
+.navbar .navbar__search-input::placeholder {
+  color: var(--fx-grey-4);
+}
+
+:focus-visible {
+  outline: 2px solid var(--fx-focus);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.footer--dark {
+  --ifm-footer-background-color: var(--fx-header-bg);
+  border-top: var(--fx-border-width) solid var(--fx-grey-1);
+}

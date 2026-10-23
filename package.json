@@ -1,0 +1,11 @@
+{
+  "name": "fortanix-docs",
+  "private": true,
+  "packageManager": "pnpm@12.15.0",
+  "scripts": {
+    "start": "pnpm --filter docs start",
+    "build": "pnpm --filter docs build",
+    "serve": "pnpm --filter docs serve",
+    "typecheck": "pnpm --filter docs typecheck"
+  }
+}

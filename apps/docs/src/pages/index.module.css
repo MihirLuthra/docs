@@ -1,0 +1,117 @@
+.hero {
+  padding: var(--fx-space-12) var(--fx-space-4);
+  background-color: var(--fx-surface);
+  border-bottom: var(--fx-border-width) solid var(--fx-border);
+}
+
+.heroInner {
+  max-width: var(--fx-content-max);
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 var(--fx-space-6);
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.title::after {
+  content: '';
+  display: block;
+  width: var(--fx-space-16);
+  height: var(--fx-space-1);
+  margin: var(--fx-space-4) auto 0;
+  border-radius: var(--fx-radius-pill);
+  background: var(--fx-gradient);
+}
+
+.search {
+  display: flex;
+  gap: var(--fx-space-2);
+  max-width: var(--fx-search-max);
+  margin: 0 auto;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  padding: var(--fx-space-3) var(--fx-space-4);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-md);
+  background-color: var(--fx-bg);
+  color: var(--fx-text);
+  font: inherit;
+}
+
+.searchInput::placeholder {
+  color: var(--fx-text-muted);
+}
+
+.searchButton {
+  padding: var(--fx-space-3) var(--fx-space-4);
+  border: 0;
+  border-radius: var(--fx-radius-md);
+  background-color: var(--fx-purple);
+  color: var(--fx-white);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.searchButton:hover {
+  background-color: var(--fx-purple-dark);
+}
+
+.main {
+  max-width: var(--fx-content-max);
+  margin: 0 auto;
+  padding: var(--fx-space-12) var(--fx-space-4);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: var(--fx-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--fx-space-6);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-top: var(--fx-space-1) solid var(--fx-purple);
+  border-radius: var(--fx-radius-lg);
+  background-color: var(--fx-bg);
+  box-shadow: var(--fx-shadow);
+}
+
+.cardTitle {
+  margin: 0 0 var(--fx-space-2);
+  font-size: 1.25rem;
+}
+
+.cardTitle a {
+  color: var(--fx-text);
+}
+
+.cardDescription {
+  flex: 1;
+  margin: 0 0 var(--fx-space-4);
+  color: var(--fx-text-muted);
+}
+
+.cardLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fx-space-2) var(--fx-space-4);
+  margin: 0;
+  padding: var(--fx-space-4) 0 0;
+  border-top: var(--fx-border-width) solid var(--fx-border);
+  list-style: none;
+  font-weight: 600;
+}
