@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Docs — search bar, AI panel and recents</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#7A12CC;text-decoration:none}a:hover{color:#4B0A80}
+.row{cursor:pointer;transition:background-color 100ms ease}
+.row.hov:hover{background:rgba(19,19,19,0.05) !important}
+.row:focus-visible,.card:focus-visible,.x:focus-visible,.btn:focus-visible{outline:2px solid #9917FF;outline-offset:-2px}
+.card{cursor:pointer;transition:border-color 120ms ease, box-shadow 120ms ease}
+.card:hover{border-color:#C9A2FF !important;box-shadow:0 4px 14px rgba(19,19,19,0.06)}
+.chev{transition:transform 150ms ease}
+.x{opacity:0.55;transition:opacity 100ms ease, background-color 100ms ease}
+.rc:hover .x{opacity:1}
+.x:hover{background:#F2F3F6 !important}
+.btn{cursor:pointer}
+@keyframes pop{from{opacity:0;transform:translateY(-8px) scale(0.98)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes slide{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+@keyframes shimmer{0%{opacity:0.55}50%{opacity:1}100%{opacity:0.55}}
+</style>
+</helmet>
+<div style="position: relative; font-family: Inter, system-ui, sans-serif; color: #131313; background: #FFFFFF; font-size: 14px; line-height: 1.5; min-height: 1000px; overflow: hidden">
+  <header style="height: 56px; border-bottom: 1px solid #E6E8EC; display: flex; align-items: center; gap: 16px; padding: 0 20px">
+    <button type="button" onClick="{{goHome}}" style="border: 0; background: transparent; font: inherit; font-weight: 700; font-size: 16px; color: #131313; cursor: pointer; padding: 0; flex: none">Fortanix <span style="color: #7A12CC">Docs</span></button>
+    <div style="flex: 1; display: flex; justify-content: center; gap: 8px; min-width: 0">
+      <button type="button" class="btn" onClick="{{openSearch}}" style="width: 420px; max-width: 100%; height: 36px; display: flex; align-items: center; gap: 10px; padding: 0 12px; border: 1px solid #D9DCE2; border-radius: 10px; background: #F7F8FA; font: inherit; color: #5B6170; text-align: left">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <span style="flex: 1">Search the docs</span>
+        <span aria-hidden="true" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; border: 1px solid #D9DCE2; border-radius: 4px; padding: 0 6px; background: #FFFFFF">⌘K</span>
+      </button>
+      <button type="button" class="btn" onClick="{{openAI}}" style="height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border: 1px solid {{aiBtnBorder}}; border-radius: 10px; background: {{aiBtnBg}}; font: inherit; font-weight: 600; color: #4B0A80; flex: none">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"></path></svg>
+        Ask AI
+      </button>
+    </div>
+    <nav style="display: flex; gap: 18px; flex: none; font-size: 13px"><a href="#" style="color: #5B6170">Release notes</a><a href="#" style="color: #5B6170">Advisories</a><a href="#" style="color: #5B6170">Downloads</a></nav>
+  </header>
+
+  <div style="display: flex; flex-wrap: wrap">
+    <nav aria-label="Documentation" style="flex: 1 1 270px; max-width: 300px; border-right: 1px solid #E6E8EC; padding: 12px; box-sizing: border-box; min-height: 944px; font-size: 13.5px">
+      <button type="button" class="row {{homeCls}}" onClick="{{goHome}}" style="width: 100%; display: flex; align-items: center; gap: 8px; text-align: left; border: 0; border-radius: 6px; padding: 6px 8px; margin-bottom: 4px; font: inherit; font-weight: 600; background: {{homeBg}}; color: {{homeColor}}">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Home
+      </button>
+      <div role="tree" aria-label="Documentation">
+        <sc-for list="{{rows}}" as="it" hint-placeholder-count="8">
+          <div>
+            <sc-if value="{{it.gap}}" hint-placeholder-val="{{ false }}"><div style="height: 1px; background: #E6E8EC; margin: 8px 4px"></div></sc-if>
+            <button type="button" role="treeitem" aria-expanded="{{it.ariaExp}}" class="row {{it.cls}}" onClick="{{it.go}}" style="position: relative; width: 100%; display: flex; align-items: center; gap: 4px; text-align: left; border: 0; border-radius: 6px; padding: 5px 8px 5px {{it.pad}}px; margin-bottom: 1px; font: inherit; background: {{it.bg}}; color: {{it.color}}; font-weight: {{it.weight}}">
+              <sc-for list="{{it.guides}}" as="g" hint-placeholder-count="0">
+                <span aria-hidden="true" style="position: absolute; left: {{g.x}}px; top: 0; bottom: 0; width: 1px; background: #E6E8EC"></span>
+              </sc-for>
+              <span aria-hidden="true" style="width: 16px; flex: none; display: flex; justify-content: center">
+                <sc-if value="{{it.kids}}" hint-placeholder-val="{{ false }}">
+                  <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5B6170" stroke-width="2.5" style="transform: rotate({{it.rot}}deg)"><path d="M9 6l6 6-6 6"></path></svg>
+                </sc-if>
+              </span>
+              <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{it.t}}</span>
+              <sc-if value="{{it.note}}" hint-placeholder-val="{{ false }}"><span style="margin-left: auto; font-size: 10px; font-weight: 600; color: #5B6170; border: 1px solid #E6E8EC; border-radius: 999px; padding: 0 6px; flex: none">standalone</span></sc-if>
+            </button>
+          </div>
+        </sc-for>
+      </div>
+    </nav>
+
+    <main style="flex: 999 1 600px; min-width: 0; padding: 28px 44px 56px; max-width: 980px">
+      <sc-if value="{{isHome}}" hint-placeholder-val="{{ true }}">
+        <div>
+          <button type="button" class="card" onClick="{{goFamiliar}}" style="width: 100%; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; text-align: left; border: 1px solid #E2BCFF; border-radius: 14px; padding: 18px 20px; margin-bottom: 30px; background: #F7EFFF; font: inherit; color: #131313">
+            <span style="width: 40px; height: 40px; border-radius: 10px; background: #9917FF; display: flex; align-items: center; justify-content: center; flex: none">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM15.5 8.5l-2 5-5 2 2-5z"></path></svg>
+            </span>
+            <span style="flex: 1 1 320px">
+              <span style="display: block; font-size: 17px; font-weight: 700">New to Fortanix? Get familiar first</span>
+              <span style="display: block; font-size: 13px; color: #3D4250">What the Armor platform does, confidential computing, attestation and key management, in a few short reads.</span>
+            </span>
+            <span style="flex: none; background: #131313; color: #FFFFFF; border-radius: 8px; padding: 8px 14px; font-weight: 600; font-size: 13px">Start reading →</span>
+          </button>
+
+          <h2 style="margin: 0 0 10px; font-size: 15px; font-weight: 700">Recently viewed</h2>
+          <sc-if value="{{hasRecents}}" hint-placeholder-val="{{ true }}">
+            <div style="margin-bottom: 32px">
+              <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+                <sc-for list="{{recents}}" as="rc" hint-placeholder-count="6">
+                  <div class="rc" style="position: relative">
+                    <button type="button" class="card" onClick="{{rc.go}}" style="width: 100%; text-align: left; border: 1px solid #E6E8EC; border-radius: 10px; padding: 10px 34px 10px 12px; background: #FFFFFF; font: inherit; color: #131313">
+                      <span style="display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{rc.t}}</span>
+                      <span style="display: block; font-size: 12px; color: #5B6170; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{rc.path}}</span>
+                    </button>
+                    <button type="button" class="x" onClick="{{rc.remove}}" aria-label="Remove {{rc.t}} from recently viewed" style="position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border: 0; border-radius: 6px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #3D4250">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                    </button>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{canToggle}}" hint-placeholder-val="{{ true }}">
+                <button type="button" onClick="{{toggleMore}}" style="display: flex; align-items: center; gap: 6px; margin: 10px auto 0; border: 1px solid #E6E8EC; border-radius: 999px; padding: 4px 14px; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; color: #3D4250; cursor: pointer">{{moreLabel}}</button>
+              </sc-if>
+            </div>
+          </sc-if>
+          <sc-if value="{{noRecents}}" hint-placeholder-val="{{ false }}">
+            <p style="margin: 0 0 32px; padding: 12px 14px; border: 1px dashed #D9DCE2; border-radius: 10px; color: #5B6170; font-size: 13px">Pages you open show up here.</p>
+          </sc-if>
+
+          <h2 style="margin: 0 0 12px; font-size: 15px; font-weight: 700">Explore Fortanix</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px">
+            <sc-for list="{{featured}}" as="f" hint-placeholder-count="6">
+              <button type="button" class="card" onClick="{{f.go}}" style="text-align: left; border: 1px solid #E6E8EC; border-radius: 12px; padding: 16px; background: #FFFFFF; font: inherit; color: #131313; display: flex; flex-direction: column; gap: 6px">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #5B6170">{{f.path}}</span>
+                <span style="font-size: 16px; font-weight: 700">{{f.t}}</span>
+                <span style="font-size: 13px; color: #3D4250">{{f.line}}</span>
+                <span style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px">
+                  <sc-for list="{{f.tags}}" as="tg" hint-placeholder-count="3">
+                    <span style="font-size: 11px; color: #3D4250; background: #F2F3F6; border-radius: 4px; padding: 1px 6px">{{tg.t}}</span>
+                  </sc-for>
+                </span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{notHome}}" hint-placeholder-val="{{ false }}">
+        <div>
+          <p style="margin: 0 0 6px; font-size: 12px; color: #5B6170">{{crumbs}}</p>
+          <h1 style="margin: 0 0 16px; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">{{pageTitle}}</h1>
+          <div aria-hidden="true">
+            <div style="height: 12px; width: 80%; background: #EEF0F3; border-radius: 6px; margin-bottom: 12px"></div>
+            <div style="height: 12px; width: 92%; background: #EEF0F3; border-radius: 6px; margin-bottom: 12px"></div>
+            <div style="height: 12px; width: 64%; background: #EEF0F3; border-radius: 6px; margin-bottom: 28px"></div>
+            <div style="height: 120px; width: 100%; background: #F7F8FA; border: 1px solid #E6E8EC; border-radius: 10px"></div>
+          </div>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+
+  <sc-if value="{{aiOpen}}" hint-placeholder-val="{{ false }}">
+    <aside aria-label="Ask AI" style="position: absolute; top: 56px; right: 0; bottom: 0; width: 400px; max-width: 100%; z-index: 15; background: #FFFFFF; border-left: 1px solid #E6E8EC; box-shadow: -16px 0 40px rgba(19,19,19,0.08); display: flex; flex-direction: column; animation: slide 200ms cubic-bezier(0.2, 0.8, 0.2, 1)">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid #E6E8EC">
+        <span style="width: 28px; height: 28px; border-radius: 8px; background: #F5EDFF; display: flex; align-items: center; justify-content: center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7A12CC" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"></path></svg></span>
+        <span style="flex: 1"><span style="display: block; font-weight: 700">Ask AI</span><span style="display: block; font-size: 12px; color: #5B6170">Answers come from these docs, with sources</span></span>
+        <button type="button" class="btn" onClick="{{closeAI}}" aria-label="Close Ask AI" style="width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; display: flex; align-items: center; justify-content: center; color: #3D4250"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      </div>
+      <div style="flex: 1; overflow-y: auto; padding: 16px">
+        <sc-if value="{{aiEmpty}}" hint-placeholder-val="{{ true }}">
+          <div>
+            <p style="margin: 0 0 10px; font-size: 13px; color: #3D4250">Ask anything about Fortanix. Try:</p>
+            <sc-for list="{{aiPrompts}}" as="ap" hint-placeholder-count="3">
+              <button type="button" class="row hov" onClick="{{ap.go}}" style="width: 100%; text-align: left; border: 1px solid #E6E8EC; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; font: inherit; font-size: 13px; background: #FFFFFF; color: #131313">{{ap.t}}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{aiHasQ}}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 14px"><span style="max-width: 85%; background: #131313; color: #FFFFFF; border-radius: 14px 14px 4px 14px; padding: 8px 12px; font-size: 13px">{{aiQ}}</span></div>
+            <div style="border: 1px solid #E6E8EC; border-radius: 14px 14px 14px 4px; padding: 12px 14px; background: #FAFBFC">
+              <div aria-hidden="true" style="animation: shimmer 1.6s ease-in-out infinite">
+                <div style="height: 10px; width: 92%; background: #E6E8EC; border-radius: 5px; margin-bottom: 9px"></div>
+                <div style="height: 10px; width: 84%; background: #E6E8EC; border-radius: 5px; margin-bottom: 9px"></div>
+                <div style="height: 10px; width: 60%; background: #E6E8EC; border-radius: 5px; margin-bottom: 14px"></div>
+              </div>
+              <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6170">Sources</p>
+              <sc-for list="{{aiSources}}" as="src" hint-placeholder-count="3">
+                <button type="button" class="row hov" onClick="{{src.go}}" style="width: 100%; display: flex; align-items: center; gap: 8px; text-align: left; border: 0; border-radius: 8px; padding: 6px 8px; font: inherit; font-size: 12px; background: transparent; color: #131313">
+                  <span style="width: 20px; height: 20px; border-radius: 5px; background: {{src.tint}}; display: flex; align-items: center; justify-content: center; flex: none"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="{{src.color}}" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="{{src.icon}}"></path></svg></span>
+                  <span style="min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><strong>{{src.t}}</strong> <span style="color: #5B6170">· {{src.path}}</span></span>
+                </button>
+              </sc-for>
+              <sc-if value="{{aiNoSources}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 12px; color: #5B6170">No matching pages; the answer would say so rather than guess.</p></sc-if>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+      <div style="padding: 12px 16px; border-top: 1px solid #E6E8EC">
+        <label style="display: flex; align-items: center; gap: 8px; border: 1px solid #D9DCE2; border-radius: 12px; padding: 0 6px 0 12px; height: 44px">
+          <input type="text" value="{{aiDraft}}" onChange="{{onAIDraft}}" onKeyDown="{{onAIKey}}" placeholder="Ask a question" aria-label="Ask a question" style="border: 0; font: inherit; flex: 1; min-width: 0; outline: none; background: transparent">
+          <button type="button" class="btn" onClick="{{sendAI}}" aria-label="Send" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: #9917FF; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+        </label>
+        <p style="margin: 6px 2px 0; font-size: 11px; color: #5B6170">Scope: all docs · AI answers can be wrong; check the sources.</p>
+      </div>
+    </aside>
+  </sc-if>
+
+  <sc-if value="{{searchOpen}}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{closeSearch}}" style="position: absolute; inset: 0; z-index: 20; background: rgba(19,19,19,0.14); animation: fade 120ms ease; display: flex; justify-content: center; align-items: flex-start; padding-top: 88px">
+      <div role="dialog" aria-label="Search" onClick="{{stop}}" style="width: 680px; max-width: calc(100% - 32px); background: rgba(255,255,255,0.80); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%); border: 1px solid rgba(255,255,255,0.6); border-radius: 16px; box-shadow: 0 30px 80px rgba(19,19,19,0.25), inset 0 0 0 1px rgba(19,19,19,0.06); overflow: hidden; animation: pop 160ms cubic-bezier(0.2, 0.8, 0.2, 1)">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 0 12px 0 18px; height: 60px; border-bottom: 1px solid rgba(19,19,19,0.08)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5B6170" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <input type="search" autofocus="{{ true }}" value="{{q}}" onChange="{{onQ}}" onKeyDown="{{onKey}}" placeholder="Search the docs" aria-label="Search the docs" style="border: 0; font: inherit; font-size: 18px; flex: 1; min-width: 0; outline: none; color: #131313; background: transparent">
+          <button type="button" class="btn" onClick="{{closeSearch}}" aria-label="Close search" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: rgba(19,19,19,0.06); display: flex; align-items: center; justify-content: center; color: #3D4250"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+
+        <div style="max-height: 440px; overflow-y: auto; padding: 8px">
+          <p style="margin: 6px 10px 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6170">{{listLabel}}</p>
+          <sc-for list="{{list}}" as="r" hint-placeholder-count="5">
+            <button type="button" class="row hov" onClick="{{r.go}}" style="width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; border: 0; border-radius: 10px; padding: 8px 10px; font: inherit; background: {{r.bg}}; color: #131313">
+              <span style="width: 30px; height: 30px; border-radius: 8px; background: {{r.tint}}; display: flex; align-items: center; justify-content: center; flex: none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{r.color}}" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="{{r.icon}}"></path></svg></span>
+              <span style="flex: 1; min-width: 0">
+                <span style="display: block; font-weight: 500">{{r.a}}<span style="background: rgba(153,23,255,0.16); border-radius: 3px; font-weight: 600">{{r.b}}</span>{{r.c}}</span>
+                <span style="display: block; font-size: 12px; color: #5B6170; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.path}}</span>
+              </span>
+              <span style="flex: none; font-size: 11px; font-weight: 600; color: {{r.color}}; background: {{r.tint}}; border-radius: 999px; padding: 1px 8px">{{r.kind}}</span>
+            </button>
+          </sc-for>
+          <sc-if value="{{noHits}}" hint-placeholder-val="{{ false }}"><p style="margin: 6px 12px 10px; color: #3D4250; font-size: 13px">No pages match “{{qTrim}}”. Try other words, or ask AI below.</p></sc-if>
+        </div>
+
+        <div style="border-top: 1px solid rgba(19,19,19,0.08); padding: 8px 10px 8px 18px; font-size: 12px; color: #5B6170; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; background: rgba(250,251,252,0.6)">
+          <span><span style="font-family: 'JetBrains Mono', monospace">↑ ↓</span> move</span><span><span style="font-family: 'JetBrains Mono', monospace">↵</span> open</span><span>click outside to close</span>
+          <span style="flex: 1"></span>
+          <button type="button" class="btn" onClick="{{askFromSearch}}" style="display: flex; align-items: center; gap: 6px; border: 1px solid #E2BCFF; border-radius: 8px; padding: 5px 10px; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; color: #4B0A80; max-width: 320px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"></path></svg>
+            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{askLabel}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1000}}'>
+var KINDS = {
+  Solution:   { icon: 'M12 3l9 5-9 5-9-5zM3 13l9 5 9-5', color: '#7A12CC', tint: '#F3E8FF' },
+  Product:    { icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', color: '#1F5FCC', tint: '#E8F0FF' },
+  Concept:    { icon: 'M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z', color: '#8A5A00', tint: '#FFF4D6' },
+  Quickstart: { icon: 'M8 5v14l11-7z', color: '#0E7A47', tint: '#E3F7EC' },
+  Guide:      { icon: 'M6 2h9l5 5v15H6zM15 2v5h5M9 13h6M9 17h6', color: '#3D4250', tint: '#EEF0F3' },
+  Reference:  { icon: 'M8 4H6a2 2 0 0 0-2 2v4l-2 2 2 2v4a2 2 0 0 0 2 2h2M16 4h2a2 2 0 0 1 2 2v4l2 2-2 2v4a2 2 0 0 1-2 2h-2', color: '#00708F', tint: '#E2F5FA' },
+  Tutorial:   { icon: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5zM4 19.5V21h16', color: '#B4235A', tint: '#FDE8F0' },
+  Section:    { icon: 'M3 6h7l2 2h9v11H3z', color: '#5B6170', tint: '#EEF0F3' }
+};
+function L(t, k) { return { t: t, k: k || [] }; }
+function N(t, c, k, note) { return { t: t, c: c, k: k || [], note: !!note }; }
+var TREE = [
+  N('Get familiar', [
+    L('What Fortanix does', ['overview', 'introduction']),
+    L('The Armor platform', ['armor', 'saas', 'on-prem']),
+    N('Concepts', [
+      L('Confidential computing basics', ['tee', 'data in use']),
+      L('Attestation, the RATS model', ['rats', 'verifier', 'attester']),
+      L('Key management basics', ['kms', 'hsm']),
+      N('TEE technologies', [L('Intel SGX', ['sgx']), L('Intel TDX', ['tdx']), L('AMD SEV-SNP', ['snp', 'sev']), L('AWS Nitro Enclaves', ['nitro']), L('NVIDIA Confidential Computing', ['gpu', 'hopper', 'blackwell'])]),
+      L('Glossary')
+    ])
+  ]),
+  N('Solutions', [
+    N('Confidential AI', [
+      L('Overview'), L('Architecture'), L('Get started'),
+      N('Deploy', [L('Kubernetes with CoCo', ['coco', 'k8s']), L('Confidential VMs', ['cvm'])]),
+      N('Integrations', [L('Rafay'), L('NVIDIA GPU Operator', ['gpu'])]),
+      L('Examples'), L('Troubleshooting')
+    ], ['ai', 'gpu', 'model', 'llm', 'inference']),
+    N('File system encryption', [L('Overview'), L('Linux quickstart'), L('Windows quickstart'), L('Key rotation'), L('Troubleshooting')], ['fse', 'gocryptfs', 'files', 'disk']),
+    N('Database encryption', [L('Overview'), L('Oracle TDE', ['oracle']), L('SQL Server TDE', ['mssql']), L('MongoDB'), L('MySQL')], ['tde', 'database']),
+    N('Tokenization', [L('Overview'), L('Quickstart'), L('Examples'), L('Best practices')], ['fpe', 'masking', 'tokens']),
+    N('Cloud key control', [L('Overview'), L('AWS KMS', ['aws']), L('Azure Key Vault', ['azure']), L('Google Cloud KMS', ['gcp']), L('Oracle Cloud', ['oci'])], ['byok', 'cloud kms']),
+    N('PQC readiness', [L('Overview'), L('Get started'), L('PQC Central')], ['pqc', 'quantum', 'post-quantum'])
+  ]),
+  N('Products', [
+    N('Fortanix Armor', [
+      N('Platform', [L('Architecture'), N('Deploy', [L('SaaS'), L('Customer-managed', ['on-prem', 'install'])]), L('Administration', ['iam', 'users']), L('API')]),
+      N('Confidential Computing', [
+        L('Overview'),
+        N('CCM', [
+          L('Concepts'), L('Quickstart', ['getting started']), L('Applications & builds', ['measurements']), L('Approvals'),
+          N('Compute nodes', [L('Node Agent', ['agent']), L('Enroll an SGX node', ['sgx']), L('Enroll a TDX node', ['tdx']), L('Enroll an SEV-SNP node', ['snp', 'sev']), L('Enroll a Nitro node', ['nitro'])]),
+          L('Workflows & datasets'), L('Policy', ['tcb', 'grace period']), L('API'), L('Troubleshooting')
+        ], ['confidential computing manager', 'verifier', 'attestation']),
+        N('Workload runtimes', [
+          N('Enclave OS', [L('Overview'), L('Convert an image', ['container']), L('Configuration'), L('Tutorials')], ['eos', 'salmiac']),
+          N('Confidential Containers', [L('Overview'), L('Install', ['helm']), L('Encrypt an image'), L('Deploy on Intel TDX', ['tdx']), L('Deploy on AMD SEV-SNP', ['snp']), L('Troubleshooting')], ['coco', 'kata']),
+          N('Build your custom CVM', [L('Attestation client')], ['cvm'])
+        ]),
+        N('SDKs', [N('Enclave Development Platform', [L('Install the toolchain'), L('Build and run'), L('Attesting with CCM'), L('Reference')], ['edp', 'rust', 'rust-sgx'])])
+      ], ['tee', 'attestation']),
+      N('Key Insight', [L('Concepts'), L('Get started'), N('Connections', [L('AWS'), L('Azure'), L('Google Cloud'), L('Oracle Cloud'), L('On-premises')]), L('Policy center'), L('PQC Central', ['pqc']), L('API')], ['ki', 'posture', 'scan', 'pqc']),
+      N('Data Security Manager', [
+        N('Service', [L('Concepts'), L('Deploy'), L('Administration'), L('Key management', ['keys']), L('Cloud Data Control'), L('Tokenization'), L('Plugins'), L('API')]),
+        N('Client libraries & tools', [L('PKCS#11 library', ['pkcs11', 'p11']), L('CNG provider'), L('JCE provider', ['java']), L('CLI'), L('Terraform provider')]),
+        N('Client-side components', [L('DSM Accelerator'), L('File System Encryption agents', ['fse'])]),
+        N('Integrations', [L('Databases'), L('Storage & backup'), L('Cloud KMS & BYOK'), L('Secrets managers'), L('PKI & certificates')])
+      ], ['dsm', 'kms', 'hsm', 'key management'], true)
+    ])
+  ]),
+  N('Learn', [
+    N('Tutorials', [L('Deploy Confidential AI with Fortanix and Rafay'), L('Tokenization quickstart'), L('Run HashiCorp Vault in Enclave OS', ['vault'])]),
+    N('Examples', [L('Nginx in Enclave OS'), L('PostgreSQL in Enclave OS'), L('Rust server with EDP')]),
+    L('Videos')
+  ])
+];
+function parseKey(key) { return key === '' ? [] : key.split('.').map(Number); }
+function nodeAt(idxs) { var list = TREE, n = null; for (var i = 0; i < idxs.length; i++) { n = list && list[idxs[i]]; if (!n) return null; list = n.c; } return n; }
+function namesAt(idxs) { var list = TREE, out = []; for (var i = 0; i < idxs.length; i++) { var n = list && list[idxs[i]]; if (!n) break; out.push(n.t); list = n.c; } return out; }
+function pathLabel(key) { return namesAt(parseKey(key)).slice(0, -1).join(' / '); }
+function firstLeaf(key) { var idxs = parseKey(key); var n = nodeAt(idxs); while (n && n.c) { idxs = idxs.concat(0); n = n.c[0]; } return idxs.join('.'); }
+function openAlong(key) { var idxs = parseKey(key), o = {}; for (var i = 1; i <= idxs.length; i++) o[idxs.slice(0, i).join('.')] = true; return o; }
+function kindOf(n, names) {
+  var top = names[0], len = names.length, parent = names[len - 2] || '';
+  if (n.c) {
+    if (top === 'Solutions' && len === 2) return 'Solution';
+    if (top === 'Products' && len >= 3 && len <= 4) return 'Product';
+    return 'Section';
+  }
+  if (/quickstart|get started|install the toolchain/i.test(n.t)) return 'Quickstart';
+  if (/^api$|reference|cli$|library|provider|glossary/i.test(n.t)) return 'Reference';
+  if (top === 'Get familiar' || n.t === 'Concepts' || parent === 'Concepts') return 'Concept';
+  if (top === 'Learn' || n.t === 'Tutorials' || n.t === 'Examples') return 'Tutorial';
+  return 'Guide';
+}
+var INDEX = [];
+(function walk(list, prefix) {
+  list.forEach(function (n, i) {
+    var p = prefix.concat(i), names = namesAt(p);
+    var kind = kindOf(n, names);
+    INDEX.push({ key: p.join('.'), t: n.t, tl: n.t.toLowerCase(), path: names.slice(0, -1).join(' / '), pl: names.join(' ').toLowerCase(), k: n.k.map(function (x) { return x.toLowerCase(); }), depth: p.length, kids: !!n.c, kind: kind });
+    if (n.c) walk(n.c, p);
+  });
+})(TREE, []);
+function scoreEntry(e, q, tokens) {
+  for (var i = 0; i < tokens.length; i++) {
+    var tk = tokens[i];
+    if (e.pl.indexOf(tk) === -1 && !e.k.some(function (x) { return x.indexOf(tk) === 0; })) return 0;
+  }
+  var s;
+  if (e.tl === q) s = 100;
+  else if (e.k.indexOf(q) !== -1) s = 90;
+  else if (e.tl.indexOf(q) === 0) s = 80;
+  else if ((' ' + e.tl).indexOf(' ' + q) !== -1) s = 68;
+  else if (e.k.some(function (x) { return x.indexOf(q) === 0; })) s = 60;
+  else if (e.tl.indexOf(q) !== -1) s = 50;
+  else s = 20;
+  if (e.kind === 'Solution' || e.kind === 'Product') s += 8;
+  if (e.kind === 'Section') s -= 4;
+  s -= e.depth;
+  if (e.t === 'Overview' || e.t === 'Troubleshooting' || e.t === 'API') s -= 6;
+  return s;
+}
+function search(q) {
+  var tokens = q.split(/\s+/).filter(Boolean), hits = [];
+  INDEX.forEach(function (e) { var sc = scoreEntry(e, q, tokens); if (sc > 0) hits.push({ e: e, sc: sc }); });
+  hits.sort(function (a, b) { return b.sc - a.sc || a.e.depth - b.e.depth; });
+  return hits;
+}
+function splitHit(t, q) {
+  var at = q ? t.toLowerCase().indexOf(q) : -1;
+  if (at === -1) return { a: t, b: '', c: '' };
+  return { a: t.slice(0, at), b: t.slice(at, at + q.length), c: t.slice(at + q.length) };
+}
+function byKey(key) { for (var i = 0; i < INDEX.length; i++) if (INDEX[i].key === key) return INDEX[i]; return null; }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: {}, sel: null, q: '', searchOpen: false, active: 0, more: false,
+      aiOpen: false, aiQ: '', aiDraft: '',
+      recents: ['2.0.1.1.1', '2.0.1.2.1.3', '2.0.3.1.0', '1.0.4.0', '2.0.1.1.4.2', '0.2.1', '1.3.1', '2.0.2.2.0']
+    };
+  }
+  openPage(key) {
+    var n = nodeAt(parseKey(key));
+    var target = n && n.c ? firstLeaf(key) : key;
+    var open = Object.assign({}, this.state.open, openAlong(key));
+    var rec = [target].concat(this.state.recents.filter(function (r) { return r !== target; })).slice(0, 12);
+    this.setState({ open: open, sel: target, q: '', searchOpen: false, active: 0, recents: rec });
+  }
+  ask(question) {
+    var qq = (question || '').trim();
+    this.setState({ aiOpen: true, aiQ: qq, aiDraft: '', searchOpen: false });
+  }
+  renderVals() {
+    var self = this, s = this.state;
+
+    var rows = [];
+    (function walk(list, prefix, depth) {
+      list.forEach(function (n, i) {
+        var idxs = prefix.concat(i), key = idxs.join('.');
+        var isOpen = !!s.open[key], selected = key === s.sel;
+        var guides = [];
+        for (var l = 0; l < depth; l++) guides.push({ x: 15 + l * 16 });
+        rows.push({
+          t: n.t, kids: !!n.c, note: !!n.note, rot: isOpen ? 90 : 0, ariaExp: n.c ? String(isOpen) : undefined,
+          gap: depth === 0 && i > 0, pad: 6 + depth * 16, guides: guides,
+          bg: selected ? '#F5EDFF' : 'transparent', color: selected ? '#4B0A80' : '#131313',
+          weight: selected || depth === 0 ? '600' : '400', cls: selected ? '' : 'hov',
+          go: function () {
+            if (n.c) { var o = Object.assign({}, s.open); o[key] = !isOpen; self.setState({ open: o }); }
+            else self.openPage(key);
+          }
+        });
+        if (n.c && isOpen) walk(n.c, idxs, depth + 1);
+      });
+    })(TREE, [], 0);
+
+    var limit = s.more ? 12 : 6;
+    var recents = s.recents.slice(0, limit).map(function (key) {
+      var names = namesAt(parseKey(key));
+      return {
+        t: names[names.length - 1], path: pathLabel(key),
+        go: function () { self.openPage(key); },
+        remove: function () { self.setState({ recents: self.state.recents.filter(function (r) { return r !== key; }) }); }
+      };
+    });
+
+    var qTrim = (s.q || '').trim(), q = qTrim.toLowerCase();
+    var entries = q ? search(q).slice(0, 8).map(function (h) { return h.e; })
+      : ['0.0', '1.0', '2.0.1.1.1', '2.0.3', '2.0.1.2.1'].map(byKey);
+    var active = Math.min(s.active, Math.max(0, entries.length - 1));
+    var list = entries.map(function (e, i) {
+      var k = KINDS[e.kind], sp = splitHit(e.t, q);
+      return { a: sp.a, b: sp.b, c: sp.c, path: e.path || 'Docs', kind: e.kind, icon: k.icon, color: k.color, tint: k.tint,
+        bg: i === active ? 'rgba(153,23,255,0.10)' : 'transparent', go: function () { self.openPage(e.key); } };
+    });
+
+    var srcEntries = s.aiQ ? search(s.aiQ.toLowerCase()).slice(0, 3).map(function (h) { return h.e; }) : [];
+    var aiSources = srcEntries.map(function (e) {
+      var k = KINDS[e.kind];
+      return { t: e.t, path: e.path, icon: k.icon, color: k.color, tint: k.tint, go: function () { self.openPage(e.key); } };
+    });
+    function prompt(t) { return { t: t, go: function () { self.ask(t); } }; }
+
+    function feat(t, line, tags, path, key) {
+      return { t: t, line: line, path: path, tags: tags.map(function (x) { return { t: x }; }), go: function () { self.openPage(key); } };
+    }
+    var featured = [
+      feat('Confidential AI', 'Protect models and data while they run on GPUs.', ['GPU attestation', 'model protection', 'Rafay'], 'Solutions / Confidential AI', '1.0'),
+      feat('Key management', 'Generate, store and control keys with an HSM-backed KMS.', ['KMS', 'HSM', 'BYOK', 'PKCS#11'], 'Products / Armor / Data Security Manager', '2.0.3'),
+      feat('Tokenization', 'Replace sensitive fields with format-preserving tokens.', ['format-preserving', 'masking', 'REST API'], 'Solutions / Tokenization', '1.3'),
+      feat('Confidential Computing', 'Verify workloads in TEEs before they get secrets.', ['attestation', 'CoCo', 'Enclave OS'], 'Products / Armor / Confidential Computing', '2.0.1'),
+      feat('File system encryption', 'Encrypt files on Linux and Windows with keys in DSM.', ['Linux', 'Windows', 'key rotation'], 'Solutions / File system encryption', '1.1'),
+      feat('PQC readiness', 'Find quantum-vulnerable cryptography across your estate.', ['crypto inventory', 'cloud scanning'], 'Solutions / PQC readiness', '1.5')
+    ];
+
+    var isHome = s.sel === null, crumbs = '', pageTitle = '';
+    if (!isHome) { var names = namesAt(parseKey(s.sel)); crumbs = pathLabel(s.sel); pageTitle = names[names.length - 1]; }
+
+    return {
+      goHome: function () { self.setState({ sel: null }); },
+      homeBg: isHome ? '#F5EDFF' : 'transparent', homeColor: isHome ? '#4B0A80' : '#131313', homeCls: isHome ? '' : 'hov',
+      rows: rows,
+      isHome: isHome, notHome: !isHome, crumbs: crumbs, pageTitle: pageTitle,
+      recents: recents, hasRecents: s.recents.length > 0, noRecents: s.recents.length === 0,
+      canToggle: s.recents.length > 6, moreLabel: s.more ? 'Show less ▴' : ('View more (' + (Math.min(s.recents.length, 12) - 6) + ') ▾'),
+      toggleMore: function () { self.setState({ more: !s.more }); },
+      goFamiliar: function () { self.openPage('0.0'); },
+      featured: featured,
+
+      searchOpen: s.searchOpen,
+      openSearch: function () { self.setState({ searchOpen: true, q: '', active: 0 }); },
+      closeSearch: function () { self.setState({ searchOpen: false }); },
+      stop: function (e) { e.stopPropagation(); },
+      q: s.q, qTrim: qTrim,
+      onQ: function (e) { self.setState({ q: e.target.value, active: 0 }); },
+      onKey: function (e) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); self.setState({ active: Math.min(active + 1, entries.length - 1) }); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); self.setState({ active: Math.max(active - 1, 0) }); }
+        else if (e.key === 'Enter') { e.preventDefault(); if (entries[active]) self.openPage(entries[active].key); }
+        else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); self.setState({ searchOpen: false }); }
+      },
+      listLabel: q ? (entries.length ? 'Results' : '') : 'Suggested',
+      list: list, noHits: !!q && entries.length === 0,
+      askLabel: q ? ('Ask AI about “' + qTrim + '”') : 'Ask AI instead',
+      askFromSearch: function () { self.ask(qTrim); },
+
+      aiOpen: s.aiOpen,
+      openAI: function () { self.setState({ aiOpen: !s.aiOpen }); },
+      closeAI: function () { self.setState({ aiOpen: false }); },
+      aiBtnBg: s.aiOpen ? '#F5EDFF' : '#FFFFFF', aiBtnBorder: s.aiOpen ? '#9917FF' : '#E2BCFF',
+      aiQ: s.aiQ, aiHasQ: !!s.aiQ, aiEmpty: !s.aiQ,
+      aiPrompts: [prompt('How does CCM verify a TDX workload?'), prompt('Which DSM client should I use from Java?'), prompt('What do I need to run Confidential AI on GPUs?')],
+      aiSources: aiSources, aiNoSources: !!s.aiQ && aiSources.length === 0,
+      aiDraft: s.aiDraft,
+      onAIDraft: function (e) { self.setState({ aiDraft: e.target.value }); },
+      onAIKey: function (e) { if (e.key === 'Enter') { e.preventDefault(); if (s.aiDraft.trim()) self.ask(s.aiDraft); } },
+      sendAI: function () { if (s.aiDraft.trim()) self.ask(s.aiDraft); }
+    };
+  }
+}
+</script>
+</body>
+</html>
