@@ -47,7 +47,7 @@
   flex: none;
   width: var(--fx-space-5);
   height: var(--fx-space-5);
-  color: var(--fx-text-muted);
+  color: var(--fx-glass-text-muted);
 }
 
 .input {
@@ -62,7 +62,7 @@
 }
 
 .input::placeholder {
-  color: var(--fx-text-muted);
+  color: var(--fx-glass-text-muted);
 }
 
 /* The browser's own clear button duplicates ×. */
@@ -96,7 +96,7 @@
 
 .listLabel {
   margin: var(--fx-space-1) var(--fx-space-2);
-  color: var(--fx-text-muted);
+  color: var(--fx-glass-text-muted);
   font-size: var(--fx-text-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -148,7 +148,7 @@
 }
 
 .path {
-  color: var(--fx-text-muted);
+  color: var(--fx-glass-text-muted);
   font-size: var(--fx-text-xs);
 }
 
@@ -166,7 +166,7 @@
   gap: var(--fx-space-2) var(--fx-space-4);
   padding: var(--fx-space-2) var(--fx-space-3) var(--fx-space-2) var(--fx-space-4);
   border-top: var(--fx-border-width) solid var(--fx-glass-divider);
-  color: var(--fx-text-muted);
+  color: var(--fx-glass-text-muted);
   font-size: var(--fx-text-xs);
 }
 
