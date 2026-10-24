@@ -3,12 +3,15 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import stubNotice from './src/remark/stub-notice';
 import docsTree from './plugins/docs-tree';
+import contributors from './plugins/contributors';
 import {recentsHeadScript} from './src/lib/recents';
 import {FONT_URL, fontFaceCss} from './src/lib/fonts';
 import {searchEarlyScript} from './src/lib/search-early';
 
+const GITHUB_REPO = 'MihirLuthra/docs';
+
 // Edit links open GitHub's editor (D12).
-const EDIT_BASE = 'https://github.com/MihirLuthra/docs/edit/main';
+const EDIT_BASE = `https://github.com/${GITHUB_REPO}/edit/main`;
 
 const config: Config = {
   title: 'Fortanix Documentation',
@@ -76,7 +79,7 @@ const config: Config = {
     ],
   ],
 
-  plugins: [docsTree],
+  plugins: [docsTree, [contributors, {repo: GITHUB_REPO, branch: 'main'}]],
   clientModules: ['./src/clientModules/recents.ts', './src/clientModules/nav-history.ts'],
 
   themeConfig: {

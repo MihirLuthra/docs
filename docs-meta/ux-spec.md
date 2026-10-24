@@ -118,6 +118,9 @@ Each icon sits on a tinted tile. The kind is also written as text in the pill, s
   - sub-folders (with ›) open inside the same menu, with a "‹ parent" row to go back (→ and ← from the keyboard), as far up as the folder clicked;
   - **Show in sidebar** (wide screens) opens that folder in the sidebar tree, scrolls it into view, focuses it and highlights it briefly.
   - The menu is the same small menu as the Back / Forward lists, kept inside the screen.
+- **Contributors**, under "Edit this page": GitHub avatars (each to the person's profile; initials when the commit email isn't linked to a GitHub account), "N contributors", "Last updated <date> by <name>", and "View history" (the file's commits on GitHub). Like GitHub's file contributors: commit authors (co-author trailers and `[bot]` accounts not counted), following renames.
+  - Worked out when the site is built (plugins/contributors.ts): `git log --follow` per page, and GitHub accounts and avatars from the public API (commits matched by email; 100 per request, no token while the repo is public). If GitHub can't be reached, the build still passes and shows names with initials.
+  - The build needs the full git history: in CI, check out with `fetch-depth: 0` (a shallow clone shows one contributor and the build warns).
 - **Diagrams** (Confidential AI): purple means secure (the TEE, its protections, verified checks, certificates, keys), red means untrusted (the host), the parties (who holds which role) use the Fortanix blue, and everything else is neutral (white with a grey outline). The controls (Play, the switch, step dots, the selected scenario) use the accent colour. Workloads authenticate to DSM over mutual TLS with their CCM certificate; the diagram shows that handshake rather than handing the certificate over.
 
 ## Ask AI (right-side panel)

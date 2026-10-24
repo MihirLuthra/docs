@@ -69,6 +69,7 @@
   --fx-link-underline-offset: 0.2em;
   --fx-breadcrumb-home-size: 1.1rem;
   --fx-breadcrumb-caret-size: 10px;
+  --fx-avatar-size: 28px; /* contributors */
   --fx-menu-min: 200px; /* small menus (Back / Forward, path) fit their items */
   --fx-menu-max: 280px;
   --fx-tree-home-h: 40px;

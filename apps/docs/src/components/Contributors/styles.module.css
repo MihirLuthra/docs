@@ -1,0 +1,78 @@
+/* Under "Edit this page": avatars, then one line of text. */
+.contributors {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fx-space-2) var(--fx-space-3);
+  margin-top: var(--fx-space-6);
+  padding-top: var(--fx-space-4);
+  border-top: var(--fx-border-width) solid var(--fx-border);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-sm);
+}
+
+.avatars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fx-space-1);
+}
+
+.avatarLink {
+  display: block;
+  border-radius: 50%;
+}
+
+.avatar,
+.initials {
+  display: block;
+  box-sizing: border-box;
+  width: var(--fx-avatar-size);
+  height: var(--fx-avatar-size);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: 50%;
+}
+
+.avatar {
+  background-color: var(--fx-chip);
+}
+
+/* No GitHub account linked to the commit email. */
+.initials {
+  display: grid;
+  place-items: center;
+  background-color: var(--fx-chip);
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-xs);
+  font-weight: 600;
+}
+
+.more {
+  align-self: center;
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-xs);
+}
+
+.text {
+  margin: 0;
+}
+
+.text strong {
+  color: var(--fx-text);
+  font-weight: 600;
+}
+
+.text a {
+  color: var(--fx-text-secondary);
+  text-decoration: underline;
+  text-decoration-color: var(--fx-border-strong);
+  text-underline-offset: var(--fx-link-underline-offset);
+}
+
+.text a:hover {
+  color: var(--fx-link-hover);
+  text-decoration-color: currentColor;
+}
+
+.dot {
+  margin: 0 var(--fx-space-2);
+}
