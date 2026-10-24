@@ -184,7 +184,9 @@ export default function Navbar(): ReactNode {
   };
 
   return (
-    <header className={styles.header}>
+    // "navbar": Docusaurus's table of contents measures `.navbar` for its
+    // scroll offset (and crashes without one).
+    <header className={`navbar ${styles.header}`}>
       <button
         ref={menuButton}
         type="button"

@@ -1,6 +1,7 @@
 /* 996px is Docusaurus's desktop breakpoint (media queries can't use vars). */
 
 .header {
+  /* Also has Infima's .navbar class (see Navbar); these override its look. */
   position: sticky;
   top: 0;
   z-index: var(--ifm-z-index-fixed);
@@ -11,6 +12,7 @@
   padding: 0 var(--fx-space-5);
   border-bottom: var(--fx-border-width) solid var(--fx-border);
   background-color: var(--fx-bg);
+  box-shadow: none;
   color: var(--fx-text);
 }
 
