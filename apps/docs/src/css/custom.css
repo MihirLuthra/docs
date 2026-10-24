@@ -263,6 +263,12 @@
   --docusaurus-highlighted-code-line-bg: rgb(0 0 0 / 0.3);
 }
 
+/* Keep the scrollbar's space when search or the drawer locks scrolling
+   (overflow: hidden), so the page doesn't widen and reflow behind them. */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   background-color: var(--fx-bg);
   color: var(--fx-text);
