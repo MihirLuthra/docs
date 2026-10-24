@@ -48,10 +48,10 @@ function SearchIcon(): ReactNode {
 function SearchTrigger(): ReactNode {
   const {openSearch, prefetchSearch} = useOverlays();
   // "Ctrl K" until hydrated; the hint has a fixed width, so swapping it for
-  // "⌘K" on Apple devices doesn't move anything.
-  const [isApple, setIsApple] = useState(false);
+  // "⌘K" on keyboards with a Command key doesn't move anything.
+  const [commandKey, setCommandKey] = useState(false);
   useEffect(() => {
-    setIsApple(/Mac|iPhone|iPad/.test(navigator.platform));
+    setCommandKey(/Mac|iPhone|iPad/.test(navigator.platform));
   }, []);
   return (
     <button
@@ -70,7 +70,7 @@ function SearchTrigger(): ReactNode {
         /
       </kbd>
       <kbd className={styles.searchKbd} aria-hidden="true">
-        {isApple ? '⌘K' : 'Ctrl K'}
+        {commandKey ? '⌘K' : 'Ctrl K'}
       </kbd>
     </button>
   );
