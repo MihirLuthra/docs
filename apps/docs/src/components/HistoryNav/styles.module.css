@@ -1,0 +1,121 @@
+/* 996px is Docusaurus's desktop breakpoint (media queries can't use vars). */
+
+.nav {
+  display: flex;
+  flex: none;
+  gap: var(--fx-space-1);
+}
+
+/* Arrow + caret, one rounded group. */
+.group {
+  position: relative;
+  display: flex;
+  border-radius: var(--fx-radius-md);
+}
+
+.arrow,
+.caret {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--fx-tree-row-h);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fx-text-secondary);
+  cursor: pointer;
+}
+
+.arrow {
+  width: var(--fx-tree-row-h);
+  border-radius: var(--fx-radius-md) 0 0 var(--fx-radius-md);
+}
+
+.caret {
+  width: var(--fx-space-4);
+  border-radius: 0 var(--fx-radius-md) var(--fx-radius-md) 0;
+  color: var(--fx-text-muted);
+}
+
+.arrow:hover:not(:disabled),
+.caret:hover:not(:disabled),
+.caret[aria-expanded='true'] {
+  background-color: var(--fx-hover);
+  color: var(--fx-text);
+}
+
+.arrow:disabled,
+.caret:disabled {
+  cursor: default;
+}
+
+.arrow:disabled svg,
+.caret:disabled svg {
+  opacity: 0.35;
+}
+
+/* The list: under the group, like the "Go to page" dropdown. */
+.menu {
+  position: absolute;
+  top: calc(100% + var(--fx-space-1));
+  left: 0;
+  z-index: var(--fx-z-popover);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: var(--fx-history-menu-w);
+  max-width: calc(100vw - 2 * var(--fx-space-4));
+  padding: var(--fx-space-1);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-card);
+  background-color: var(--fx-bg);
+  box-shadow: var(--fx-shadow-popover);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: var(--fx-space-2) var(--fx-space-3);
+  border: 0;
+  border-radius: var(--fx-radius-md);
+  background: transparent;
+  color: var(--fx-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover {
+  background-color: var(--fx-hover);
+}
+
+/* Keyboard: the selected-row colours, clearer than hover. */
+.item:focus-visible {
+  outline: none;
+  background-color: var(--fx-selected-bg);
+}
+
+.itemTitle,
+.itemPath {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.itemTitle {
+  font-size: var(--fx-text-md);
+  font-weight: 500;
+}
+
+.itemPath {
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-xs);
+}
+
+/* Phones have the browser's own back gesture, and no room in the header. */
+@media (max-width: 575px) {
+  .nav {
+    display: none;
+  }
+}

@@ -66,6 +66,7 @@
   --fx-sidebar-width: 300px;
   --fx-tree-indent: 16px;
   --fx-tree-row-h: 32px;
+  --fx-history-menu-w: 320px; /* back / forward lists */
   --fx-tree-home-h: 40px;
   --fx-tree-home-gap: 4px; /* below Home, before its divider */
   --fx-tree-home-size: 0.9375rem; /* 15px */

@@ -5,6 +5,8 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 ## Header
 
 - Left: the Fortanix mark (no wordmark) and "Documentation" in purple, centred on the mark; goes to Home.
+- After it, **Back** and **Forward** buttons, on every page (hidden below 576px, where phones have their own back gesture). Each has a caret that opens a list of the pages that way in this tab, nearest first (up to 10): docs pages show their title and section path, others their title and URL. Picking one goes straight there; a right-click on an arrow opens the list too. ↑ ↓ Home End Enter in the list, Esc closes it. The arrows are disabled when there is nowhere to go within the site.
+  - Browsers don't let pages read their history, so the site keeps its own per-tab list (sessionStorage; kept across reloads), matched to the browser's entries by the router's location key. It follows the browser's own back/forward too; opening a new page after going back drops the pages ahead, as the browser does.
 - Centre: a search trigger ("Search the docs", with **/** and ⌘K hints) and an **Ask AI** button.
 - Right: Release notes · Advisories · Downloads.
 

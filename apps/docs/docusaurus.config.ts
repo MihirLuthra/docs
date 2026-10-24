@@ -77,7 +77,7 @@ const config: Config = {
   ],
 
   plugins: [docsTree],
-  clientModules: ['./src/clientModules/recents.ts'],
+  clientModules: ['./src/clientModules/recents.ts', './src/clientModules/nav-history.ts'],
 
   themeConfig: {
     // Default for pages without their own description (stubs); pages that
