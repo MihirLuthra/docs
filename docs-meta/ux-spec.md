@@ -21,7 +21,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 - The sidebar scrolls on its own: it sits under the header and ends above the footer when the footer is on screen, so the page scrolling never takes "Go to page" off screen, and a long tree never makes a short page scroll.
   - Dropdown: floats over the content, left-aligned with the input, ~640px wide (at most the viewport − 32px); the full drawer width inside the mobile drawer. Radius 12px, soft shadow.
   - Rows: a page icon, then the path with the matched parts in bold. Long paths wrap onto the next line, indented to the text (no ellipsis). The active or hovered row uses the neutral grey of sidebar row hover.
-  - ↑ ↓ Enter work in it, and Esc clears it.
+  - ↑ ↓ Enter work in it. Esc clears it and leaves the box (in the mobile drawer, Esc on an empty box closes the drawer).
 - Every tree row is 32px with the same padding; text 14px in the main text colour. Home and top-level sections are semi-bold (600), deeper rows regular. The Home icon sits in the chevron's slot so labels line up.
 - Home is a little larger: 40px tall, 15px text, a 16px icon, and 4px of space before its divider.
 - Clicking Home, the logo in the header, or pressing **h** (when not typing; on any page, also on phones) goes home and resets the sidebar: every section collapsed, "Go to page" cleared, scrolled to the top. The Home row shows an **h** key chip on the right, lined up with the **c** chip below.

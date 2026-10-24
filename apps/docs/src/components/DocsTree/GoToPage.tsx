@@ -159,13 +159,19 @@ export default function GoToPage({onNavigate}: {onNavigate?: () => void}): React
     if (e.key === 'ArrowDown') setActive(Math.min(current + 1, matches.length - 1));
     else if (e.key === 'ArrowUp') setActive(Math.max(current - 1, 0));
     else if (e.key === 'Enter' && matches[current]) go(matches[current].entry.href);
-    else if (e.key === 'Escape' && query) setQuery('');
+    else if (e.key === 'Escape') {
+      // Clears and leaves the box. With nothing typed, the Esc goes on (in
+      // the mobile drawer, it closes it).
+      setQuery('');
+      inputRef.current?.blur();
+      if (!query) return;
+    }
     // "/" opens the header search from an empty box; after text, it's a
     // path separator ("armor/dsm").
     else if (e.key === '/' && !query && !e.metaKey && !e.ctrlKey && !e.altKey) openSearch();
     else return;
     e.preventDefault();
-    e.stopPropagation(); // keep Esc from closing the drawer while clearing
+    e.stopPropagation(); // keep Esc from closing the drawer when it clears text
   };
 
   return (
