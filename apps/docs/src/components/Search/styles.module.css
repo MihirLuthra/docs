@@ -7,7 +7,6 @@
   justify-content: center;
   padding: var(--fx-search-top) var(--fx-space-4) var(--fx-space-4);
   background-color: var(--fx-search-backdrop);
-  animation: fade var(--fx-duration-fast) var(--fx-ease);
 }
 
 .panel {
@@ -21,7 +20,6 @@
   border-radius: var(--fx-radius-2xl);
   background-color: var(--fx-glass-solid);
   box-shadow: var(--fx-shadow-modal);
-  animation: pop var(--fx-duration-panel) var(--fx-ease-out);
 }
 
 /* Translucent where supported; solid otherwise (ux-spec.md). */
@@ -210,18 +208,5 @@
 @media (max-width: 575px) {
   .backdrop {
     padding: var(--fx-space-2);
-  }
-}
-
-@keyframes fade {
-  from {
-    opacity: 0;
-  }
-}
-
-@keyframes pop {
-  from {
-    opacity: 0;
-    transform: translateY(calc(-1 * var(--fx-space-2))) scale(0.98);
   }
 }

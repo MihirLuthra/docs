@@ -37,7 +37,9 @@ export default function Root({children}: {children: ReactNode}): ReactNode {
   const closeSearch = useCallback(() => {
     searchOpenRef.current = false;
     setSearchOpen(false);
-    returnFocus.current?.focus();
+    // Unless focus moved on while the modal animated out (e.g. "t").
+    const active = document.activeElement;
+    if (!active || active === document.body) returnFocus.current?.focus();
   }, []);
 
   const prefetchSearch = useCallback(() => {
