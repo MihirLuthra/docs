@@ -1,4 +1,13 @@
-import {useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode} from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react';
 import {useHistory} from '@docusaurus/router';
 import {KindIcon, KindPill} from '../KindIcon';
 import {search, splitMatch} from './rank';
@@ -25,6 +34,24 @@ function CloseIcon(): ReactNode {
   );
 }
 
+// Motion: a quick entrance that settles fast, the height following the
+// results as you type, and a shorter exit. None with reduced motion.
+const OPEN_MS = 200;
+const RESIZE_MS = 180;
+const CLOSE_MS = 120;
+const SETTLE = 'cubic-bezier(0.16, 1, 0.3, 1)';
+
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/**
+ * Fades the backdrop's tint in or out. Its colour, not its opacity: opacity
+ * below 1 on the backdrop would cut the panel's blur off from the page.
+ */
+function fadeBackdrop(el: HTMLElement, show: boolean, options: KeyframeAnimationOptions): void {
+  const frames = [{backgroundColor: 'transparent'}, {backgroundColor: getComputedStyle(el).backgroundColor}];
+  el.animate(show ? frames : frames.reverse(), options);
+}
+
 /** The search bar's panel: search over the build-time index (ux-spec.md, Search). */
 export default function SearchModal({onClose}: {onClose: () => void}): ReactNode {
   const index = useIndex();
@@ -35,11 +62,70 @@ export default function SearchModal({onClose}: {onClose: () => void}): ReactNode
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const closing = useRef(false);
+  const height = useRef<{last: number; animation?: Animation}>({last: 0});
 
   const trimmed = query.trim();
   // Nothing until something is typed: then the panel opens below the input.
   const entries = useMemo(() => (index && trimmed ? search(index, trimmed) : []), [index, trimmed]);
   const current = Math.min(active, Math.max(0, entries.length - 1));
+
+  // Entrance.
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    const backdrop = backdropRef.current;
+    if (!panel || !backdrop || reducedMotion()) return;
+    panel.animate(
+      [{opacity: 0, transform: 'translateY(-8px) scale(0.97)'}, {opacity: 1, transform: 'none'}],
+      {duration: OPEN_MS, easing: SETTLE},
+    );
+    fadeBackdrop(backdrop, true, {duration: OPEN_MS, easing: 'ease-out'});
+  }, []);
+
+  // The panel's height glides to fit the results instead of jumping. Runs
+  // after every render; does nothing when the height hasn't changed.
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const state = height.current;
+    // Mid-glide, start from where it is now, not where it was heading.
+    const from = state.animation ? panel.offsetHeight : state.last;
+    state.animation?.cancel();
+    state.animation = undefined;
+    const to = panel.offsetHeight;
+    state.last = to;
+    if (!from || Math.abs(from - to) < 1 || reducedMotion() || closing.current) return;
+    const animation = panel.animate([{height: `${from}px`}, {height: `${to}px`}], {
+      duration: RESIZE_MS,
+      easing: SETTLE,
+    });
+    state.animation = animation;
+    animation.onfinish = () => {
+      if (state.animation === animation) state.animation = undefined;
+    };
+  });
+
+  // Esc, ×, or a click outside: a short exit, then close. Keys and clicks go
+  // to the page meanwhile.
+  const dismiss = useCallback(() => {
+    const panel = panelRef.current;
+    const backdrop = backdropRef.current;
+    if (closing.current) return;
+    closing.current = true;
+    if (!panel || !backdrop || reducedMotion()) {
+      onClose();
+      return;
+    }
+    const focused = document.activeElement;
+    backdrop.inert = true;
+    if (focused instanceof HTMLElement && backdrop.contains(focused)) focused.blur();
+    const options = {duration: CLOSE_MS, easing: 'ease-in', fill: 'forwards'} as const;
+    panel
+      .animate([{opacity: 1, transform: 'none'}, {opacity: 0, transform: 'translateY(-4px) scale(0.98)'}], options)
+      .finished.then(onClose, onClose);
+    fadeBackdrop(backdrop, false, options);
+  }, [onClose]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -65,7 +151,7 @@ export default function SearchModal({onClose}: {onClose: () => void}): ReactNode
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       e.preventDefault();
-      onClose();
+      dismiss();
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       setActive(Math.min(current + 1, entries.length - 1));
@@ -91,7 +177,7 @@ export default function SearchModal({onClose}: {onClose: () => void}): ReactNode
   };
 
   return (
-    <div className={styles.backdrop} onMouseDown={onClose}>
+    <div ref={backdropRef} className={styles.backdrop} onMouseDown={dismiss}>
       <div
         ref={panelRef}
         className={styles.panel}
@@ -121,7 +207,7 @@ export default function SearchModal({onClose}: {onClose: () => void}): ReactNode
             autoComplete="off"
             spellCheck={false}
           />
-          <button type="button" className={styles.close} onClick={onClose} aria-label="Close search">
+          <button type="button" className={styles.close} onClick={dismiss} aria-label="Close search">
             <CloseIcon />
           </button>
         </div>

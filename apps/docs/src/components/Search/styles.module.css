@@ -20,6 +20,8 @@
   border-radius: var(--fx-radius-2xl);
   background-color: var(--fx-glass-solid);
   box-shadow: var(--fx-shadow-modal);
+  /* Grows from just under the header (SearchModal.tsx). */
+  transform-origin: top center;
 }
 
 /* Translucent where supported; solid otherwise (ux-spec.md). */

@@ -23,7 +23,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 - Clicking Home, or the logo in the header, goes home and resets the sidebar: every section collapsed, "Go to page" cleared, scrolled to the top.
 - All sections are collapsed by default; the tree opens along the current page's path.
 - Clicking a section row toggles it. Clicking a page navigates.
-- **Hover to peek:** resting the mouse on a section (~200ms) opens it temporarily, and it stays open while the pointer is on it or anywhere inside it; sections inside open the same way. Moving to another row closes the temporary ones below it; ones above stay open (closing them would move the row away from the pointer) until the pointer leaves the tree. Clicking a temporarily open section keeps it open; clicking an open one closes it even while hovered. Mouse only; touch and keyboard are unchanged.
+- **Hover to open:** resting the mouse on a section (~200ms) opens it, and it stays open. Only a click closes it (a click on a closed section opens it). Mouse only; touch and keyboard are unchanged.
 - **Full-row highlight** on hover and on the selected row. Selected: background `#F5EDFF`, text `#4B0A80`.
 - Indent 16px per level, with thin vertical **indent guides**. The chevron rotates 90° when open (150ms).
 - A divider after Home and between top-level sections: a 1px line with its own spacing (6px above, 5px below), so rows keep one height. A small "standalone" pill on DSM.
@@ -52,7 +52,9 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 - Opens with ⌘K / Ctrl+K or `/`, or by clicking the trigger.
 - Closes on Esc, a **click outside**, or the **× button**.
-- The trigger looks like a text box and shows the text cursor on hover (on narrow screens it is an icon button). No opening or closing animation.
+- The trigger looks like a text box and shows the text cursor on hover (on narrow screens it is an icon button).
+- **Opens instantly**, also on the first click: the modal ships with the page (~3KB gzipped) and the index is fetched when the page is idle.
+- **Motion:** the panel fades in while settling 8px down from a 97% scale (200ms, fast-settling ease-out); its height glides to fit the results as you type (180ms); closing is a 120ms fade. None with reduced motion.
 - The panel is **slightly translucent**: `rgba(255,255,255,0.80)` with `backdrop-filter: blur(28px) saturate(180%)`, a light backdrop of `rgba(19,19,19,0.14)`, and a solid fallback when backdrop-filter isn't supported. Dark mode uses the same idea on a dark base.
 - **No "Top hit".** Every result is one uniform row:
   - kind icon tile

@@ -2,11 +2,11 @@ import {Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState, type 
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {OverlaysContext} from '@site/src/components/Overlays/context';
 import {loadIndex} from '@site/src/components/Search/useIndex';
+// Part of the page (~3KB gzipped), so search opens on the first click
+// without waiting for a download. The index is fetched when the page is idle.
+import SearchModal from '@site/src/components/Search/SearchModal';
 
-// Loaded on first open (or prefetched on hover/focus), so pages don't ship
-// their code.
-const loadSearchModal = () => import('@site/src/components/Search/SearchModal');
-const SearchModal = lazy(loadSearchModal);
+// Loaded on first open, so pages don't ship its code.
 const AskAIPanel = lazy(() => import('@site/src/components/AskAI/AskAIPanel'));
 
 function isTyping(target: EventTarget | null): boolean {
@@ -37,12 +37,23 @@ export default function Root({children}: {children: ReactNode}): ReactNode {
   const closeSearch = useCallback(() => {
     searchOpenRef.current = false;
     setSearchOpen(false);
-    returnFocus.current?.focus();
+    // Unless focus moved on while the modal animated out (e.g. "t").
+    const active = document.activeElement;
+    if (!active || active === document.body) returnFocus.current?.focus();
   }, []);
 
   const prefetchSearch = useCallback(() => {
-    void loadSearchModal();
     void loadIndex();
+  }, []);
+
+  // Fetch the index once the page has loaded and the browser is idle, so the
+  // first keystroke has results.
+  useEffect(() => {
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1000));
+    const fetchIndex = () => idle(() => void loadIndex());
+    if (document.readyState === 'complete') fetchIndex();
+    else window.addEventListener('load', fetchIndex, {once: true});
+    return () => window.removeEventListener('load', fetchIndex);
   }, []);
 
   // Clicks and shortcuts from before hydration were recorded by the inline
@@ -103,11 +114,7 @@ export default function Root({children}: {children: ReactNode}): ReactNode {
   return (
     <OverlaysContext.Provider value={overlays}>
       {children}
-      {searchOpen && (
-        <Suspense fallback={null}>
-          <SearchModal onClose={closeSearch} />
-        </Suspense>
-      )}
+      {searchOpen && <SearchModal onClose={closeSearch} />}
       {askAIEnabled && askAI.open && (
         <Suspense fallback={null}>
           <AskAIPanel initialQuestion={askAI.question} onClose={closeAskAI} />
