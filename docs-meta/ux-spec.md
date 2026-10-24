@@ -23,6 +23,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 - Clicking Home, or the logo in the header, goes home and resets the sidebar: every section collapsed, "Go to page" cleared, scrolled to the top.
 - All sections are collapsed by default; the tree opens along the current page's path.
 - Clicking a section row toggles it. Clicking a page navigates.
+- **Hover to peek:** resting the mouse on a section (~200ms) opens it temporarily, and it stays open while the pointer is on it or anywhere inside it; sections inside open the same way. Moving to another row closes the temporary ones below it; ones above stay open (closing them would move the row away from the pointer) until the pointer leaves the tree. Clicking a temporarily open section keeps it open; clicking an open one closes it even while hovered. Mouse only; touch and keyboard are unchanged.
 - **Full-row highlight** on hover and on the selected row. Selected: background `#F5EDFF`, text `#4B0A80`.
 - Indent 16px per level, with thin vertical **indent guides**. The chevron rotates 90° when open (150ms).
 - A divider after Home and between top-level sections: a 1px line with its own spacing (6px above, 5px below), so rows keep one height. A small "standalone" pill on DSM.
@@ -39,7 +40,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
    - Cards in a 3-column grid, each with a title and its closest parent section (the full path is in the tooltip).
    - Each card has its own **×** to remove it. There is **no "clear all"**.
    - Cards are ~56px tall.
-   - Shows 2 rows (6 cards). A "View more (n)" / "Show less" toggle sits to the right of the "Recently viewed" heading.
+   - Shows 2 rows (6 cards). A "View more (n)" / "Show less" toggle sits below the cards.
    - Empty state: "Pages you open show up here."
 3. **Explore Fortanix**: 6 curated cards (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness). Each card has a mono path, a title, one line, and tags. The cards come from one data file (`apps/docs/src/data/featured.ts`).
    - The path is one line (ellipsis if too long, never wraps), so titles in a row line up. Paths say "Armor" for "Fortanix Armor".

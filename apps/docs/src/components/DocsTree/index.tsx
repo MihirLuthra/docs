@@ -1,4 +1,14 @@
-import {useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode} from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type PointerEvent,
+  type ReactNode,
+} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import {useLocation} from '@docusaurus/router';
@@ -28,6 +38,20 @@ function visibleRows(nodes: TreeNode[], open: Set<string>): Row[] {
   return rows;
 }
 
+// How long the pointer rests on a row before the hover state follows it, so
+// sweeping across the tree doesn't open and close everything on the way.
+const HOVER_DELAY_MS = 200;
+
+/** Whether row `a` comes before row `b` and isn't one of its folders. */
+function isAbove(a: string, b: string): boolean {
+  const x = a.split('.').map(Number);
+  const y = b.split('.').map(Number);
+  for (let i = 0; i < Math.min(x.length, y.length); i++) {
+    if (x[i] !== y[i]) return x[i] < y[i];
+  }
+  return false; // one contains the other
+}
+
 function Chevron(): ReactNode {
   return (
     <svg className={styles.chevron} width="12" height="12" viewBox="0 0 24 24" aria-hidden="true">
@@ -52,7 +76,9 @@ function HomeIcon(): ReactNode {
 
 /**
  * The docs navigation tree (ux-spec.md, Sidebar): a Home row, then the whole
- * tree, collapsed except along the current page's path.
+ * tree, collapsed except along the current page's path. Resting the mouse on
+ * a folder opens it for as long as the pointer stays on it or inside it;
+ * clicking keeps it open.
  */
 export default function DocsTree({onNavigate}: {onNavigate?: () => void}): ReactNode {
   const tree = useTree();
@@ -63,6 +89,22 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
   const [focusKey, setFocusKey] = useState<string | null>(null);
   const itemRefs = useRef(new Map<string, HTMLElement>());
   const navRef = useRef<HTMLElement>(null);
+
+  // Folders shown open because the mouse is on them or inside them, without
+  // being added to `open`. Moving to another row closes the ones below it,
+  // but not those above, which would pull the row away from the pointer;
+  // leaving the tree closes them all.
+  const [hoverOpen, setHoverOpen] = useState<Set<string>>(() => new Set());
+  const hoverTimer = useRef<number | undefined>(undefined);
+  const hoverSoon = (key: string | null) => {
+    window.clearTimeout(hoverTimer.current);
+    hoverTimer.current = window.setTimeout(() => {
+      setHoverOpen((prev) =>
+        key === null ? new Set() : new Set([...[...prev].filter((k) => isAbove(k, key)), ...ancestors(key), key]),
+      );
+    }, HOVER_DELAY_MS);
+  };
+  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
 
   // Open the tree along the current page whenever it changes.
   useEffect(() => {
@@ -75,13 +117,16 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
     useCallback(() => {
       setOpen(new Set());
       setFocusKey(null);
+      window.clearTimeout(hoverTimer.current);
+      setHoverOpen(new Set());
       for (let el = navRef.current?.parentElement; el; el = el.parentElement) {
         if (el.scrollTop) el.scrollTop = 0;
       }
     }, []),
   );
 
-  const rows = useMemo(() => visibleRows(tree, open), [tree, open]);
+  const shown = useMemo(() => new Set([...open, ...hoverOpen]), [open, hoverOpen]);
+  const rows = useMemo(() => visibleRows(tree, shown), [tree, shown]);
   const tabKey =
     focusKey && rows.some((r) => r.key === focusKey)
       ? focusKey
@@ -98,6 +143,18 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
       return next;
     });
 
+  // Keeps a folder open (also one only open because it's hovered), or closes
+  // one that was kept open, even while the pointer is still on it.
+  const clickFolder = (row: Row) => {
+    if (open.has(row.key)) {
+      toggle(row.key, false);
+      window.clearTimeout(hoverTimer.current);
+      setHoverOpen((prev) => new Set([...prev].filter((k) => k !== row.key)));
+    } else {
+      toggle(row.key, true);
+    }
+  };
+
   const focus = (key: string | null | undefined) => {
     if (!key) return;
     setFocusKey(key);
@@ -106,7 +163,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
 
   const onKeyDown = (e: KeyboardEvent, row: Row, index: number) => {
     const isFolder = !!row.node.items;
-    const isOpen = open.has(row.key);
+    const isOpen = shown.has(row.key);
     switch (e.key) {
       case 'ArrowDown':
         focus(rows[index + 1]?.key);
@@ -132,7 +189,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
       case 'Enter':
       case ' ':
         if (!isFolder) return; // links handle Enter themselves
-        toggle(row.key);
+        clickFolder(row);
         break;
       default:
         return;
@@ -158,11 +215,15 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
       </Link>
       <div className={styles.divider} aria-hidden="true" />
       <GoToPage onNavigate={onNavigate} />
-      <div role="tree" aria-label="Documentation" className={styles.tree}>
+      <div
+        role="tree"
+        aria-label="Documentation"
+        className={styles.tree}
+        onPointerLeave={(e) => e.pointerType === 'mouse' && hoverSoon(null)}>
         {rows.map((row, index) => {
           const {key, node, depth} = row;
           const isFolder = !!node.items;
-          const isOpen = open.has(key);
+          const isOpen = shown.has(key);
           const isCurrent = key === currentKey;
           const common = {
             ref: (el: HTMLElement | null) => {
@@ -174,6 +235,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
             tabIndex: key === tabKey ? 0 : -1,
             onKeyDown: (e: KeyboardEvent) => onKeyDown(e, row, index),
             onFocus: () => setFocusKey(key),
+            onPointerEnter: (e: PointerEvent) => e.pointerType === 'mouse' && hoverSoon(key),
             className: clsx(styles.row, depth === 0 && styles.top, isCurrent && styles.selected),
             style: {'--depth': depth} as CSSProperties,
             title: node.label,
@@ -194,7 +256,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
             <div key={key}>
               {depth === 0 && index > 0 && <div className={styles.divider} aria-hidden="true" />}
               {isFolder ? (
-                <div {...common} aria-expanded={isOpen} onClick={() => toggle(key)}>
+                <div {...common} aria-expanded={isOpen} onClick={() => clickFolder(row)}>
                   {content}
                 </div>
               ) : (
