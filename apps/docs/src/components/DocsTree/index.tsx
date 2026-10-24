@@ -110,9 +110,19 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
     setHoverOpen(readHoverOpen());
   }, []);
   const hoverTimer = useRef<number | undefined>(undefined);
+  // The section a hover has just opened, while the pointer is still on it:
+  // a click on it then keeps it open instead of closing it (someone who
+  // didn't notice it opened meant to open it).
+  const hoverOpened = useRef<string | null>(null);
   const openSoon = (key: string | null) => {
     window.clearTimeout(hoverTimer.current);
-    if (key && hoverOpen) hoverTimer.current = window.setTimeout(() => toggle(key, true), HOVER_DELAY_MS);
+    hoverOpened.current = null;
+    if (!key || !hoverOpen) return;
+    hoverTimer.current = window.setTimeout(() => {
+      if (open.has(key)) return;
+      hoverOpened.current = key;
+      toggle(key, true);
+    }, HOVER_DELAY_MS);
   };
   useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
 
@@ -310,7 +320,8 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
                   aria-expanded={isOpen}
                   onClick={() => {
                     window.clearTimeout(hoverTimer.current); // a pending hover-open
-                    toggle(key);
+                    if (hoverOpened.current === key) hoverOpened.current = null;
+                    else toggle(key);
                   }}>
                   {content}
                 </div>
