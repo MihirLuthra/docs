@@ -1,6 +1,6 @@
 ---
 title: Open-source model
-description: Run a public model on rented GPUs while keeping prompts and data private, and prove which model is running.
+description: Run a public model on rented or your own GPUs while keeping prompts and data private, and prove which model is running.
 doc_type: concept
 keywords: [open-source model, oss, open weights, llama, public model, prompts, data privacy]
 sidebar_position: 3
@@ -15,12 +15,11 @@ An enterprise runs a public open-source model. The weights are already public, s
 | Deployment | Model owner | Model consumer | Infrastructure provider |
 |---|---|---|---|
 | Open model on an NCP | Open-source project | Enterprise | NCP |
-
-{/* TODO(verify): add an own-infrastructure scenario if customers run open-source models on their own GPUs in a TEE. */}
+| Open model on own GPUs | Open-source project | Enterprise | Enterprise |
 
 ## What is protected
 
-- **Prompts, data and answers.** The NCP's hosts and administrators cannot read them while the model processes them.
+- **Prompts, data and answers.** The hosts and administrators of the NCP, or of the enterprise's own infrastructure, cannot read them while the model processes them.
 - **The integrity of the workload.** CCM issues a certificate only when the measurement matches an approved model. The enterprise, and any service that checks the certificate, know exactly which model and code are running.
 
 ## Keys
@@ -33,4 +32,4 @@ The workload always attests to CCM and gets a certificate. There is no model enc
 
 | Party | Must trust | Does not need to trust |
 |---|---|---|
-| Enterprise | The CPU and GPU vendors, CCM, the open-source model | The NCP |
+| Enterprise | The CPU and GPU vendors, CCM, the open-source model | The NCP, or its own infrastructure administrators |

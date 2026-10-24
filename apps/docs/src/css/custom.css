@@ -183,15 +183,15 @@
   --fx-kind-tutorial-tint: #fde8f0;
   --fx-kind-section: #5b6170;
   --fx-kind-section-tint: #eef0f3;
-  /* Diagrams (components/ConfidentialAI): the kind colours, by meaning. They
-     follow the kind colours' dark values too. */
+  /* Diagrams (components/ConfidentialAI). Purple: secure (the TEE, its
+     protections, verified checks, certificates, keys). Red: untrusted (the
+     host). Everything else neutral (--fx-bg, --fx-border-strong). Controls
+     (buttons, switch, step dots) use the accent. */
   --fx-diagram-accent: var(--fx-kind-solution);
-  --fx-diagram-tee: var(--fx-kind-quickstart); /* the TEE, protection */
-  --fx-diagram-tee-soft: var(--fx-kind-quickstart-tint);
-  --fx-diagram-cert: var(--fx-kind-product); /* certificates */
-  --fx-diagram-cert-soft: var(--fx-kind-product-tint);
-  --fx-diagram-key: var(--fx-kind-concept); /* keys */
-  --fx-diagram-key-soft: var(--fx-kind-concept-tint);
+  --fx-diagram-secure: var(--fx-kind-solution);
+  --fx-diagram-secure-soft: var(--fx-kind-solution-tint);
+  --fx-diagram-insecure: #b42318;
+  --fx-diagram-insecure-soft: #fff5f4;
 
   /* Infima mapping */
   --ifm-font-family-base: var(--fx-font-sans);
@@ -279,6 +279,8 @@
   --fx-kind-tutorial-tint: #3a1726;
   --fx-kind-section: #a3a8b5;
   --fx-kind-section-tint: #26262c;
+  --fx-diagram-insecure: #ff8a80;
+  --fx-diagram-insecure-soft: #2a1515;
 
   --ifm-color-primary-darkest: var(--fx-purple);
   --ifm-color-primary-light: var(--fx-purple-light);

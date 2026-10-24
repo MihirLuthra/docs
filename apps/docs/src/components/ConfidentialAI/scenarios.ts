@@ -116,8 +116,8 @@ export const SCENARIOS: Scenario[] = [
     protects: [
       "The model weights and the data, from the cloud or NCP's hosts and administrators.",
     ],
-    keyRelease: "recommended",
-    keyNote: "Keeping the weights encrypted means the cloud or NCP only ever stores ciphertext. Only the approved model workload can read them.",
+    keyRelease: "required",
+    keyNote: "The weights stay encrypted, so the cloud or NCP only ever stores ciphertext. DSM releases the key into the TEE only for the approved model.",
   },
   {
     id: "oss-ncp",
@@ -132,6 +132,23 @@ export const SCENARIOS: Scenario[] = [
     ],
     protects: [
       "The enterprise's prompts and data, from the NCP's hosts and administrators.",
+      "Proof, through attestation, that the expected model and code are running.",
+    ],
+    keyRelease: "optional",
+    keyNote: "The weights are public, so there is no model encryption key. The workload can still get a key from DSM whenever it needs one, for example to open encrypted storage.",
+  },
+  {
+    id: "oss-own",
+    useCase: "open-source",
+    label: "Open model on own GPUs",
+    summary: "An enterprise runs a public open-source model on its own GPUs.",
+    parties: [
+      { name: "Open-source project", roles: ["owner"], note: "Weights are public" },
+      { name: "Enterprise", roles: ["consumer", "infra"] },
+      { name: "Employees or customers", roles: ["user"] },
+    ],
+    protects: [
+      "The enterprise's prompts and data, from infrastructure administrators and compromised host software.",
       "Proof, through attestation, that the expected model and code are running.",
     ],
     keyRelease: "optional",

@@ -28,7 +28,7 @@ On its own infrastructure, the organization is protected from administrators and
 
 ## Key release
 
-Key release is recommended. The organization encrypts the model weights and keeps the model encryption key in DSM. DSM releases the key directly into the TEE, and only for the approved model. The weights are then only ever readable by the approved code around the model. Storage, backups and every other host hold only ciphertext. This applies least privilege to the model itself.
+Key release is required on cloud or NCP GPUs, and recommended on the organization's own infrastructure. The organization encrypts the model weights and keeps the model encryption key in DSM. DSM releases the key directly into the TEE, and only for the approved model. The weights are then only ever readable by the approved code around the model. Storage, backups and every other host hold only ciphertext. This applies least privilege to the model itself.
 
 <AttestationFlow keyRelease="toggle" />
 

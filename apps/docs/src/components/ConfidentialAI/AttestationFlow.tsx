@@ -10,7 +10,7 @@ import "./styles.css";
 //   initialKey: starting position of the switch when keyRelease="toggle" (default true).
 
 type NodeId = "ccm" | "wl" | "dsm";
-type TokenKind = "evidence" | "cert" | "key";
+type TokenKind = "evidence" | "cert" | "mtls" | "key";
 
 interface Step {
   id: string;
@@ -19,9 +19,8 @@ interface Step {
   token?: { from: NodeId; to: NodeId; kind: TokenKind };
 }
 
-// Example values shown in the diagram. Not real.
+// Example value shown in the diagram. Not real.
 const MEASUREMENT = "9c2e…41a7";
-const MODEL = "Model A";
 
 const COMMON: Step[] = [
   {
@@ -51,14 +50,14 @@ const COMMON: Step[] = [
 const WITH_KEY: Step[] = [
   {
     id: "present",
-    title: "Present the certificate to DSM",
-    text: "The workload presents its certificate to DSM and asks for the model encryption key.",
-    token: { from: "wl", to: "dsm", kind: "cert" },
+    title: "Authenticate to DSM over mutual TLS",
+    text: "The workload connects to DSM over mutual TLS, with its certificate as its client certificate, and asks for the model encryption key. The certificate stays with the workload; the TLS handshake proves the workload holds it.",
+    token: { from: "wl", to: "dsm", kind: "mtls" },
   },
   {
     id: "key",
     title: "DSM releases the key",
-    text: "DSM trusts certificates from CCM and expects the one for this approved model. It releases the key directly into the TEE. A modified workload has a different measurement, so it gets no certificate and no key.",
+    text: "DSM trusts certificates from CCM. It checks that the client certificate is for the approved model, then releases the key directly into the TEE over that connection. A modified workload has a different measurement, so it gets no certificate and no key.",
     token: { from: "dsm", to: "wl", kind: "key" },
   },
   {
@@ -72,7 +71,7 @@ const WITHOUT_KEY: Step[] = [
   {
     id: "serve",
     title: "Serve",
-    text: "The workload serves requests. Whenever it needs a key, or needs to prove itself to another service, it uses its certificate.",
+    text: "The workload serves requests. Whenever it needs a key, or needs to prove itself to another service, it authenticates with its certificate over mutual TLS.",
   },
 ];
 
@@ -99,6 +98,9 @@ const Icon = {
   cert: (
     <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2.5" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.5" /><circle cx="10.5" cy="10.5" r="2.4" fill="currentColor" /><path d="M9.3 12.5 8.8 15l1.7-.9 1.7.9-.5-2.5" fill="currentColor" /><path d="M4.5 5.5h7M4.5 8h3.5" stroke="currentColor" strokeWidth="1.3" /></svg>
   ),
+  mtls: (
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5.5h10M9.5 3 12 5.5 9.5 8M14 10.5H4M6.5 8 4 10.5 6.5 13" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  ),
   key: (
     <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="5" cy="8" r="3" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M8 8h6.5M12 8v2.5M14 8v2" stroke="currentColor" strokeWidth="1.7" /></svg>
   ),
@@ -110,7 +112,7 @@ const Icon = {
   ),
 };
 
-const TOKEN_LABEL: Record<TokenKind, string> = { evidence: "Evidence", cert: "Certificate", key: "Encryption key" };
+const TOKEN_LABEL: Record<TokenKind, string> = { evidence: "Evidence", cert: "Certificate", mtls: "mTLS · certificate", key: "Encryption key" };
 
 export function AttestationFlow({
   keyRelease = "toggle",
@@ -169,6 +171,7 @@ export function AttestationFlow({
   const sent = reached("evidence");
   const verified = reached("verify");
   const certified = reached("cert");
+  const authed = needsKey && reached("present");
   const keyed = needsKey && reached("key");
   const serving = reached("serve");
   const active = (id: NodeId) => {
@@ -200,7 +203,7 @@ export function AttestationFlow({
             ))}
           </ul>
           {sent && !verified && <div className="cai-id cai-pop">Received <code>{MEASUREMENT}</code></div>}
-          {verified && <div className="cai-id cai-pop">Matches approved {MODEL}</div>}
+          {verified && <div className="cai-id cai-pop">Matches an approved model</div>}
         </div>
 
         <div className="cai-host">
@@ -227,7 +230,7 @@ export function AttestationFlow({
               {needsKey ? (
                 <span className={`cai-chip cai-chip-model ${serving ? "is-open" : ""}`}>
                   <i>{serving ? Icon.unlock : Icon.lock}</i>
-                  {serving ? `${MODEL} decrypted in TEE` : `${MODEL} weights, encrypted`}
+                  {serving ? "Model decrypted in TEE" : "Model weights, encrypted"}
                 </span>
               ) : (
                 <span className="cai-chip cai-chip-model">Model weights</span>
@@ -236,7 +239,7 @@ export function AttestationFlow({
             <div className="cai-id">Measurement <code>{MEASUREMENT}</code></div>
             {(certified || keyed) && (
               <div className="cai-chips">
-                {certified && <span className="cai-chip cai-chip-cert cai-pop"><i>{Icon.cert}</i>Certificate for {MODEL}</span>}
+                {certified && <span className="cai-chip cai-chip-cert cai-pop"><i>{Icon.cert}</i>Certificate for the model</span>}
                 {keyed && <span className="cai-chip cai-chip-key cai-pop"><i>{Icon.key}</i>Encryption key</span>}
               </div>
             )}
@@ -248,9 +251,14 @@ export function AttestationFlow({
           {needsKey ? (
             <>
               <div className="cai-chips">
-                <span className={`cai-chip cai-chip-key ${keyed ? "is-released" : ""}`}><i>{Icon.key}</i>{keyed ? "Released into the TEE" : `${MODEL} encryption key`}</span>
+                <span className={`cai-chip cai-chip-key ${keyed ? "is-released" : ""}`}><i>{Icon.key}</i>{keyed ? "Released into the TEE" : "Model encryption key"}</span>
               </div>
-              <div className="cai-id">Released only with the certificate for {MODEL}</div>
+              <div className="cai-id">Released only to a client holding the model's certificate</div>
+              {authed && (
+                <div className="cai-authed cai-pop">
+                  <i>{Icon.check}</i>Client authenticated over mTLS
+                </div>
+              )}
             </>
           ) : (
             <div className="cai-chips"><span className="cai-chip">Available when needed</span></div>
@@ -292,7 +300,7 @@ export function AttestationFlow({
           ))}
         </ol>
       </div>
-      <p className="cai-footnote">{MODEL} and the measurement value are examples.</p>
+      <p className="cai-footnote">The measurement value is an example.</p>
     </figure>
   );
 }

@@ -63,7 +63,7 @@ export function RolesExplorer({
           return (
             <div
               key={start}
-              className={`cai-party ${p.roles.includes("infra") ? "is-infra" : ""}`}
+              className="cai-party"
               style={{ left: `calc(${start * SLOT}% + 3px)`, width: `calc(${span * SLOT}% - 6px)` }}
             >
               <span className="cai-party-name">{p.name}</span>

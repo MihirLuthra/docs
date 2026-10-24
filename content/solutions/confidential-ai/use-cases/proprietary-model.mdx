@@ -31,7 +31,7 @@ A vendor that serves its own model to users, on an NCP or a cloud, holds both th
 1. The vendor encrypts the model weights and keeps the model encryption key in DSM.
 2. The workload starts inside a TEE and attests to CCM.
 3. CCM checks the hardware, its settings and the workload's measurement. If they match an approved model, CCM issues a certificate.
-4. The workload presents the certificate to DSM. DSM releases the key directly into the TEE.
+4. The workload authenticates to DSM over mutual TLS with the certificate. DSM releases the key directly into the TEE.
 5. The approved code around the model decrypts the weights inside the TEE.
 
 <AttestationFlow keyRelease="required" />
