@@ -66,7 +66,8 @@
   --fx-sidebar-width: 300px;
   --fx-tree-indent: 16px;
   --fx-tree-row-h: 32px;
-  --fx-history-menu-w: 320px; /* back / forward lists */
+  --fx-history-menu-min: 200px; /* back / forward lists fit their pages */
+  --fx-history-menu-max: 280px;
   --fx-tree-home-h: 40px;
   --fx-tree-home-gap: 4px; /* below Home, before its divider */
   --fx-tree-home-size: 0.9375rem; /* 15px */
@@ -145,6 +146,7 @@
   --fx-shadow-drawer: 16px 0 40px rgb(19 19 19 / 0.12);
   --fx-shadow-panel: -16px 0 40px rgb(19 19 19 / 0.08);
   --fx-shadow-popover: 0 12px 32px rgb(19 19 19 / 0.12), 0 2px 6px rgb(19 19 19 / 0.06);
+  --fx-shadow-menu: 0 4px 12px rgb(19 19 19 / 0.08), 0 1px 3px rgb(19 19 19 / 0.06);
   --fx-backdrop: rgb(19 19 19 / 0.14);
 
   /* Search modal (ux-spec.md): translucent glass, solid fallback */
@@ -236,6 +238,7 @@
   --fx-shadow-drawer: 16px 0 40px rgb(0 0 0 / 0.5);
   --fx-shadow-panel: -16px 0 40px rgb(0 0 0 / 0.5);
   --fx-shadow-popover: 0 12px 32px rgb(0 0 0 / 0.5), 0 2px 6px rgb(0 0 0 / 0.3);
+  --fx-shadow-menu: 0 4px 12px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.3);
   --fx-backdrop: rgb(0 0 0 / 0.5);
 
   --fx-glass-bg: rgb(27 27 31 / 0.72);

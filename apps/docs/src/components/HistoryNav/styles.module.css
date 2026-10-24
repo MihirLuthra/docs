@@ -26,9 +26,25 @@
   cursor: pointer;
 }
 
+/* Arrow, then its shortcut chip. */
 .arrow {
-  width: var(--fx-tree-row-h);
+  gap: var(--fx-space-1);
+  padding: 0 var(--fx-space-1) 0 var(--fx-space-2);
   border-radius: var(--fx-radius-md) 0 0 var(--fx-radius-md);
+}
+
+/* Like the t / c / h chips in the sidebar. */
+.kbd {
+  flex: none;
+  padding: 0 var(--fx-space-1);
+  border: var(--fx-border-width) solid var(--fx-border-strong);
+  border-radius: var(--fx-radius-sm);
+  background-color: var(--fx-bg);
+  box-shadow: none;
+  color: var(--fx-text-muted);
+  font-family: var(--fx-font-mono);
+  font-size: var(--fx-text-xs);
+  line-height: 1.5;
 }
 
 .caret {
@@ -50,11 +66,12 @@
 }
 
 .arrow:disabled svg,
+.arrow:disabled .kbd,
 .caret:disabled svg {
   opacity: 0.35;
 }
 
-/* The list: under the group, like the "Go to page" dropdown. */
+/* The list: under the group, small and light, one line per page. */
 .menu {
   position: absolute;
   top: calc(100% + var(--fx-space-1));
@@ -63,26 +80,29 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  width: var(--fx-history-menu-w);
-  max-width: calc(100vw - 2 * var(--fx-space-4));
+  width: max-content;
+  min-width: var(--fx-history-menu-min);
+  max-width: min(var(--fx-history-menu-max), calc(100vw - 2 * var(--fx-space-4)));
   padding: var(--fx-space-1);
   border: var(--fx-border-width) solid var(--fx-border);
-  border-radius: var(--fx-radius-card);
+  border-radius: var(--fx-radius-lg);
   background-color: var(--fx-bg);
-  box-shadow: var(--fx-shadow-popover);
+  box-shadow: var(--fx-shadow-menu);
 }
 
 .item {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding: var(--fx-space-2) var(--fx-space-3);
+  display: block;
+  overflow: hidden;
+  padding: var(--fx-space-1) var(--fx-space-2);
   border: 0;
   border-radius: var(--fx-radius-md);
   background: transparent;
   color: var(--fx-text);
   font: inherit;
   text-align: left;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   cursor: pointer;
 }
 
@@ -96,19 +116,15 @@
   background-color: var(--fx-selected-bg);
 }
 
-.itemTitle,
-.itemPath {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
+/* One line: the title, then its section in grey; if it's too long, the
+   ellipsis falls at the end (the section first). */
 .itemTitle {
-  font-size: var(--fx-text-md);
+  font-size: var(--fx-text-sm);
   font-weight: 500;
 }
 
 .itemPath {
+  margin-left: var(--fx-space-2);
   color: var(--fx-text-muted);
   font-size: var(--fx-text-xs);
 }

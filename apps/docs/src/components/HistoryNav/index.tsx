@@ -1,10 +1,14 @@
 import {useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode} from 'react';
 import {getHistory, getServerHistory, subscribe, type HistoryEntry} from '@site/src/lib/nav-history';
 import {locate, useTree} from '@site/src/components/DocsTree/tree';
+import {isPlainShortcut} from '@site/src/lib/keys';
 import styles from './styles.module.css';
 
 // At most this many pages in each list.
-const LIST_MAX = 10;
+const LIST_MAX = 8;
+
+// "b" goes back, "f" forward (when not typing); shown on the arrows.
+const SHORTCUT = {back: 'b', forward: 'f'} as const;
 
 type Direction = 'back' | 'forward';
 
@@ -49,13 +53,14 @@ function HistoryButton({
   const menuRef = useRef<HTMLDivElement>(null);
   const tree = useTree();
   const label = direction === 'back' ? 'Back' : 'Forward';
-  // Docs pages: their title and section path from the tree; others (home,
-  // release notes) the title the page set, and the URL.
+  // Docs pages: their title and closest section (full path in the tooltip),
+  // like the recent cards; others (home, release notes) the title the page
+  // set.
   const describe = (entry: HistoryEntry) => {
     const found = locate(tree, entry.path.replace(/[?#].*$/, ''));
     return found
-      ? {title: found.title, detail: found.path.join(' / ')}
-      : {title: entry.title || entry.path, detail: entry.path};
+      ? {title: found.title, detail: found.path[found.path.length - 1] ?? '', full: found.path.join(' / ')}
+      : {title: entry.title || entry.path, detail: '', full: entry.path};
   };
   const disabled = pages.length === 0;
 
@@ -82,6 +87,19 @@ function HistoryButton({
     setOpen(false);
     window.history.go(delta);
   };
+
+  useEffect(() => {
+    const onKeyDown = (e: globalThis.KeyboardEvent) => {
+      if (disabled || !isPlainShortcut(e, SHORTCUT[direction])) return;
+      e.preventDefault();
+      setOpen(false);
+      window.history.go(direction === 'back' ? -1 : 1);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [direction, disabled]);
 
   // ↑ ↓ move, Home / End, Esc closes, Tab leaves.
   const onMenuKeyDown = (e: KeyboardEvent) => {
@@ -115,8 +133,12 @@ function HistoryButton({
         }}
         disabled={disabled}
         aria-label={label}
-        title={disabled ? label : `${label} to ${describe(pages[0].entry).title}`}>
+        aria-keyshortcuts={SHORTCUT[direction]}
+        title={disabled ? label : `${label} to ${describe(pages[0].entry).title} (${SHORTCUT[direction]})`}>
         <ArrowIcon direction={direction} />
+        <kbd className={styles.kbd} aria-hidden="true">
+          {SHORTCUT[direction]}
+        </kbd>
       </button>
       <button
         ref={caretRef}
@@ -137,7 +159,7 @@ function HistoryButton({
           aria-label={`${label} history`}
           onKeyDown={onMenuKeyDown}>
           {pages.slice(0, LIST_MAX).map(({entry, delta}) => {
-            const {title, detail} = describe(entry);
+            const {title, detail, full} = describe(entry);
             return (
               <button
                 key={entry.key}
@@ -145,6 +167,7 @@ function HistoryButton({
                 role="menuitem"
                 tabIndex={-1}
                 className={styles.item}
+                title={full}
                 onClick={() => go(delta)}>
                 <span className={styles.itemTitle}>{title}</span>
                 <span className={styles.itemPath}>{detail}</span>
