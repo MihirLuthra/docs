@@ -14,7 +14,8 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 - Then a **"Go to page" filter**, like GitHub's "Go to file", then one collapsible tree (information-architecture.md).
   - It matches against the full path (e.g. `ccm api`, `armor/dsm/pkcs`). Words are separated by spaces or `/` and can come in any order. Each word must match part of a path segment as text, or as the initials of consecutive words in one segment (`dsm` → Data Security Manager).
   - Results are pages only (folders have none), best first: words matched in the page's own title, then at word starts, then shallower pages. Up to 8 are shown; no match shows "No matching pages".
-  - Input: a search icon, a **×** clear button when there's text, and a **t** shortcut chip when empty. Pressing **t** when not typing focuses it; **/** stays with the ⌘K search, which is separate and stays in the header.
+  - Input: a search icon, a **×** clear button when there's text, and a **t** shortcut chip when empty. Pressing **t** when not typing focuses it; **/** opens the ⌘K search (also from the empty filter; once there's text, "/" is a path separator). The ⌘K search is separate and stays in the header.
+  - It stays visible at the top of the sidebar while the tree scrolls, with the hover and "Collapse all" buttons beside it.
   - Dropdown: floats over the content, left-aligned with the input, ~640px wide (at most the viewport − 32px); the full drawer width inside the mobile drawer. Radius 12px, soft shadow.
   - Rows: a page icon, then the path with the matched parts in bold. Long paths wrap onto the next line, indented to the text (no ellipsis). The active or hovered row uses the neutral grey of sidebar row hover.
   - ↑ ↓ Enter work in it, and Esc clears it.
@@ -23,7 +24,8 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 - Clicking Home, or the logo in the header, goes home and resets the sidebar: every section collapsed, "Go to page" cleared, scrolled to the top.
 - All sections are collapsed by default; the tree opens along the current page's path.
 - Clicking a section row toggles it. Clicking a page navigates.
-- **Hover to open:** resting the mouse on a section (~200ms) opens it, and it stays open. Only a click closes it (a click on a closed section opens it). Mouse only; touch and keyboard are unchanged.
+- **Hover to open:** resting the mouse on a section (~200ms) opens it, and it stays open. Only a click closes it (a click on a closed section opens it). Mouse only; touch and keyboard are unchanged. It can be turned off with the pointer button next to "Go to page" (on by default; the choice is kept in localStorage).
+- **Collapse all:** a button next to "Go to page" closes every section (disabled when none is open).
 - **Full-row highlight** on hover and on the selected row. Selected: background `#F5EDFF`, text `#4B0A80`.
 - Indent 16px per level, with thin vertical **indent guides**. The chevron rotates 90° when open (150ms).
 - A divider after Home and between top-level sections: a 1px line with its own spacing (6px above, 5px below), so rows keep one height. A small "standalone" pill on DSM.

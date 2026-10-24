@@ -111,10 +111,59 @@
   line-height: 1.6;
 }
 
-/* "Go to page" filter, between Home and the tree. Its block is 40px
-   (32 + 8), a multiple of 4, so the dividers below stay on the 4px grid. */
+/* "Go to page" filter and the tree's buttons, between Home and the tree.
+   Sticky, with a background, so it stays visible while the tree scrolls.
+   Its top padding takes the place of the divider's space below the line
+   (cancelled by the negative margin), so it has a little room when stuck
+   and the layout is unchanged: 32px + 8 below, a multiple of 4, so the
+   dividers below stay on the 4px grid. It stops 1px short of the line:
+   at fractional scaling the line spills into the next device pixel, and
+   the background would cover that. */
+.toolbar {
+  --above: calc(var(--fx-tree-divider-gap) - 2 * var(--fx-border-width));
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  gap: var(--fx-space-1);
+  margin-top: calc(-1 * var(--above));
+  padding: var(--above) 0 var(--fx-space-2);
+  background-color: var(--fx-bg);
+}
+
 .goto {
-  margin-bottom: var(--fx-space-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.toolButton {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--fx-tree-row-h);
+  height: var(--fx-tree-row-h);
+  padding: 0;
+  border: 0;
+  border-radius: var(--fx-radius-md);
+  background: transparent;
+  color: var(--fx-text-muted);
+  cursor: pointer;
+}
+
+.toolButton:hover:not(:disabled) {
+  background-color: var(--fx-hover);
+  color: var(--fx-text);
+}
+
+.toolButton[aria-pressed='true'] {
+  background-color: var(--fx-selected-bg);
+  color: var(--fx-selected-text);
+}
+
+.toolButton:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 .filterBox {

@@ -15,6 +15,7 @@ import {useHistory} from '@docusaurus/router';
 import {flattenPages, goToPage, type Highlights} from './goto';
 import {useTree} from './tree';
 import {useNavReset} from '@site/src/lib/nav-reset';
+import {useOverlays} from '@site/src/components/Overlays/context';
 import styles from './styles.module.css';
 
 const PANEL_WIDTH = 640;
@@ -100,6 +101,7 @@ function panelPosition(box: HTMLElement): CSSProperties {
 export default function GoToPage({onNavigate}: {onNavigate?: () => void}): ReactNode {
   const tree = useTree();
   const history = useHistory();
+  const {openSearch} = useOverlays();
   const id = useId();
   const pages = useMemo(() => flattenPages(tree), [tree]);
   const [query, setQuery] = useState('');
@@ -165,6 +167,9 @@ export default function GoToPage({onNavigate}: {onNavigate?: () => void}): React
     else if (e.key === 'ArrowUp') setActive(Math.max(current - 1, 0));
     else if (e.key === 'Enter' && matches[current]) go(matches[current].entry.href);
     else if (e.key === 'Escape' && query) setQuery('');
+    // "/" opens the header search from an empty box; after text, it's a
+    // path separator ("armor/dsm").
+    else if (e.key === '/' && !query && !e.metaKey && !e.ctrlKey && !e.altKey) openSearch();
     else return;
     e.preventDefault();
     e.stopPropagation(); // keep Esc from closing the drawer while clearing

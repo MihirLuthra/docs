@@ -16,6 +16,7 @@ import type {TreeNode} from './types';
 import {ancestors, findKey, normalize, useTree} from './tree';
 import GoToPage from './GoToPage';
 import {resetNav, useNavReset} from '@site/src/lib/nav-reset';
+import {readHoverOpen, writeHoverOpen} from '@site/src/lib/tree-prefs';
 import styles from './styles.module.css';
 
 type Row = {
@@ -64,10 +65,33 @@ function HomeIcon(): ReactNode {
   );
 }
 
+function HoverIcon(): ReactNode {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M5 3l14 7-6 2-2 6z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CollapseAllIcon(): ReactNode {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7 4l5 5 5-5M7 20l5-5 5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 /**
  * The docs navigation tree (ux-spec.md, Sidebar): a Home row, then the whole
  * tree, collapsed except along the current page's path. Resting the mouse on
- * a section opens it, and it stays open; only a click closes it.
+ * a section opens it, and it stays open; only a click closes it. Hover-open
+ * can be turned off, and "Collapse all" closes everything.
  */
 export default function DocsTree({onNavigate}: {onNavigate?: () => void}): ReactNode {
   const tree = useTree();
@@ -79,10 +103,15 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
   const itemRefs = useRef(new Map<string, HTMLElement>());
   const navRef = useRef<HTMLElement>(null);
 
+  // On until the saved choice is read after hydration (localStorage).
+  const [hoverOpen, setHoverOpen] = useState(true);
+  useEffect(() => {
+    setHoverOpen(readHoverOpen());
+  }, []);
   const hoverTimer = useRef<number | undefined>(undefined);
   const openSoon = (key: string | null) => {
     window.clearTimeout(hoverTimer.current);
-    if (key) hoverTimer.current = window.setTimeout(() => toggle(key, true), HOVER_DELAY_MS);
+    if (key && hoverOpen) hoverTimer.current = window.setTimeout(() => toggle(key, true), HOVER_DELAY_MS);
   };
   useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
 
@@ -180,7 +209,34 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
         <span className={styles.label}>Home</span>
       </Link>
       <div className={styles.divider} aria-hidden="true" />
-      <GoToPage onNavigate={onNavigate} />
+      {/* Stays at the top while the tree scrolls. */}
+      <div className={styles.toolbar}>
+        <GoToPage onNavigate={onNavigate} />
+        <button
+          type="button"
+          className={styles.toolButton}
+          aria-pressed={hoverOpen}
+          aria-label="Open sections on hover"
+          title="Open sections on hover"
+          onClick={() => {
+            writeHoverOpen(!hoverOpen);
+            setHoverOpen(!hoverOpen);
+          }}>
+          <HoverIcon />
+        </button>
+        <button
+          type="button"
+          className={styles.toolButton}
+          aria-label="Collapse all"
+          title="Collapse all"
+          disabled={open.size === 0}
+          onClick={() => {
+            window.clearTimeout(hoverTimer.current);
+            setOpen(new Set());
+          }}>
+          <CollapseAllIcon />
+        </button>
+      </div>
       <div
         role="tree"
         aria-label="Documentation"
