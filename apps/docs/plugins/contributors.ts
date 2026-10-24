@@ -82,13 +82,13 @@ export default function contributorsPlugin(context: LoadContext, options: {repo:
 
       for (const doc of docs.loadedVersions[0].docs) {
         const file = path.resolve(context.siteDir, doc.source.replace(/^@site\//, ''));
-        const log = git(root, ['log', '--follow', '--format=%an%x1f%ae%x1f%aI', '--', file]).trim();
+        const log = git(root, ['log', '--follow', '--format=%an%x1f%ae', '--', file]).trim();
         if (!log) continue;
-        // Per author: commits and latest date; git log is newest first.
-        const byAuthor = new Map<number, {commits: number; last: string}>();
-        let updated: {date: string; person: number} | undefined;
+        // Per author: commits, and their order of last commit (git log is
+        // newest first), for ties.
+        const byAuthor = new Map<number, {commits: number; recent: number}>();
         for (const line of log.split('\n')) {
-          const [name, rawEmail, date] = line.split('\x1f');
+          const [name, rawEmail] = line.split('\x1f');
           const email = rawEmail.toLowerCase();
           const account = accounts.get(email);
           if (isBot(name, account?.login)) continue;
@@ -99,18 +99,16 @@ export default function contributorsPlugin(context: LoadContext, options: {repo:
             index = people.push({name, ...(account && {login: account.login, avatar: account.avatar})}) - 1;
             personIndex.set(id, index);
           }
-          updated ??= {date, person: index};
           const entry = byAuthor.get(index);
           if (entry) entry.commits += 1;
-          else byAuthor.set(index, {commits: 1, last: date});
+          else byAuthor.set(index, {commits: 1, recent: byAuthor.size});
         }
-        if (!updated) continue;
+        if (byAuthor.size === 0) continue;
         pages[doc.permalink.replace(/\/+$/, '') || '/'] = {
           file: path.relative(root, file),
           authors: [...byAuthor]
-            .sort(([, a], [, b]) => b.commits - a.commits || b.last.localeCompare(a.last))
+            .sort(([, a], [, b]) => b.commits - a.commits || a.recent - b.recent)
             .map(([person, {commits}]) => ({person, commits})),
-          updated,
         };
       }
       actions.setGlobalData({repo: options.repo, branch: options.branch, people, pages} satisfies Contributors);

@@ -1,20 +1,42 @@
-/* Under "Edit this page": avatars, then one line of text. */
+/* Like a GitHub repo's Contributors box: heading and count, a grid of
+   avatars, "+ N contributors". Under "Edit this page". */
 .contributors {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--fx-space-2) var(--fx-space-3);
   margin-top: var(--fx-space-6);
   padding-top: var(--fx-space-4);
   border-top: var(--fx-border-width) solid var(--fx-border);
-  color: var(--fx-text-muted);
-  font-size: var(--fx-text-sm);
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-2);
+  margin: 0 0 var(--fx-space-3);
+  font-size: var(--fx-text-lg);
+  font-weight: 600;
+}
+
+.count {
+  padding: 0 var(--fx-space-2);
+  border-radius: var(--fx-radius-pill);
+  background-color: var(--fx-chip);
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-xs-plus);
+  font-weight: 600;
+  line-height: 1.6;
 }
 
 .avatars {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--fx-space-1);
+  gap: var(--fx-space-2);
+  max-width: var(--fx-contributors-max);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.avatars li {
+  margin: 0;
 }
 
 .avatarLink {
@@ -30,9 +52,6 @@
   height: var(--fx-avatar-size);
   border: var(--fx-border-width) solid var(--fx-border);
   border-radius: 50%;
-}
-
-.avatar {
   background-color: var(--fx-chip);
 }
 
@@ -40,39 +59,13 @@
 .initials {
   display: grid;
   place-items: center;
-  background-color: var(--fx-chip);
   color: var(--fx-text-secondary);
   font-size: var(--fx-text-xs);
   font-weight: 600;
 }
 
 .more {
-  align-self: center;
-  color: var(--fx-text-muted);
-  font-size: var(--fx-text-xs);
-}
-
-.text {
-  margin: 0;
-}
-
-.text strong {
-  color: var(--fx-text);
-  font-weight: 600;
-}
-
-.text a {
-  color: var(--fx-text-secondary);
-  text-decoration: underline;
-  text-decoration-color: var(--fx-border-strong);
-  text-underline-offset: var(--fx-link-underline-offset);
-}
-
-.text a:hover {
-  color: var(--fx-link-hover);
-  text-decoration-color: currentColor;
-}
-
-.dot {
-  margin: 0 var(--fx-space-2);
+  display: inline-block;
+  margin-top: var(--fx-space-3);
+  font-size: var(--fx-text-sm);
 }

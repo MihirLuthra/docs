@@ -21,8 +21,6 @@ export type Contributors = {
       file: string;
       /** Most commits first. */
       authors: Array<{person: number; commits: number}>;
-      /** The latest commit: ISO date and its author. */
-      updated: {date: string; person: number};
     };
   };
 };
