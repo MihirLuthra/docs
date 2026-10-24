@@ -154,9 +154,9 @@
 .cai-roles-stage { position: relative; height: 150px; }
 .cai-party {
   position: absolute; top: 0; bottom: 0;
-  border: 1.5px solid var(--fx-border-strong);
+  border: 1.5px solid var(--fx-diagram-party);
   border-radius: 12px;
-  background: var(--fx-bg);
+  background: var(--fx-diagram-party-soft);
   padding: 6px 10px;
   display: flex; flex-direction: column; align-items: center; text-align: center;
   transition: left 450ms cubic-bezier(.4,0,.2,1), width 450ms cubic-bezier(.4,0,.2,1);
@@ -169,7 +169,7 @@
 .cai-role {
   position: absolute; top: 58px; height: 80px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-  background: var(--fx-surface); border: 1px solid var(--fx-border-strong); border-radius: 8px;
+  background: var(--fx-bg); border: 1px solid var(--fx-border-strong); border-radius: 8px;
   font-size: 12.5px; line-height: 1.25; padding: 4px; overflow: hidden;
 }
 .cai-role-tee { font-size: 10.5px; color: var(--fx-diagram-secure); margin-top: 4px; }

@@ -185,13 +185,16 @@
   --fx-kind-section-tint: #eef0f3;
   /* Diagrams (components/ConfidentialAI). Purple: secure (the TEE, its
      protections, verified checks, certificates, keys). Red: untrusted (the
-     host). Everything else neutral (--fx-bg, --fx-border-strong). Controls
-     (buttons, switch, step dots) use the accent. */
+     host). Parties (who holds which role): the brand blue. Everything else
+     neutral (--fx-bg, --fx-border-strong). Controls (buttons, switch, step
+     dots) use the accent. */
   --fx-diagram-accent: var(--fx-kind-solution);
   --fx-diagram-secure: var(--fx-kind-solution);
   --fx-diagram-secure-soft: var(--fx-kind-solution-tint);
   --fx-diagram-insecure: #b42318;
   --fx-diagram-insecure-soft: #fff5f4;
+  --fx-diagram-party: var(--fx-blue);
+  --fx-diagram-party-soft: #e8f9ff;
 
   /* Infima mapping */
   --ifm-font-family-base: var(--fx-font-sans);
@@ -281,6 +284,8 @@
   --fx-kind-section-tint: #26262c;
   --fx-diagram-insecure: #ff8a80;
   --fx-diagram-insecure-soft: #2a1515;
+  --fx-diagram-party: #1a9fd1;
+  --fx-diagram-party-soft: #0d2630;
 
   --ifm-color-primary-darkest: var(--fx-purple);
   --ifm-color-primary-light: var(--fx-purple-light);
