@@ -29,14 +29,19 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 ## Home
 
-1. **"New to Fortanix? Get familiar first"**: a prominent purple banner linking to *What Fortanix does*.
+- **Grid:** sidebar | main column (max 1080px) | right rail (260px, from 1280px wide). The rail is reserved for later content such as "Get help / Slack" and is empty for now. The main column and rail are centred together in the space beside the sidebar.
+- **Compact top**, so Explore Fortanix is above the fold on a 1080p screen (with 6 recents, at least its first row is fully visible): about 28px between sections.
+
+1. **"New to Fortanix? Get familiar first"**: a prominent purple banner linking to *What Fortanix does*. One row, ~64px tall: icon, then the title and description running together (sharing lines where they fit), then the button. On narrow screens the button wraps below.
 2. **Recently viewed** (stored in localStorage, max 12):
    - Cards in a 3-column grid, each with a title and its closest parent section (the full path is in the tooltip).
    - Each card has its own **×** to remove it. There is **no "clear all"**.
-   - Shows 2 rows (6 cards), then a "View more (n)" / "Show less" toggle.
+   - Cards are ~56px tall.
+   - Shows 2 rows (6 cards). A "View more (n)" / "Show less" toggle sits to the right of the "Recently viewed" heading.
    - Empty state: "Pages you open show up here."
 3. **Explore Fortanix**: 6 curated cards (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness). Each card has a mono path, a title, one line, and tags. The cards come from one data file (`apps/docs/src/data/featured.ts`).
    - The path is one line (ellipsis if too long, never wraps), so titles in a row line up. Paths say "Armor" for "Fortanix Armor".
+   - At most 3 columns (6 cards = 2 rows); fewer on narrow screens.
    - About 6px between path, title, description and tags. Description line-height 1.5.
    - Tags: 11px text, padding 1px 6px, radius 4px, background `#F2F3F6` (a dark grey in dark mode), 4px apart.
 

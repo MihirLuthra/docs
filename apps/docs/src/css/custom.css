@@ -75,8 +75,12 @@
      with 32px rows and 12px divider blocks, every sidebar divider lands on
      a whole device pixel at 125%, 150%, 175% and 200% scaling. */
   --fx-content-top: 22px;
-  --fx-home-max: 980px;
-  --fx-recent-card-h: 62px;
+  --fx-home-max: 1080px; /* home main column */
+  --fx-rail-width: 260px; /* home right rail */
+  --fx-rail-gap: var(--fx-space-8);
+  --fx-section-gap: 28px;
+  --fx-banner-py: 10px; /* two 1.3 lines (or the 40px icon) + 2 x 10 + border = ~64px banner */
+  --fx-recent-card-h: 56px;
   --fx-card-gap: 6px; /* between path, title, description and tags */
   --fx-tag-py: 1px;
   --fx-tag-px: 6px;

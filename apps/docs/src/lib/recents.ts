@@ -29,15 +29,13 @@ export function addRecent(path: string): void {
   writeRecents([path, ...readRecents().filter((p) => p !== path)]);
 }
 
-/** Updates the variables the head script sets, after recents change. */
+/** Updates the variable the head script sets, after recents change. */
 export function setRecentsLayout(count: number): void {
-  const style = document.documentElement.style;
-  style.setProperty('--fx-recent-count', String(Math.min(count, RECENTS_VISIBLE)));
-  style.setProperty('--fx-recent-more', count > RECENTS_VISIBLE ? '1' : '0');
+  document.documentElement.style.setProperty('--fx-recent-count', String(Math.min(count, RECENTS_VISIBLE)));
 }
 
 /**
  * Inline <head> script: before first paint, exposes how many recents exist so
  * the home page can reserve their space (no layout shift on hydration).
  */
-export const recentsHeadScript = `try{var n=JSON.parse(localStorage.getItem('${RECENTS_KEY}')||'[]').length;var s=document.documentElement.style;s.setProperty('--fx-recent-count',Math.min(n,${RECENTS_VISIBLE}));s.setProperty('--fx-recent-more',n>${RECENTS_VISIBLE}?1:0);}catch(e){}`;
+export const recentsHeadScript = `try{var n=JSON.parse(localStorage.getItem('${RECENTS_KEY}')||'[]').length;var s=document.documentElement.style;s.setProperty('--fx-recent-count',Math.min(n,${RECENTS_VISIBLE}));}catch(e){}`;

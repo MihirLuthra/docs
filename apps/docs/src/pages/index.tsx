@@ -35,8 +35,9 @@ function GetFamiliarBanner(): ReactNode {
       <span className={styles.bannerIcon}>
         <CompassIcon />
       </span>
+      {/* Title and description run together, so they share lines where they fit. */}
       <span className={styles.bannerText}>
-        <span className={styles.bannerTitle}>New to Fortanix? Get familiar first</span>
+        <span className={styles.bannerTitle}>New to Fortanix? Get familiar first</span>{' '}
         <span className={styles.bannerLine}>
           What the Armor platform does, confidential computing, attestation and key
           management, in a few short reads.
@@ -85,43 +86,44 @@ function RecentlyViewed(): ReactNode {
 
   return (
     <section className={styles.section} aria-labelledby="recent-heading">
-      <h2 id="recent-heading" ref={headingRef} tabIndex={-1} className={styles.heading}>
-        Recently viewed
-      </h2>
+      <div className={styles.headingRow}>
+        <h2 id="recent-heading" ref={headingRef} tabIndex={-1} className={styles.heading}>
+          Recently viewed
+        </h2>
+        {hidden > 0 && (
+          <button
+            type="button"
+            className={styles.more}
+            onClick={() => setShowAll(!showAll)}
+            aria-expanded={showAll}
+            aria-controls="recent-list">
+            {showAll ? 'Show less' : `View more (${hidden})`}
+          </button>
+        )}
+      </div>
       <div className={styles.recentSlot}>
         {paths !== null && items.length === 0 && (
           <p className={styles.empty}>Pages you open show up here.</p>
         )}
         {items.length > 0 && (
-          <>
-            <ul ref={listRef} className={styles.recentGrid}>
-              {visible.map((item, i) => (
-                <li key={item.href} className={styles.recentItem}>
-                  <Link to={item.href} className={styles.recentCard} title={item.path.join(' / ')}>
-                    <span className={styles.recentTitle}>{item.title}</span>
-                    {/* The closest parent section; the full path is in the tooltip. */}
-                    <span className={styles.recentPath}>{item.path[item.path.length - 1]}</span>
-                  </Link>
-                  <button
-                    type="button"
-                    className={styles.remove}
-                    onClick={() => remove(item.href, i)}
-                    aria-label={`Remove ${item.title} from recently viewed`}>
-                    <CloseIcon />
-                  </button>
-                </li>
-              ))}
-            </ul>
-            {hidden > 0 && (
-              <button
-                type="button"
-                className={styles.more}
-                onClick={() => setShowAll(!showAll)}
-                aria-expanded={showAll}>
-                {showAll ? 'Show less' : `View more (${hidden})`}
-              </button>
-            )}
-          </>
+          <ul ref={listRef} id="recent-list" className={styles.recentGrid}>
+            {visible.map((item, i) => (
+              <li key={item.href} className={styles.recentItem}>
+                <Link to={item.href} className={styles.recentCard} title={item.path.join(' / ')}>
+                  <span className={styles.recentTitle}>{item.title}</span>
+                  {/* The closest parent section; the full path is in the tooltip. */}
+                  <span className={styles.recentPath}>{item.path[item.path.length - 1]}</span>
+                </Link>
+                <button
+                  type="button"
+                  className={styles.remove}
+                  onClick={() => remove(item.href, i)}
+                  aria-label={`Remove ${item.title} from recently viewed`}>
+                  <CloseIcon />
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </section>
@@ -131,9 +133,11 @@ function RecentlyViewed(): ReactNode {
 function ExploreFortanix(): ReactNode {
   return (
     <section className={styles.section} aria-labelledby="explore-heading">
-      <h2 id="explore-heading" className={styles.heading}>
-        Explore Fortanix
-      </h2>
+      <div className={styles.headingRow}>
+        <h2 id="explore-heading" className={styles.heading}>
+          Explore Fortanix
+        </h2>
+      </div>
       <ul className={styles.exploreGrid}>
         {featured.map((card) => (
           <li key={card.href}>
@@ -165,12 +169,17 @@ export default function Home(): ReactNode {
         <aside className={styles.sidebar}>
           <DocsTree />
         </aside>
-        <main className={styles.main}>
-          <h1 className="sr-only">Fortanix Documentation</h1>
-          <GetFamiliarBanner />
-          <RecentlyViewed />
-          <ExploreFortanix />
-        </main>
+        {/* Main column + right rail, centred together beside the sidebar. */}
+        <div className={styles.content}>
+          <main className={styles.main}>
+            <h1 className="sr-only">Fortanix Documentation</h1>
+            <GetFamiliarBanner />
+            <RecentlyViewed />
+            <ExploreFortanix />
+          </main>
+          {/* Right rail, reserved for later content (e.g. Get help / Slack). Empty for now. */}
+          <div className={styles.rail} />
+        </div>
       </div>
     </Layout>
   );

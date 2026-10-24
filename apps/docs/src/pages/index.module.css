@@ -17,12 +17,31 @@
   border-right: var(--fx-border-width) solid var(--fx-border);
 }
 
-.main {
+.content {
+  display: flex;
   flex: 1;
+  justify-content: center;
+  gap: var(--fx-rail-gap);
+  min-width: 0;
+  padding: var(--fx-content-top) var(--fx-space-12) var(--fx-space-12);
+}
+
+.main {
+  flex: 1 1 auto;
   min-width: 0;
   max-width: var(--fx-home-max);
-  padding: var(--fx-content-top) var(--fx-space-12) var(--fx-space-12);
   font-size: var(--fx-text-md);
+}
+
+.rail {
+  flex: none;
+  width: var(--fx-rail-width);
+}
+
+@media (max-width: 1279px) {
+  .rail {
+    display: none;
+  }
 }
 
 @media (max-width: 996px) {
@@ -30,7 +49,7 @@
     display: none;
   }
 
-  .main {
+  .content {
     padding: var(--fx-content-top) var(--fx-space-4) var(--fx-space-8);
   }
 }
@@ -38,11 +57,10 @@
 /* Get familiar banner */
 .banner {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: var(--fx-space-4);
-  margin-bottom: var(--fx-space-8);
-  padding: var(--fx-space-4) var(--fx-space-5);
+  margin-bottom: var(--fx-section-gap);
+  padding: var(--fx-banner-py) var(--fx-space-4);
   border: var(--fx-border-width) solid var(--fx-accent-border);
   border-radius: var(--fx-radius-xl);
   background-color: var(--fx-accent-soft);
@@ -72,24 +90,36 @@
 }
 
 .bannerText {
-  flex: 1 1 18rem;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.3;
 }
 
 .bannerTitle {
-  display: block;
-  font-size: var(--fx-text-xl);
+  margin-right: var(--fx-space-2);
+  font-size: var(--fx-text-lg);
   font-weight: 700;
 }
 
 .bannerLine {
-  display: block;
   color: var(--fx-text-secondary);
   font-size: var(--fx-text-sm);
 }
 
+/* Narrow screens: the button goes below the text. */
+@media (max-width: 575px) {
+  .banner {
+    flex-wrap: wrap;
+  }
+
+  .bannerText {
+    flex-basis: calc(100% - var(--fx-space-10) - var(--fx-space-4));
+  }
+}
+
 .bannerCta {
   flex: none;
-  padding: var(--fx-space-2) var(--fx-space-4);
+  padding: var(--fx-space-2) var(--fx-space-3);
   border-radius: var(--fx-radius-lg);
   background-color: var(--fx-cta-bg);
   color: var(--fx-cta-text);
@@ -99,13 +129,25 @@
 
 /* Sections */
 .section {
-  margin-bottom: var(--fx-space-8);
+  margin-bottom: var(--fx-section-gap);
+}
+
+/* Heading, with "View more" on the right for Recently viewed. A fixed
+   height, so the button appearing after hydration doesn't shift anything. */
+.headingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fx-space-3);
+  height: var(--fx-recent-more-h);
+  margin-bottom: var(--fx-space-3);
 }
 
 .heading {
-  margin: 0 0 var(--fx-space-3);
+  margin: 0;
   font-size: var(--fx-text-lg);
   font-weight: 700;
+  line-height: 1.3;
 }
 
 .heading:focus {
@@ -113,17 +155,14 @@
 }
 
 /* Recently viewed. The slot reserves the grid's height before hydration from
-   --fx-recent-count and --fx-recent-more (set by the inline head script), so cards appearing
+   --fx-recent-count (set by the inline head script), so cards appearing
    doesn't shift the page. */
 .recentSlot {
   --cols: 3;
   --rows: round(up, calc(var(--fx-recent-count, 0) / var(--cols)), 1);
-  min-height: calc(
-    max(
-        var(--fx-recent-empty-h),
-        var(--rows) * var(--fx-recent-card-h) + (var(--rows) - 1) * var(--fx-space-2)
-      ) +
-      var(--fx-recent-more, 0) * (var(--fx-recent-more-h) + var(--fx-space-2))
+  min-height: max(
+    var(--fx-recent-empty-h),
+    calc(var(--rows) * var(--fx-recent-card-h) + (var(--rows) - 1) * var(--fx-space-2))
   );
 }
 
@@ -179,6 +218,7 @@
 .recentTitle,
 .recentPath {
   overflow: hidden;
+  line-height: 1.4;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -225,8 +265,8 @@
 .more {
   display: block;
   height: var(--fx-recent-more-h);
-  margin: var(--fx-space-2) auto 0;
-  padding: 0 var(--fx-space-4);
+  flex: none;
+  padding: 0 var(--fx-space-3);
   border: var(--fx-border-width) solid var(--fx-border);
   border-radius: var(--fx-radius-pill);
   background-color: var(--fx-bg);
@@ -251,7 +291,11 @@
 /* Explore Fortanix */
 .exploreGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  /* At most 3 columns (6 cards = 2 full rows); fewer when narrower. */
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(max(min(100%, 15rem), calc((100% - 2 * var(--fx-space-3)) / 3)), 1fr)
+  );
   gap: var(--fx-space-3);
   margin: 0;
   padding: 0;
