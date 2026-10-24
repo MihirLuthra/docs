@@ -1,0 +1,47 @@
+/* 996px is Docusaurus's desktop breakpoint (media queries can't use vars). */
+
+/* Spacing and the path's text styles are in custom.css (.breadcrumbs). */
+.container {
+  --ifm-breadcrumb-size-multiplier: 0.8;
+}
+
+.homeIcon {
+  position: relative;
+  top: var(--fx-border-width);
+  width: var(--fx-breadcrumb-home-size);
+  height: var(--fx-breadcrumb-home-size);
+  vertical-align: top;
+}
+
+/* The menu opens under its folder. */
+.folder {
+  position: relative;
+}
+
+/* A folder: text with a small caret, opening its menu. */
+.folderButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fx-border-width);
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.folderButton:hover,
+.folderButton[aria-expanded='true'] {
+  color: var(--fx-text);
+}
+
+.caret {
+  width: var(--fx-breadcrumb-caret-size);
+  height: var(--fx-breadcrumb-caret-size);
+  opacity: 0.7;
+}
+
+/* "Show in sidebar": the sidebar is only beside the page on wide screens. */
+@media (max-width: 996px) {
+  .desktopOnly {
+    display: none;
+  }
+}

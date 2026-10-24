@@ -1,7 +1,8 @@
-import {useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode} from 'react';
+import {useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode} from 'react';
 import {getHistory, getServerHistory, subscribe, type HistoryEntry} from '@site/src/lib/nav-history';
 import {locate, useTree} from '@site/src/components/DocsTree/tree';
 import {isPlainShortcut} from '@site/src/lib/keys';
+import Menu, {menuStyles} from '@site/src/components/Menu';
 import styles from './styles.module.css';
 
 // At most this many pages in each list.
@@ -50,7 +51,6 @@ function HistoryButton({
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const caretRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
   const tree = useTree();
   const label = direction === 'back' ? 'Back' : 'Forward';
   // Docs pages: their title and closest section (full path in the tooltip),
@@ -64,24 +64,11 @@ function HistoryButton({
   };
   const disabled = pages.length === 0;
 
-  // Close on a click outside.
-  useEffect(() => {
-    if (!open) return undefined;
-    const onDown = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDown);
-    return () => document.removeEventListener('mousedown', onDown);
-  }, [open]);
-
-  // Focus the first page when the list opens.
-  useEffect(() => {
-    if (open) menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
-  }, [open]);
-
   useEffect(() => {
     if (disabled) setOpen(false);
   }, [disabled]);
+
+  const close = useCallback(() => setOpen(false), []);
 
   const go = (delta: number) => {
     setOpen(false);
@@ -100,25 +87,6 @@ function HistoryButton({
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [direction, disabled]);
-
-  // ↑ ↓ move, Home / End, Esc closes, Tab leaves.
-  const onMenuKeyDown = (e: KeyboardEvent) => {
-    const items = [...(menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
-    const at = items.indexOf(document.activeElement as HTMLElement);
-    const move = (i: number) => items[(i + items.length) % items.length]?.focus();
-    if (e.key === 'ArrowDown') move(at + 1);
-    else if (e.key === 'ArrowUp') move(at - 1);
-    else if (e.key === 'Home') move(0);
-    else if (e.key === 'End') move(items.length - 1);
-    else if (e.key === 'Escape') {
-      setOpen(false);
-      caretRef.current?.focus();
-    } else if (e.key === 'Tab') {
-      setOpen(false);
-      return;
-    } else return;
-    e.preventDefault();
-  };
 
   return (
     <div ref={rootRef} className={styles.group}>
@@ -152,12 +120,7 @@ function HistoryButton({
         <CaretIcon />
       </button>
       {open && (
-        <div
-          ref={menuRef}
-          className={styles.menu}
-          role="menu"
-          aria-label={`${label} history`}
-          onKeyDown={onMenuKeyDown}>
+        <Menu label={`${label} history`} rootRef={rootRef} triggerRef={caretRef} onClose={close}>
           {pages.slice(0, LIST_MAX).map(({entry, delta}) => {
             const {title, detail, full} = describe(entry);
             return (
@@ -166,15 +129,15 @@ function HistoryButton({
                 type="button"
                 role="menuitem"
                 tabIndex={-1}
-                className={styles.item}
+                className={menuStyles.item}
                 title={full}
                 onClick={() => go(delta)}>
-                <span className={styles.itemTitle}>{title}</span>
-                <span className={styles.itemPath}>{detail}</span>
+                <span className={menuStyles.itemTitle}>{title}</span>
+                <span className={menuStyles.itemDetail}>{detail}</span>
               </button>
             );
           })}
-        </div>
+        </Menu>
       )}
     </div>
   );

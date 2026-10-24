@@ -1,0 +1,94 @@
+/* Small and light, under its trigger; one line per item. */
+.menu {
+  position: absolute;
+  top: calc(100% + var(--fx-space-1));
+  left: 0;
+  z-index: var(--fx-z-popover);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: var(--fx-menu-min);
+  max-width: min(var(--fx-menu-max), calc(100vw - 2 * var(--fx-space-4)));
+  padding: var(--fx-space-1);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-lg);
+  background-color: var(--fx-bg);
+  box-shadow: var(--fx-shadow-menu);
+}
+
+.item {
+  display: block;
+  overflow: hidden;
+  padding: var(--fx-space-1) var(--fx-space-2);
+  border: 0;
+  border-radius: var(--fx-radius-md);
+  background: transparent;
+  color: var(--fx-text);
+  font: inherit;
+  text-align: left;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+/* Links as items (path menus). */
+a.item,
+a.item:hover {
+  color: var(--fx-text);
+  text-decoration: none;
+}
+
+.item:hover {
+  background-color: var(--fx-hover);
+}
+
+/* Keyboard: the selected-row colours, clearer than hover. */
+.item:focus-visible {
+  outline: none;
+  background-color: var(--fx-selected-bg);
+}
+
+/* One line: the title, then a detail in grey (e.g. its section); if it's too
+   long, the ellipsis falls at the end (the detail first). */
+.itemTitle {
+  font-size: var(--fx-text-sm);
+  font-weight: 500;
+}
+
+.itemDetail {
+  margin-left: var(--fx-space-2);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-xs);
+}
+
+/* The page you're on, in a path menu. */
+.item[aria-current='page'] {
+  color: var(--fx-selected-text);
+  font-weight: 600;
+}
+
+/* A folder: opens inside the menu; chevron on the right. */
+.chevron {
+  float: right;
+  margin-left: var(--fx-space-3);
+  color: var(--fx-text-muted);
+}
+
+/* The folder being shown, when the menu has moved into a sub-folder. */
+.heading {
+  margin: 0;
+  padding: var(--fx-space-1) var(--fx-space-2);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.separator {
+  height: 0;
+  margin: var(--fx-space-1) 0;
+  border-top: var(--fx-border-width) solid var(--fx-border);
+}

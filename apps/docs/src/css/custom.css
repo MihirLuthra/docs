@@ -67,8 +67,10 @@
   --fx-tree-indent: 16px;
   --fx-tree-row-h: 32px;
   --fx-link-underline-offset: 0.2em;
-  --fx-history-menu-min: 200px; /* back / forward lists fit their pages */
-  --fx-history-menu-max: 280px;
+  --fx-breadcrumb-home-size: 1.1rem;
+  --fx-breadcrumb-caret-size: 10px;
+  --fx-menu-min: 200px; /* small menus (Back / Forward, path) fit their items */
+  --fx-menu-max: 280px;
   --fx-tree-home-h: 40px;
   --fx-tree-home-gap: 4px; /* below Home, before its divider */
   --fx-tree-home-size: 0.9375rem; /* 15px */

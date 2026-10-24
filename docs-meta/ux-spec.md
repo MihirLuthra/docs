@@ -56,6 +56,8 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 ## Search bar
 
+A search bar in the header. Clicking it (or ⌘K / Ctrl+K or `/`) opens a larger search panel near the top of the page, over a dimmed page.
+
 - Opens with ⌘K / Ctrl+K or `/`, or by clicking the trigger.
 - Closes on Esc, a **click outside**, or the **× button**.
 - The trigger looks like a text box and shows the text cursor on hover (on narrow screens it is an icon button).
@@ -107,6 +109,15 @@ The icon comes from the page's kind. The kind comes from `doc_type` in front mat
 | Section | Any other folder | folder | grey `#5B6170` |
 
 Each icon sits on a tinted tile. The kind is also written as text in the pill, so colour is never the only signal.
+
+## Doc pages
+
+- **Path** above the title: Home, then each folder, then the page. Folders have no page (D10), so each folder opens a small menu of what's inside it:
+  - pages open directly; the page you're on is marked;
+  - sub-folders (with ›) open inside the same menu, with a "‹ parent" row to go back (→ and ← from the keyboard), as far up as the folder clicked;
+  - **Show in sidebar** (wide screens) opens that folder in the sidebar tree, scrolls it into view, focuses it and highlights it briefly.
+  - The menu is the same small menu as the Back / Forward lists, kept inside the screen.
+- **Diagrams** (Confidential AI): purple means secure (the TEE, its protections, verified checks, certificates, keys), red means untrusted (the host), and everything else is neutral (white with a grey outline). The controls (Play, the switch, step dots, the selected scenario) use the accent colour. Workloads authenticate to DSM over mutual TLS with their CCM certificate; the diagram shows that handshake rather than handing the certificate over.
 
 ## Ask AI (right-side panel)
 

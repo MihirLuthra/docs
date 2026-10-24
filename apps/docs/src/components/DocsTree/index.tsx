@@ -16,6 +16,7 @@ import type {TreeNode} from './types';
 import {ancestors, findKey, normalize, useTree} from './tree';
 import GoToPage from './GoToPage';
 import {resetNav, useNavReset} from '@site/src/lib/nav-reset';
+import {useTreeReveal} from '@site/src/lib/tree-reveal';
 import {readHoverOpen, writeHoverOpen} from '@site/src/lib/tree-prefs';
 import {isPlainShortcut} from '@site/src/lib/keys';
 import styles from './styles.module.css';
@@ -43,6 +44,9 @@ function visibleRows(nodes: TreeNode[], open: Set<string>): Row[] {
 // How long the mouse rests on a section before it opens, so sweeping across
 // the tree doesn't open everything on the way.
 const HOVER_DELAY_MS = 200;
+
+// How long a row revealed from a path menu stays highlighted.
+const REVEAL_FLASH_MS = 1500;
 
 function Chevron(): ReactNode {
   return (
@@ -162,6 +166,26 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [collapseAll]);
+
+  // "Show in sidebar" (path menus): open down to `key`, then (once the rows
+  // exist) scroll to it, focus it and flash it. Only the visible instance.
+  const [revealed, setRevealed] = useState<string | null>(null);
+  useTreeReveal(
+    useCallback((key: string) => {
+      if (navRef.current?.offsetParent == null) return;
+      setOpen((prev) => new Set([...prev, ...ancestors(key), key]));
+      setRevealed(key);
+    }, []),
+  );
+  useEffect(() => {
+    if (!revealed) return undefined;
+    const el = itemRefs.current.get(revealed);
+    el?.scrollIntoView({block: 'center'});
+    el?.focus({preventScroll: true});
+    setFocusKey(revealed);
+    const t = window.setTimeout(() => setRevealed(null), REVEAL_FLASH_MS);
+    return () => window.clearTimeout(t);
+  }, [revealed]);
 
   const rows = useMemo(() => visibleRows(tree, open), [tree, open]);
   const tabKey =
@@ -299,7 +323,12 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
             onFocus: () => setFocusKey(key),
             // Sections open on hover (mouse only); pages don't.
             onPointerEnter: (e: PointerEvent) => openSoon(isFolder && e.pointerType === 'mouse' ? key : null),
-            className: clsx(styles.row, depth === 0 && styles.top, isCurrent && styles.selected),
+            className: clsx(
+              styles.row,
+              depth === 0 && styles.top,
+              isCurrent && styles.selected,
+              key === revealed && styles.revealed,
+            ),
             style: {'--depth': depth} as CSSProperties,
             title: node.label,
           };

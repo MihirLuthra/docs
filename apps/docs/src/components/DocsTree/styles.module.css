@@ -33,6 +33,18 @@
   outline-offset: calc(-1 * var(--fx-focus-width));
 }
 
+/* Revealed from a path menu ("Show in sidebar"): a highlight that fades. */
+.row.revealed {
+  animation: reveal 1.5s var(--fx-ease) both;
+}
+
+@keyframes reveal {
+  from,
+  40% {
+    background-color: var(--fx-selected-bg);
+  }
+}
+
 .row.selected {
   background-color: var(--fx-selected-bg);
   color: var(--fx-selected-text);
