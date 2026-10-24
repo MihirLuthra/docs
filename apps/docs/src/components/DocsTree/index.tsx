@@ -246,16 +246,20 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
             Open sections on hover: {hoverOpen ? 'on' : 'off'}
           </span>
         </button>
+        {/* The "c" shortcut shows on the button, like "t" in the filter. */}
         <button
           type="button"
-          className={styles.toolButton}
+          className={`${styles.toolButton} ${styles.withKey}`}
           aria-label="Collapse all"
           aria-keyshortcuts="c"
           disabled={open.size === 0}
           onClick={collapseAll}>
           <CollapseAllIcon />
+          <kbd className={styles.filterKbd} aria-hidden="true">
+            c
+          </kbd>
           <span className={styles.tip} aria-hidden="true">
-            Collapse all <kbd>c</kbd>
+            Collapse all
           </span>
         </button>
       </div>

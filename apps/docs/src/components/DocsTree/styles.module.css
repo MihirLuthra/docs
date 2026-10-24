@@ -166,8 +166,20 @@
   cursor: default;
 }
 
-.toolButton:disabled svg {
+.toolButton:disabled svg,
+.toolButton:disabled kbd {
   opacity: 0.4;
+}
+
+/* Icon, then its shortcut chip. */
+.withKey {
+  gap: var(--fx-space-1);
+  width: auto;
+  padding: 0 var(--fx-space-1) 0 var(--fx-space-2);
+}
+
+.withKey .filterKbd {
+  margin-right: 0;
 }
 
 /* Label (and shortcut) under a toolbar button, on hover or keyboard focus,
