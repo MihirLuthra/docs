@@ -49,7 +49,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
    - Cards are ~56px tall.
    - Shows 2 rows (6 cards). A "View more (n)" / "Show less" toggle sits below the cards.
    - Empty state: "Pages you open show up here."
-3. **Explore Fortanix**: curated cards, for now 3 (Confidential AI, Key management→DSM, Confidential Computing); Tokenization, File system encryption and PQC readiness come back when those solutions have pages. Each card has a mono path, a title, one line, and tags. The cards come from one data file (`apps/docs/src/data/featured.ts`).
+3. **Explore Fortanix**: 6 curated cards (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness). Each card has a mono path, a title, one line, and tags. The cards come from one data file (`apps/docs/src/data/featured.ts`).
    - The path is one line (ellipsis if too long, never wraps), so titles in a row line up. Paths say "Armor" for "Fortanix Armor".
    - At most 3 columns (6 cards = 2 rows); fewer on narrow screens.
    - About 6px between path, title, description and tags. Description line-height 1.5.
