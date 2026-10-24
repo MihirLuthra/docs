@@ -66,7 +66,7 @@
   --fx-sidebar-width: 300px;
   --fx-tree-indent: 16px;
   --fx-tree-row-h: 32px;
-  --fx-goto-max-h: 360px;
+  --fx-z-popover: calc(var(--ifm-z-index-fixed) - 1);
   --fx-tree-divider-gap: 6px; /* above the line; 5px below, 12px in all */
   --fx-brand-divider-h: 18px;
   --fx-brand-docs-size: 20px; /* "Docs" in the header lockup */
@@ -130,6 +130,7 @@
   --fx-shadow-card: 0 4px 14px rgb(19 19 19 / 0.06);
   --fx-shadow-drawer: 16px 0 40px rgb(19 19 19 / 0.12);
   --fx-shadow-panel: -16px 0 40px rgb(19 19 19 / 0.08);
+  --fx-shadow-popover: 0 12px 32px rgb(19 19 19 / 0.12), 0 2px 6px rgb(19 19 19 / 0.06);
   --fx-backdrop: rgb(19 19 19 / 0.14);
 
   /* Search modal (ux-spec.md): translucent glass, solid fallback */
@@ -214,6 +215,7 @@
   --fx-shadow-card: 0 4px 14px rgb(0 0 0 / 0.4);
   --fx-shadow-drawer: 16px 0 40px rgb(0 0 0 / 0.5);
   --fx-shadow-panel: -16px 0 40px rgb(0 0 0 / 0.5);
+  --fx-shadow-popover: 0 12px 32px rgb(0 0 0 / 0.5), 0 2px 6px rgb(0 0 0 / 0.3);
   --fx-backdrop: rgb(0 0 0 / 0.5);
 
   --fx-glass-bg: rgb(27 27 31 / 0.8);

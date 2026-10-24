@@ -129,7 +129,6 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
 
   return (
     <nav className={styles.nav} aria-label="Documentation">
-      <GoToPage onNavigate={onNavigate} />
       <Link
         to="/"
         className={clsx(styles.row, styles.top, pathname === '/' && styles.selected)}
@@ -142,6 +141,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
         <span className={styles.label}>Home</span>
       </Link>
       <div className={styles.divider} aria-hidden="true" />
+      <GoToPage onNavigate={onNavigate} />
       <div role="tree" aria-label="Documentation" className={styles.tree}>
         {rows.map((row, index) => {
           const {key, node, depth} = row;

@@ -102,10 +102,9 @@
   line-height: 1.6;
 }
 
-/* "Go to page" filter. Its block is 40px (32 + 8), a multiple of 4, so the
-   dividers below stay on the 4px grid. */
+/* "Go to page" filter, between Home and the tree. Its block is 40px
+   (32 + 8), a multiple of 4, so the dividers below stay on the 4px grid. */
 .goto {
-  position: relative;
   margin-bottom: var(--fx-space-2);
 }
 
@@ -115,7 +114,7 @@
   gap: var(--fx-space-2);
   box-sizing: border-box;
   height: var(--fx-tree-row-h);
-  padding: 0 var(--fx-space-2);
+  padding: 0 var(--fx-space-1) 0 var(--fx-space-2);
   border: var(--fx-border-width) solid var(--fx-border-strong);
   border-radius: var(--fx-radius-md);
   background-color: var(--fx-surface);
@@ -147,20 +146,51 @@
   color: var(--fx-text-muted);
 }
 
+.filterKbd {
+  flex: none;
+  margin-right: var(--fx-space-1);
+  padding: 0 var(--fx-space-2);
+  border: var(--fx-border-width) solid var(--fx-border-strong);
+  border-radius: var(--fx-radius-sm);
+  background-color: var(--fx-bg);
+  box-shadow: none;
+  color: var(--fx-text-muted);
+  font-family: var(--fx-font-mono);
+  font-size: var(--fx-text-xs);
+  line-height: 1.5;
+}
+
+.filterClear {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--fx-space-6);
+  height: var(--fx-space-6);
+  padding: 0;
+  border: 0;
+  border-radius: var(--fx-radius-sm);
+  background: transparent;
+  color: var(--fx-text-secondary);
+  cursor: pointer;
+}
+
+.filterClear:hover {
+  background-color: var(--fx-hover);
+}
+
+/* Floats over the content (position from GoToPage.tsx). */
 .gotoPanel {
-  position: absolute;
-  top: calc(100% + var(--fx-space-1));
-  right: 0;
-  left: 0;
-  z-index: 1;
-  max-height: var(--fx-goto-max-h);
+  position: fixed;
+  z-index: var(--fx-z-popover);
+  box-sizing: border-box;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: var(--fx-space-1);
   border: var(--fx-border-width) solid var(--fx-border);
-  border-radius: var(--fx-radius-lg);
+  border-radius: var(--fx-radius-card);
   background-color: var(--fx-bg);
-  box-shadow: var(--fx-shadow-card);
+  box-shadow: var(--fx-shadow-popover);
 }
 
 .gotoList {
@@ -169,17 +199,33 @@
   list-style: none;
 }
 
+/* Icon, then the path; long paths wrap, indented to the text. */
 .gotoOption {
-  padding: var(--fx-space-2);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fx-space-2);
+  padding: var(--fx-space-2) var(--fx-space-3);
   border-radius: var(--fx-radius-md);
   color: var(--fx-text-secondary);
-  font-size: var(--fx-text-sm);
-  line-height: 1.4;
+  font-size: var(--fx-text-md);
+  line-height: 1.45;
   cursor: pointer;
 }
 
 .gotoOption[aria-selected='true'] {
-  background-color: var(--fx-search-active);
+  background-color: var(--fx-hover);
+}
+
+.gotoPageIcon {
+  flex: none;
+  width: var(--fx-kind-icon-md);
+  height: var(--fx-kind-icon-md);
+  margin-top: 0.15em;
+  color: var(--fx-text-muted);
+}
+
+.gotoPath {
+  min-width: 0;
 }
 
 .gotoOption b {
@@ -193,7 +239,7 @@
 
 .gotoEmpty {
   margin: 0;
-  padding: var(--fx-space-2);
+  padding: var(--fx-space-2) var(--fx-space-3);
   color: var(--fx-text-muted);
   font-size: var(--fx-text-sm);
 }

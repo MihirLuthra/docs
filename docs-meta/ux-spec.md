@@ -10,10 +10,14 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 ## Sidebar (GitHub-style tree)
 
-- **"Go to page" filter at the top**, like GitHub's "Go to file". It matches against the full path (e.g. `ccm api`, `armor/dsm/pkcs`) and shows a dropdown of matching paths with the matched parts in bold. ↑ ↓ Enter work in it, and Esc clears it. It is separate from the ⌘K search, which stays in the header.
-  - Words are separated by spaces or `/` and can come in any order. Each word must match part of a path segment as text, or as the initials of consecutive words in one segment (`dsm` → Data Security Manager).
+- A **Home** row first, separated from the tree like the other sections.
+- Then a **"Go to page" filter**, like GitHub's "Go to file", then one collapsible tree (information-architecture.md).
+  - It matches against the full path (e.g. `ccm api`, `armor/dsm/pkcs`). Words are separated by spaces or `/` and can come in any order. Each word must match part of a path segment as text, or as the initials of consecutive words in one segment (`dsm` → Data Security Manager).
   - Results are pages only (folders have none), best first: words matched in the page's own title, then at word starts, then shallower pages. Up to 8 are shown; no match shows "No matching pages".
-- A **Home** row next, separated from the tree like the other sections, then one collapsible tree (information-architecture.md).
+  - Input: a search icon, a **×** clear button when there's text, and a **t** shortcut chip when empty. Pressing **t** when not typing focuses it; **/** stays with the ⌘K search, which is separate and stays in the header.
+  - Dropdown: floats over the content, left-aligned with the input, ~640px wide (at most the viewport − 32px); the full drawer width inside the mobile drawer. Radius 12px, soft shadow.
+  - Rows: a page icon, then the path with the matched parts in bold. Long paths wrap onto the next line, indented to the text (no ellipsis). The active or hovered row uses the neutral grey of sidebar row hover.
+  - ↑ ↓ Enter work in it, and Esc clears it.
 - Every row, Home included, is 32px with the same padding; text 14px in the main text colour. Home and top-level sections are semi-bold (600), deeper rows regular. The Home icon sits in the chevron's slot so labels line up.
 - All sections are collapsed by default; the tree opens along the current page's path.
 - Clicking a section row toggles it. Clicking a page navigates.
