@@ -38,19 +38,9 @@ function visibleRows(nodes: TreeNode[], open: Set<string>): Row[] {
   return rows;
 }
 
-// How long the pointer rests on a row before the hover state follows it, so
-// sweeping across the tree doesn't open and close everything on the way.
+// How long the mouse rests on a section before it opens, so sweeping across
+// the tree doesn't open everything on the way.
 const HOVER_DELAY_MS = 200;
-
-/** Whether row `a` comes before row `b` and isn't one of its folders. */
-function isAbove(a: string, b: string): boolean {
-  const x = a.split('.').map(Number);
-  const y = b.split('.').map(Number);
-  for (let i = 0; i < Math.min(x.length, y.length); i++) {
-    if (x[i] !== y[i]) return x[i] < y[i];
-  }
-  return false; // one contains the other
-}
 
 function Chevron(): ReactNode {
   return (
@@ -77,8 +67,7 @@ function HomeIcon(): ReactNode {
 /**
  * The docs navigation tree (ux-spec.md, Sidebar): a Home row, then the whole
  * tree, collapsed except along the current page's path. Resting the mouse on
- * a folder opens it for as long as the pointer stays on it or inside it;
- * clicking keeps it open.
+ * a section opens it, and it stays open; only a click closes it.
  */
 export default function DocsTree({onNavigate}: {onNavigate?: () => void}): ReactNode {
   const tree = useTree();
@@ -90,19 +79,10 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
   const itemRefs = useRef(new Map<string, HTMLElement>());
   const navRef = useRef<HTMLElement>(null);
 
-  // Folders shown open because the mouse is on them or inside them, without
-  // being added to `open`. Moving to another row closes the ones below it,
-  // but not those above, which would pull the row away from the pointer;
-  // leaving the tree closes them all.
-  const [hoverOpen, setHoverOpen] = useState<Set<string>>(() => new Set());
   const hoverTimer = useRef<number | undefined>(undefined);
-  const hoverSoon = (key: string | null) => {
+  const openSoon = (key: string | null) => {
     window.clearTimeout(hoverTimer.current);
-    hoverTimer.current = window.setTimeout(() => {
-      setHoverOpen((prev) =>
-        key === null ? new Set() : new Set([...[...prev].filter((k) => isAbove(k, key)), ...ancestors(key), key]),
-      );
-    }, HOVER_DELAY_MS);
+    if (key) hoverTimer.current = window.setTimeout(() => toggle(key, true), HOVER_DELAY_MS);
   };
   useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
 
@@ -118,15 +98,13 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
       setOpen(new Set());
       setFocusKey(null);
       window.clearTimeout(hoverTimer.current);
-      setHoverOpen(new Set());
       for (let el = navRef.current?.parentElement; el; el = el.parentElement) {
         if (el.scrollTop) el.scrollTop = 0;
       }
     }, []),
   );
 
-  const shown = useMemo(() => new Set([...open, ...hoverOpen]), [open, hoverOpen]);
-  const rows = useMemo(() => visibleRows(tree, shown), [tree, shown]);
+  const rows = useMemo(() => visibleRows(tree, open), [tree, open]);
   const tabKey =
     focusKey && rows.some((r) => r.key === focusKey)
       ? focusKey
@@ -143,18 +121,6 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
       return next;
     });
 
-  // Keeps a folder open (also one only open because it's hovered), or closes
-  // one that was kept open, even while the pointer is still on it.
-  const clickFolder = (row: Row) => {
-    if (open.has(row.key)) {
-      toggle(row.key, false);
-      window.clearTimeout(hoverTimer.current);
-      setHoverOpen((prev) => new Set([...prev].filter((k) => k !== row.key)));
-    } else {
-      toggle(row.key, true);
-    }
-  };
-
   const focus = (key: string | null | undefined) => {
     if (!key) return;
     setFocusKey(key);
@@ -163,7 +129,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
 
   const onKeyDown = (e: KeyboardEvent, row: Row, index: number) => {
     const isFolder = !!row.node.items;
-    const isOpen = shown.has(row.key);
+    const isOpen = open.has(row.key);
     switch (e.key) {
       case 'ArrowDown':
         focus(rows[index + 1]?.key);
@@ -189,7 +155,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
       case 'Enter':
       case ' ':
         if (!isFolder) return; // links handle Enter themselves
-        clickFolder(row);
+        toggle(row.key);
         break;
       default:
         return;
@@ -219,11 +185,11 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
         role="tree"
         aria-label="Documentation"
         className={styles.tree}
-        onPointerLeave={(e) => e.pointerType === 'mouse' && hoverSoon(null)}>
+        onPointerLeave={() => openSoon(null)}>
         {rows.map((row, index) => {
           const {key, node, depth} = row;
           const isFolder = !!node.items;
-          const isOpen = shown.has(key);
+          const isOpen = open.has(key);
           const isCurrent = key === currentKey;
           const common = {
             ref: (el: HTMLElement | null) => {
@@ -235,7 +201,8 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
             tabIndex: key === tabKey ? 0 : -1,
             onKeyDown: (e: KeyboardEvent) => onKeyDown(e, row, index),
             onFocus: () => setFocusKey(key),
-            onPointerEnter: (e: PointerEvent) => e.pointerType === 'mouse' && hoverSoon(key),
+            // Sections open on hover (mouse only); pages don't.
+            onPointerEnter: (e: PointerEvent) => openSoon(isFolder && e.pointerType === 'mouse' ? key : null),
             className: clsx(styles.row, depth === 0 && styles.top, isCurrent && styles.selected),
             style: {'--depth': depth} as CSSProperties,
             title: node.label,
@@ -256,7 +223,13 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
             <div key={key}>
               {depth === 0 && index > 0 && <div className={styles.divider} aria-hidden="true" />}
               {isFolder ? (
-                <div {...common} aria-expanded={isOpen} onClick={() => clickFolder(row)}>
+                <div
+                  {...common}
+                  aria-expanded={isOpen}
+                  onClick={() => {
+                    window.clearTimeout(hoverTimer.current); // a pending hover-open
+                    toggle(key);
+                  }}>
                   {content}
                 </div>
               ) : (
