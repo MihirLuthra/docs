@@ -8,7 +8,7 @@
 - **D5 — Hosting serves compressed files.** Any static host is fine if it serves gzip/brotli.
 - **D6 — One technically accurate tree.** See information-architecture.md. Solutions link to product pages; DSM sits under Armor with a "standalone" note on a DSM Overview page (added to the tree 2026-10-23).
 - **D7 — Navigation and home.** GitHub-style sidebar with a Home row; Home = Get familiar banner + Recently viewed + Explore Fortanix. See ux-spec.md.
-- **D8 — Search.** A search bar that opens a centred panel over a build-time index (title, path, keywords, kind). Icons by kind. Full-text later. Keywords: none for now (decided 2026-10-23); the index uses titles and paths only.
+- **D8 — Search.** A search bar that opens a centred panel over a build-time index (title, path, keywords, kind). Icons by kind. Full-text later. Keywords: none for now (decided 2026-10-23); the index uses titles and paths only. Since 2026-10-24, pages may set `keywords:` in front matter and the index uses them (first: the Confidential AI overview and use cases).
 - **D9 — Ask AI.** Side panel, separate from search. Built behind a flag, off until a backend exists.
 - **D10 — Stub pages for the whole tree.** Every tree node exists as a page (`status: stub`), no invented content. CCM gets real content first. Folders have no page of their own; clicking one expands it (decided 2026-10-23).
 - **D11 — Three separate parts.** `apps/docs` = UI (TypeScript), `content/` = docs tree (Markdown), `services/` = backend (Rust). Claude writes UI and drafts content. Backend is human-led.

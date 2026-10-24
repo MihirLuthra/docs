@@ -1,0 +1,198 @@
+/* Confidential AI diagrams (AttestationFlow, RolesExplorer). Colours are
+   site tokens (custom.css), so light and dark follow the site's theme. Class
+   names are global and prefixed "cai-". */
+
+.cai {
+  margin: 1.5rem 0;
+  padding: 16px;
+  border: 1px solid var(--fx-border-strong);
+  border-radius: 12px;
+  background: var(--fx-surface);
+  color: var(--fx-text);
+  font-size: 14px;
+  line-height: 1.5;
+  container-type: inline-size;
+}
+.cai button { font: inherit; cursor: pointer; }
+.cai button:focus-visible, .cai input:focus-visible + .cai-switch-track { outline: 2px solid var(--fx-diagram-accent); outline-offset: 2px; }
+.cai svg { width: 14px; height: 14px; display: block; }
+.cai i { display: inline-flex; font-style: normal; }
+
+/* ---------- Attestation flow ---------- */
+
+.cai-switch { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px; color: var(--fx-text-muted); cursor: pointer; user-select: none; }
+.cai-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.cai-switch-track { width: 32px; height: 18px; border-radius: 999px; background: var(--fx-border-strong); position: relative; transition: background 150ms; flex: none; }
+.cai-switch-track span { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--fx-bg); transition: transform 150ms; }
+.cai-switch input:checked + .cai-switch-track { background: var(--fx-diagram-accent); }
+.cai-switch input:checked + .cai-switch-track span { transform: translateX(14px); }
+
+.cai-flow-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1.7fr 1fr;
+  gap: 36px;
+  align-items: center;
+}
+.cai-flow-stage::before {
+  content: "";
+  position: absolute;
+  left: 8%; right: 8%; top: 50%;
+  border-top: 1.5px dashed var(--fx-border-strong);
+}
+.cai-node {
+  position: relative;
+  min-width: 0;
+  background: var(--fx-bg);
+  border: 1.5px solid var(--fx-border-strong);
+  border-radius: 10px;
+  padding: 12px;
+  transition: border-color 250ms, box-shadow 250ms, opacity 250ms;
+}
+.cai-node.is-active { border-color: var(--fx-diagram-accent); box-shadow: 0 0 0 4px var(--fx-selected-bg); }
+/* Not used in this flow: dashed and unfilled, text at full contrast. */
+.cai-node.is-idle { border-style: dashed; background: transparent; }
+.cai-node-tee { border-style: solid; border-color: var(--fx-diagram-tee); background: linear-gradient(var(--fx-diagram-tee-soft), var(--fx-bg) 70%); }
+.cai-node-tee.is-active { border-color: var(--fx-diagram-tee); box-shadow: 0 0 0 4px var(--fx-diagram-tee-soft); }
+.cai-node-head { display: flex; flex-direction: column; margin-bottom: 8px; }
+.cai-node-head strong { font-size: 15px; }
+.cai-node-head span { font-size: 12px; color: var(--fx-text-muted); }
+
+.cai-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.cai-checks li { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fx-text-muted); margin: 0; }
+.cai-checks li.is-ok { color: var(--fx-text); }
+.cai-tick { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--fx-border-strong); display: inline-grid; place-items: center; flex: none; }
+.cai-checks li.is-ok .cai-tick { border-color: var(--fx-diagram-tee); background: var(--fx-diagram-tee); color: var(--fx-bg); }
+.cai-tick svg { width: 10px; height: 10px; }
+
+.cai-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.cai-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; padding: 2px 8px; border-radius: 999px;
+  border: 1px solid var(--fx-border-strong); background: var(--fx-bg); color: var(--fx-text);
+  white-space: nowrap;
+}
+.cai-chip-model { color: var(--fx-text-muted); }
+.cai-chip-model.is-open { color: var(--fx-diagram-tee); border-color: var(--fx-diagram-tee); }
+.cai-chip-cert { color: var(--fx-diagram-cert); border-color: var(--fx-diagram-cert); background: var(--fx-diagram-cert-soft); }
+.cai-chip-key { color: var(--fx-diagram-key); border-color: var(--fx-diagram-key); background: var(--fx-diagram-key-soft); }
+.cai-chip-key.is-released { opacity: 0.55; }
+.cai-pop { animation: cai-pop 300ms ease-out; }
+@keyframes cai-pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.cai-token {
+  position: absolute; left: 0; top: 0; z-index: 2;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  background: var(--fx-diagram-accent); color: var(--fx-bg);
+  opacity: 0; pointer-events: none; white-space: nowrap;
+}
+
+.cai-caption { display: grid; gap: 2px; margin-top: 16px; min-height: 5.2em; }
+.cai-step-n { font-family: var(--fx-font-mono); font-size: 11px; color: var(--fx-text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.cai-caption strong { font-size: 15px; }
+.cai-caption span:last-child { color: var(--fx-text-muted); max-width: 62ch; }
+
+.cai-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.cai-controls > button {
+  padding: 5px 14px; border-radius: 8px; border: 1px solid var(--fx-border-strong);
+  background: var(--fx-bg); color: var(--fx-text);
+}
+.cai-controls > button:disabled { opacity: 0.4; cursor: default; }
+.cai-controls > button.cai-primary { background: var(--fx-diagram-accent); border-color: var(--fx-diagram-accent); color: var(--fx-bg); min-width: 78px; }
+.cai-dots { display: flex; list-style: none; margin: 0 0 0 auto; padding: 0; }
+.cai-dots li { margin: 0; }
+/* A 24px tap target around each 10px dot (the dot is ::before). */
+.cai-dots button { width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: none; display: grid; place-items: center; }
+.cai-dots button::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--fx-border-strong); transition: transform 150ms; }
+.cai-dots button.is-done::before { background: var(--fx-diagram-accent); opacity: 0.45; }
+.cai-dots button[aria-current="step"]::before { opacity: 1; background: var(--fx-diagram-accent); transform: scale(1.3); }
+
+@container (max-width: 560px) {
+  .cai-flow-stage { grid-template-columns: 1fr; gap: 22px; }
+  .cai-flow-stage::before { left: 50%; right: auto; top: 6%; bottom: 6%; border-top: 0; border-left: 1.5px dashed var(--fx-border-strong); }
+  .cai-dots { margin-left: 0; width: 100%; }
+}
+
+/* Host frame around the workload: what the TEE protects against */
+.cai-host {
+  position: relative; min-width: 0;
+  border: 1.5px dashed var(--fx-text-muted);
+  border-radius: 12px;
+  padding: 8px 8px 8px;
+  background: var(--fx-surface);
+}
+.cai-host-label { font-size: 12px; color: var(--fx-text-muted); margin: 0 4px 8px; line-height: 1.35; }
+.cai-host-label strong { color: var(--fx-text); }
+.cai-host-label span { display: block; color: var(--fx-diagram-tee); }
+.cai-node-head strong { display: inline-flex; align-items: center; gap: 6px; }
+.cai-shield { color: var(--fx-diagram-tee); }
+.cai-protect .cai-chip { color: var(--fx-diagram-tee); border-color: var(--fx-diagram-tee); background: var(--fx-diagram-tee-soft); }
+.cai-id { font-size: 12px; color: var(--fx-text-muted); margin-top: 8px; }
+.cai code, .cai-id code { font-family: var(--fx-font-mono); font-size: 11.5px; background: none; padding: 0; color: inherit; }
+.cai-id code { color: var(--fx-text); }
+.cai-footnote { margin: 10px 0 0; font-size: 11.5px; color: var(--fx-text-muted); }
+
+/* ---------- Roles explorer ---------- */
+
+.cai-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.cai-picker button {
+  display: inline-flex; flex-direction: column; align-items: flex-start;
+  padding: 5px 12px; border-radius: 8px; border: 1px solid var(--fx-border-strong);
+  background: var(--fx-bg); color: var(--fx-text); text-align: left; line-height: 1.3;
+}
+.cai-picker button small { font-size: 10.5px; color: var(--fx-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.cai-picker button[aria-selected="true"] { border-color: var(--fx-diagram-accent); background: var(--fx-selected-bg); color: var(--fx-selected-text); }
+.cai-picker button[aria-selected="true"] small { color: var(--fx-selected-text); }
+
+.cai-roles-stage { position: relative; height: 150px; }
+.cai-party {
+  position: absolute; top: 0; bottom: 0;
+  border: 1.5px solid var(--fx-diagram-accent);
+  border-radius: 12px;
+  background: var(--fx-selected-bg);
+  padding: 6px 10px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  transition: left 450ms cubic-bezier(.4,0,.2,1), width 450ms cubic-bezier(.4,0,.2,1);
+  animation: cai-fade 350ms ease-out;
+}
+.cai-party.is-infra { border-color: var(--fx-diagram-tee); background: var(--fx-diagram-tee-soft); }
+.cai-party-name { font-weight: 600; font-size: 13px; line-height: 1.25; }
+.cai-party-note { font-size: 11px; color: var(--fx-text-muted); }
+@keyframes cai-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.cai-role {
+  position: absolute; top: 58px; height: 80px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  background: var(--fx-bg); border: 1px solid var(--fx-border-strong); border-radius: 8px;
+  font-size: 12.5px; line-height: 1.25; padding: 4px; overflow: hidden;
+}
+.cai-role-tee { font-size: 10.5px; color: var(--fx-diagram-tee); margin-top: 4px; }
+.cai-role-short { display: none; }
+
+.cai-roles-text { margin-top: 16px; }
+.cai-roles-summary { margin: 0 0 10px; font-weight: 600; }
+.cai-roles-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cai-roles-cols > div { min-width: 0; }
+/* Labels, not headings (they'd skip heading levels on the page). */
+.cai-roles-cols .cai-roles-label { margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--fx-text-muted); display: flex; align-items: center; gap: 6px; }
+.cai-roles-cols ul { margin: 0; padding-left: 18px; }
+.cai-roles-cols li, .cai-roles-cols p { margin: 0 0 4px; }
+.cai-pill { font-size: 10.5px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--fx-border-strong); text-transform: none; letter-spacing: 0; color: var(--fx-text-muted); }
+.cai-pill.is-required { color: var(--fx-diagram-key); border-color: var(--fx-diagram-key); background: var(--fx-diagram-key-soft); }
+.cai-pill.is-recommended { color: var(--fx-diagram-cert); border-color: var(--fx-diagram-cert); background: var(--fx-diagram-cert-soft); }
+
+@container (max-width: 520px) {
+  .cai-roles-stage { height: 170px; }
+  .cai-party { padding: 6px 4px; }
+  .cai-party-name { font-size: 11.5px; }
+  .cai-role { top: 72px; height: 90px; font-size: 11px; }
+  .cai-role-tee { display: none; }
+  .cai-role-full { display: none; }
+  .cai-role-short { display: inline; }
+  .cai-roles-cols { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cai *, .cai *::before { transition: none !important; animation: none !important; }
+}

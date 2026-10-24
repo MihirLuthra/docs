@@ -1,0 +1,63 @@
+import {Children, isValidElement, type ReactNode} from 'react';
+import MDXComponents from '@theme-original/MDXComponents';
+import Admonition from '@theme/Admonition';
+import TabItem from '@theme/TabItem';
+import DocusaurusTabs from '@theme/Tabs';
+import AttestationFlow from '@site/src/components/ConfidentialAI/AttestationFlow';
+import RolesExplorer from '@site/src/components/ConfidentialAI/RolesExplorer';
+
+// Components MDX pages in content/ use without importing them (content/ holds
+// no code). The diagrams are imported, not lazy: loaded lazily, React drops
+// their server-rendered HTML while the chunk loads and puts it back, which
+// shifts the page (~3KB gzipped to keep them in).
+
+type TabProps = {label: string; children?: ReactNode};
+
+/** `<Tab label="…">`: one tab of `<Tabs>`. */
+function Tab({children}: TabProps): ReactNode {
+  return children;
+}
+
+/** `<Tabs>` of `<Tab label>`: Docusaurus's tabs, each tab's value its label. */
+function Tabs({children}: {children?: ReactNode}): ReactNode {
+  return (
+    <DocusaurusTabs>
+      {Children.toArray(children)
+        .filter((child) => isValidElement<TabProps>(child))
+        .map((child) => {
+          const {label, children: content} = (child as {props: TabProps}).props;
+          return (
+            <TabItem key={label} value={label} label={label}>
+              {content}
+            </TabItem>
+          );
+        })}
+    </DocusaurusTabs>
+  );
+}
+
+/** `<Callout type title>`: Docusaurus's admonitions (note, tip, warning). */
+function Callout({
+  type = 'note',
+  title,
+  children,
+}: {
+  type?: 'note' | 'tip' | 'warning';
+  title?: string;
+  children?: ReactNode;
+}): ReactNode {
+  return (
+    <Admonition type={type} title={title}>
+      {children}
+    </Admonition>
+  );
+}
+
+export default {
+  ...MDXComponents,
+  AttestationFlow,
+  RolesExplorer,
+  Tabs,
+  Tab,
+  Callout,
+};

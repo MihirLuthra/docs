@@ -1,0 +1,71 @@
+---
+title: Confidential AI
+description: Run AI models inside trusted execution environments, prove exactly what is running and that it runs securely, and release keys only to approved models.
+doc_type: concept
+keywords: [ai, gpu, model, llm, inference, attestation, confidential ai]
+sidebar_label: Overview
+sidebar_position: 1
+---
+
+Confidential AI runs AI models inside a trusted execution environment (TEE). The TEE keeps the model's memory encrypted and isolated on the CPU and on the GPU. The host operating system, the hypervisor and their administrators cannot read or change it.
+
+Before the model workload gets any secret, attestation proves exactly what is running and that it runs securely. Exactly what is running means the workload's measurement, a fingerprint of the workload that includes the model. Running securely means genuine TEE hardware with the expected firmware and security settings. CCM checks both. DSM then releases keys directly into the TEE, and only for approved models, so only the approved code around the model can use them.
+
+## How it works
+
+<AttestationFlow />
+
+1. **Run inside a TEE.** The model workload runs in a TEE, with the GPU in confidential computing mode. Its memory is encrypted and isolated from the host.
+2. **Attest to CCM.** The attestation client inside the workload sends signed evidence from the CPU and GPU to CCM. The evidence includes the workload's measurement.
+3. **Get a certificate.** CCM checks that the hardware is genuine, that its firmware and security settings meet policy, and that the measurement matches an approved model. Settings it checks include the firmware and TDX module versions and whether SMT is disabled. If every check passes, CCM issues the workload a certificate.
+4. **Use the certificate.** The workload presents the certificate to DSM. DSM releases the model encryption key directly into the TEE, and only for the approved model. Any other service can also authenticate the workload with its CCM certificate, the same way a server authenticates a client over mutual TLS.
+
+## Building blocks
+
+| Component | What it does | Docs |
+|---|---|---|
+| Confidential Computing Manager (CCM) | Checks that a workload runs on genuine, correctly configured TEE hardware and that its measurement matches an approved model, then issues it a certificate | [CCM](/products/fortanix-armor/confidential-computing/ccm/concepts) |
+| Data Security Manager (DSM) | Stores keys and releases them into the TEE only to workloads that hold the CCM certificate for an approved model | [Data Security Manager](/products/fortanix-armor/data-security-manager/overview) |
+| Workload runtime | Runs the model inside a TEE and includes the attestation client | [Confidential Containers](/products/fortanix-armor/confidential-computing/workload-runtimes/confidential-containers/overview), [Enclave OS](/products/fortanix-armor/confidential-computing/workload-runtimes/enclave-os/overview) |
+| Confidential computing hardware | A CPU TEE, such as Intel SGX, Intel TDX or AMD SEV-SNP. For GPU workloads, an NVIDIA GPU with confidential computing. | [TEE technologies](/get-familiar/concepts/tee-technologies/intel-sgx) |
+
+{/* TODO(verify): TEE technologies has no overview page (folders have no page, D10), so the link goes to its first page, Intel SGX. Add an overview page or pick a better target. */}
+
+## Roles
+
+| Role | Cares about |
+|---|---|
+| Model owner | The model weights are not copied or leaked. |
+| Model consumer | Their prompts and data stay protected when the model runs on servers or GPUs they do not own. |
+| Infrastructure provider | Running the workload without having access to what is inside it. This can be a cloud, an NCP, or the organization's own data centre. |
+| End user | Their requests to the AI application stay private. |
+
+One party can hold more than one role. For example, an enterprise that runs its own model on its own GPUs is the model owner, the model consumer and the infrastructure provider. Pick a scenario to see who holds which role.
+
+<RolesExplorer />
+
+## Use cases
+
+<Tabs>
+<Tab label="Proprietary model">
+
+A model vendor lets others run its model without giving away the weights. DSM releases the model encryption key into the TEE only for the vendor's approved model. The model can run on the customer's infrastructure or on an NCP.
+
+[Read the proprietary model use case](/solutions/confidential-ai/use-cases/proprietary-model)
+
+</Tab>
+<Tab label="In-house model">
+
+An organization runs a model it owns, on its own GPUs or on rented ones. The TEE protects the model and the data from infrastructure administrators and compromised host software. A model vendor serving its own model as a service fits this case too.
+
+[Read the in-house model use case](/solutions/confidential-ai/use-cases/in-house-model)
+
+</Tab>
+<Tab label="Open-source model">
+
+An enterprise runs a public model, so the weights need no protection. The TEE protects the prompts and the data, and attestation proves which model and code are running. The workload can still get keys from DSM for anything else it needs.
+
+[Read the open-source model use case](/solutions/confidential-ai/use-cases/open-source-model)
+
+</Tab>
+</Tabs>

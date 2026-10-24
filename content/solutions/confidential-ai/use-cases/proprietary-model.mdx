@@ -1,0 +1,51 @@
+---
+title: Proprietary model
+description: Let customers or NCPs run your model without exposing the weights. DSM releases the model encryption key only for your approved model.
+doc_type: concept
+keywords: [proprietary model, model owner, model vendor, model ip, ncp, weights]
+sidebar_position: 1
+---
+
+A model vendor wants others to run its model without giving away the weights. With Confidential AI, the weights stay encrypted until they are inside a TEE. DSM releases the model encryption key directly into the TEE, and only for the vendor's approved model. Only the approved code around the model can use it.
+
+## Who is involved
+
+The vendor is the model owner. Who runs the infrastructure, and who uses the model, depends on how the vendor delivers it.
+
+<RolesExplorer useCase="proprietary" />
+
+| Deployment | Model owner | Model consumer | Infrastructure provider |
+|---|---|---|---|
+| Vendor to customer | Model vendor | Customer | Customer |
+| Vendor, NCP, enterprise | Model vendor | Enterprise | NCP |
+
+A vendor that serves its own model to users, on an NCP or a cloud, holds both the model owner and the model consumer roles. That case is described under [In-house model](/solutions/confidential-ai/use-cases/in-house-model).
+
+## What is protected
+
+- **The model weights.** They are encrypted at rest and readable only inside the approved model workload. The infrastructure provider and the model consumer never see them.
+- **The consumer's prompts and data.** The infrastructure provider's host software and administrators cannot read them while the model processes them.
+
+## How the model encryption key is released
+
+1. The vendor encrypts the model weights and keeps the model encryption key in DSM.
+2. The workload starts inside a TEE and attests to CCM.
+3. CCM checks the hardware, its settings and the workload's measurement. If they match an approved model, CCM issues a certificate.
+4. The workload presents the certificate to DSM. DSM releases the key directly into the TEE.
+5. The approved code around the model decrypts the weights inside the TEE.
+
+<AttestationFlow keyRelease="required" />
+
+{/* TODO(verify): who approves the model in CCM in each deployment (the vendor, the consumer, or both)? This decides who controls key release. */}
+{/* TODO(verify): whether the vendor's DSM and CCM accounts are separate from the consumer's, and how the NCP is onboarded. */}
+
+## Trust assumptions
+
+| Party | Must trust | Does not need to trust |
+|---|---|---|
+| Model vendor | The CPU and GPU vendors, CCM, DSM | The infrastructure provider, the model consumer |
+| Model consumer | The CPU and GPU vendors, CCM, the vendor's model workload | The infrastructure provider |
+
+Confidential computing does not protect against flaws in the model workload itself, or against what the model returns in its answers.
+
+{/* TODO(verify): confirm the trust table and the out-of-scope list with security. */}

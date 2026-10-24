@@ -40,7 +40,9 @@ Get familiar
 
 Solutions
   Confidential AI            (kw: ai, gpu, model, llm, inference)
-    Overview · Architecture · Get started
+    Overview
+    Use cases: Proprietary model · In-house model · Open-source model
+    Architecture · Get started
     Deploy: Kubernetes with CoCo · Confidential VMs
     Integrations: Rafay · NVIDIA GPU Operator
     Examples · Troubleshooting

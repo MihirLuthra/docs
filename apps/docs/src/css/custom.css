@@ -66,6 +66,7 @@
   --fx-sidebar-width: 300px;
   --fx-tree-indent: 16px;
   --fx-tree-row-h: 32px;
+  --fx-link-underline-offset: 0.2em;
   --fx-history-menu-min: 200px; /* back / forward lists fit their pages */
   --fx-history-menu-max: 280px;
   --fx-tree-home-h: 40px;
@@ -180,6 +181,15 @@
   --fx-kind-tutorial-tint: #fde8f0;
   --fx-kind-section: #5b6170;
   --fx-kind-section-tint: #eef0f3;
+  /* Diagrams (components/ConfidentialAI): the kind colours, by meaning. They
+     follow the kind colours' dark values too. */
+  --fx-diagram-accent: var(--fx-kind-solution);
+  --fx-diagram-tee: var(--fx-kind-quickstart); /* the TEE, protection */
+  --fx-diagram-tee-soft: var(--fx-kind-quickstart-tint);
+  --fx-diagram-cert: var(--fx-kind-product); /* certificates */
+  --fx-diagram-cert-soft: var(--fx-kind-product-tint);
+  --fx-diagram-key: var(--fx-kind-concept); /* keys */
+  --fx-diagram-key-soft: var(--fx-kind-concept-tint);
 
   /* Infima mapping */
   --ifm-font-family-base: var(--fx-font-sans);
@@ -319,6 +329,19 @@ body {
   inset: 0;
   height: auto;
   max-height: none;
+}
+
+/* Links in running text are underlined, not told apart by colour alone
+   (WCAG 1.4.1); a thin line in the accent border colour, darker on hover. */
+.theme-doc-markdown :is(p, li, td) a {
+  text-decoration: underline;
+  text-decoration-color: var(--fx-accent-border);
+  text-decoration-thickness: var(--fx-border-width);
+  text-underline-offset: var(--fx-link-underline-offset);
+}
+
+.theme-doc-markdown :is(p, li, td) a:hover {
+  text-decoration-color: currentColor;
 }
 
 /* Doc pages: compact, like the home page (prototype proportions). */
