@@ -1,8 +1,8 @@
 import {useEffect, useState} from 'react';
 import type {IndexEntry} from './types';
 
-// Kept once loaded, so a modal opened after a prefetch has its results on
-// the first frame (no jump in height while it animates open).
+// Kept once loaded, so a modal opened after a prefetch has results for the
+// first keystroke without waiting a tick.
 let loaded: IndexEntry[] | null = null;
 
 /** Fetches the search index chunk; also used to prefetch it. */

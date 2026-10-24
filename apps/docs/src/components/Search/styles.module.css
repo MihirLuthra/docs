@@ -41,6 +41,11 @@
   border-bottom: var(--fx-border-width) solid var(--fx-glass-divider);
 }
 
+/* Before anything is typed the panel is just the input. */
+.inputRow:only-child {
+  border-bottom: 0;
+}
+
 .searchIcon {
   flex: none;
   width: var(--fx-space-5);
@@ -90,15 +95,6 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: var(--fx-space-2);
-}
-
-.listLabel {
-  margin: var(--fx-space-1) var(--fx-space-2);
-  color: var(--fx-glass-text-muted);
-  font-size: var(--fx-text-xs);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .list {

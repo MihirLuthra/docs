@@ -4,7 +4,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 ## Header
 
-- Left: logo, which goes to Home.
+- Left: the Fortanix mark (no wordmark) and "Documentation" in purple, centred on the mark; goes to Home.
 - Centre: a search trigger ("Search the docs", ⌘K hint) and an **Ask AI** button.
 - Right: Release notes · Advisories · Downloads.
 
@@ -51,14 +51,14 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 - Opens with ⌘K / Ctrl+K or `/`, or by clicking the trigger.
 - Closes on Esc, a **click outside**, or the **× button**.
-- **Opening grows the header's search bar into the panel** (~260ms): it starts at the bar's position, size and corner radius, expands to the panel, and the results fade in as it does. Closing shrinks it back into the bar (~160ms). No animation with reduced motion.
+- The trigger looks like a text box and shows the text cursor on hover (on narrow screens it is an icon button). No opening or closing animation.
 - The panel is **slightly translucent**: `rgba(255,255,255,0.80)` with `backdrop-filter: blur(28px) saturate(180%)`, a light backdrop of `rgba(19,19,19,0.14)`, and a solid fallback when backdrop-filter isn't supported. Dark mode uses the same idea on a dark base.
 - **No "Top hit".** Every result is one uniform row:
   - kind icon tile
   - title, with the matched part highlighted
   - breadcrumb path
   - kind pill on the right
-- Empty query shows "Suggested" (a short curated list).
+- Empty query shows just the input; results and the footer appear once something is typed.
 - Keyboard: ↑ ↓ to move, Enter to open. The active row is tinted.
 - Footer: key hints on the left, and **"Ask AI about '<query>'"** on the right, which opens the AI panel with the query.
 

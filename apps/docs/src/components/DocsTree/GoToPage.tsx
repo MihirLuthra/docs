@@ -134,10 +134,9 @@ export default function GoToPage({onNavigate}: {onNavigate?: () => void}): React
     const onKeyDown = (e: globalThis.KeyboardEvent) => {
       if (e.key !== 't' || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
       const input = inputRef.current;
-      // Only the visible instance (sidebar or drawer), and not behind a modal
-      // (one animating out is inert).
+      // Only the visible instance (sidebar or drawer), and not behind a modal.
       if (!input || input.offsetParent === null) return;
-      if (document.querySelector('[role="dialog"][aria-modal="true"]:not(#docs-drawer):not([inert] *)')) return;
+      if (document.querySelector('[role="dialog"][aria-modal="true"]:not(#docs-drawer)')) return;
       e.preventDefault();
       input.focus();
     };
