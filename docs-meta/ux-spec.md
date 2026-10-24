@@ -5,7 +5,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 ## Header
 
 - Left: the Fortanix mark (no wordmark) and "Documentation" in purple, centred on the mark; goes to Home.
-- Centre: a search trigger ("Search the docs", ⌘K hint) and an **Ask AI** button.
+- Centre: a search trigger ("Search the docs", with **/** and ⌘K hints) and an **Ask AI** button.
 - Right: Release notes · Advisories · Downloads.
 
 ## Sidebar (GitHub-style tree)
@@ -25,7 +25,8 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 - All sections are collapsed by default; the tree opens along the current page's path.
 - Clicking a section row toggles it. Clicking a page navigates.
 - **Hover to open:** resting the mouse on a section (~200ms) opens it, and it stays open. Only a click closes it (a click on a closed section opens it). Mouse only; touch and keyboard are unchanged. It can be turned off with the pointer button next to "Go to page" (on by default; the choice is kept in localStorage).
-- **Collapse all:** a button next to "Go to page" closes every section (disabled when none is open).
+- **Collapse all:** a button next to "Go to page", or the **c** key when not typing, closes every section (the button is disabled when none is open).
+- The two buttons show a small tooltip on hover or keyboard focus: "Open sections on hover: on/off" and "Collapse all **c**".
 - **Full-row highlight** on hover and on the selected row. Selected: background `#F5EDFF`, text `#4B0A80`.
 - Indent 16px per level, with thin vertical **indent guides**. The chevron rotates 90° when open (150ms).
 - A divider after Home and between top-level sections: a 1px line with its own spacing (6px above, 5px below), so rows keep one height. A small "standalone" pill on DSM.

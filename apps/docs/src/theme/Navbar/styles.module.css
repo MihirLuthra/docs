@@ -97,6 +97,12 @@
   text-align: center;
 }
 
+/* "/" also opens search; a narrower chip before ⌘K. */
+.searchSlash {
+  width: var(--fx-space-6);
+  margin-right: calc(-1 * var(--fx-space-2));
+}
+
 .askAI {
   display: flex;
   flex: none;

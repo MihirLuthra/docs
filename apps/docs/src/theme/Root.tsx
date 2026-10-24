@@ -2,17 +2,13 @@ import {Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState, type 
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {OverlaysContext} from '@site/src/components/Overlays/context';
 import {loadIndex} from '@site/src/components/Search/useIndex';
+import {isTyping} from '@site/src/lib/keys';
 // Part of the page (~3KB gzipped), so search opens on the first click
 // without waiting for a download. The index is fetched when the page is idle.
 import SearchModal from '@site/src/components/Search/SearchModal';
 
 // Loaded on first open, so pages don't ship its code.
 const AskAIPanel = lazy(() => import('@site/src/components/AskAI/AskAIPanel'));
-
-function isTyping(target: EventTarget | null): boolean {
-  const el = target as HTMLElement | null;
-  return !!el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
-}
 
 // Hosts the search modal and the Ask AI panel for every page.
 export default function Root({children}: {children: ReactNode}): ReactNode {

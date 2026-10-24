@@ -17,6 +17,7 @@ import {ancestors, findKey, normalize, useTree} from './tree';
 import GoToPage from './GoToPage';
 import {resetNav, useNavReset} from '@site/src/lib/nav-reset';
 import {readHoverOpen, writeHoverOpen} from '@site/src/lib/tree-prefs';
+import {isPlainShortcut} from '@site/src/lib/keys';
 import styles from './styles.module.css';
 
 type Row = {
@@ -133,6 +134,25 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
     }, []),
   );
 
+  const collapseAll = useCallback(() => {
+    window.clearTimeout(hoverTimer.current);
+    setOpen(new Set());
+  }, []);
+
+  // "c" collapses all, when not typing (only the visible instance: sidebar
+  // or drawer).
+  useEffect(() => {
+    const onKeyDown = (e: globalThis.KeyboardEvent) => {
+      if (!isPlainShortcut(e, 'c') || navRef.current?.offsetParent == null) return;
+      e.preventDefault();
+      collapseAll();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [collapseAll]);
+
   const rows = useMemo(() => visibleRows(tree, open), [tree, open]);
   const tabKey =
     focusKey && rows.some((r) => r.key === focusKey)
@@ -217,24 +237,26 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
           className={styles.toolButton}
           aria-pressed={hoverOpen}
           aria-label="Open sections on hover"
-          title="Open sections on hover"
           onClick={() => {
             writeHoverOpen(!hoverOpen);
             setHoverOpen(!hoverOpen);
           }}>
           <HoverIcon />
+          <span className={styles.tip} aria-hidden="true">
+            Open sections on hover: {hoverOpen ? 'on' : 'off'}
+          </span>
         </button>
         <button
           type="button"
           className={styles.toolButton}
           aria-label="Collapse all"
-          title="Collapse all"
+          aria-keyshortcuts="c"
           disabled={open.size === 0}
-          onClick={() => {
-            window.clearTimeout(hoverTimer.current);
-            setOpen(new Set());
-          }}>
+          onClick={collapseAll}>
           <CollapseAllIcon />
+          <span className={styles.tip} aria-hidden="true">
+            Collapse all <kbd>c</kbd>
+          </span>
         </button>
       </div>
       <div

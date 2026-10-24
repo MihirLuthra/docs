@@ -15,6 +15,7 @@ import {useHistory} from '@docusaurus/router';
 import {flattenPages, goToPage, type Highlights} from './goto';
 import {useTree} from './tree';
 import {useNavReset} from '@site/src/lib/nav-reset';
+import {isPlainShortcut} from '@site/src/lib/keys';
 import {useOverlays} from '@site/src/components/Overlays/context';
 import styles from './styles.module.css';
 
@@ -66,11 +67,6 @@ function Name({name, ranges}: {name: string; ranges: Highlights[number]}): React
   });
   if (at < name.length) parts.push(name.slice(at));
   return parts;
-}
-
-function isTyping(target: EventTarget | null): boolean {
-  const el = target as HTMLElement | null;
-  return !!el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
 }
 
 /**
@@ -134,12 +130,9 @@ export default function GoToPage({onNavigate}: {onNavigate?: () => void}): React
   // "t" focuses the filter when not typing ("/" stays with the header search).
   useEffect(() => {
     const onKeyDown = (e: globalThis.KeyboardEvent) => {
-      if (e.key !== 't' || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
       const input = inputRef.current;
-      // Only the visible instance (sidebar or drawer), and not behind a modal
-      // (one animating out is inert).
-      if (!input || input.offsetParent === null) return;
-      if (document.querySelector('[role="dialog"][aria-modal="true"]:not(#docs-drawer):not([inert] *)')) return;
+      // Only the visible instance (sidebar or drawer).
+      if (!isPlainShortcut(e, 't') || !input || input.offsetParent === null) return;
       e.preventDefault();
       input.focus();
     };

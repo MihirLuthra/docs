@@ -137,6 +137,7 @@
 }
 
 .toolButton {
+  position: relative;
   display: flex;
   flex: none;
   align-items: center;
@@ -162,8 +163,54 @@
 }
 
 .toolButton:disabled {
-  opacity: 0.4;
   cursor: default;
+}
+
+.toolButton:disabled svg {
+  opacity: 0.4;
+}
+
+/* Label (and shortcut) under a toolbar button, on hover or keyboard focus,
+   after a short pause. Right-aligned, so it stays inside the sidebar. */
+.tip {
+  position: absolute;
+  top: calc(100% + var(--fx-space-1));
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-2);
+  padding: var(--fx-space-1) var(--fx-space-2);
+  border-radius: var(--fx-radius-sm);
+  background-color: var(--fx-tooltip-bg);
+  color: var(--fx-tooltip-text);
+  font-size: var(--fx-text-xs-plus);
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--fx-duration-fast) var(--fx-ease),
+    visibility 0s linear var(--fx-duration-fast);
+}
+
+.toolButton:hover .tip,
+.toolButton:focus-visible .tip {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: var(--fx-tooltip-delay);
+}
+
+.tip kbd {
+  padding: 0 var(--fx-space-1);
+  border: var(--fx-border-width) solid var(--fx-tooltip-kbd-border);
+  border-radius: var(--fx-radius-sm);
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font-family: var(--fx-font-mono);
+  font-size: var(--fx-text-xs);
+  line-height: 1.4;
 }
 
 .filterBox {

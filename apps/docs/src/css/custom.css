@@ -112,6 +112,7 @@
   --fx-duration-fast: 100ms;
   --fx-duration-chevron: 150ms;
   --fx-duration-panel: 200ms;
+  --fx-tooltip-delay: 400ms;
   --fx-ease: ease;
   --fx-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 
@@ -119,6 +120,9 @@
   --fx-bg: var(--fx-white);
   --fx-surface: #f7f8fa;
   --fx-chip: #f2f3f6;
+  --fx-tooltip-bg: #1b1b1f;
+  --fx-tooltip-text: #ffffff;
+  --fx-tooltip-kbd-border: rgb(255 255 255 / 0.35);
   --fx-text: var(--fx-dark-gray);
   --fx-text-secondary: #3d4250;
   --fx-text-muted: #5b6170;
@@ -207,6 +211,9 @@
   --fx-bg: var(--fx-dark-gray);
   --fx-surface: #1b1b1f;
   --fx-chip: #26262c;
+  --fx-tooltip-bg: #3a3a42;
+  --fx-tooltip-text: #ffffff;
+  --fx-tooltip-kbd-border: rgb(255 255 255 / 0.3);
   --fx-text: #f2f2f5;
   --fx-text-secondary: #c5c9d3;
   --fx-text-muted: #a3a8b5;

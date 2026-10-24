@@ -64,6 +64,9 @@ function SearchTrigger(): ReactNode {
       aria-keyshortcuts="Control+K Meta+K /">
       <SearchIcon />
       <span className={styles.searchText}>Search the docs</span>
+      <kbd className={`${styles.searchKbd} ${styles.searchSlash}`} aria-hidden="true">
+        /
+      </kbd>
       <kbd className={styles.searchKbd} aria-hidden="true">
         {isApple ? '⌘K' : 'Ctrl K'}
       </kbd>
