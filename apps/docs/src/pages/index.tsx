@@ -86,21 +86,9 @@ function RecentlyViewed(): ReactNode {
 
   return (
     <section className={styles.section} aria-labelledby="recent-heading">
-      <div className={styles.headingRow}>
-        <h2 id="recent-heading" ref={headingRef} tabIndex={-1} className={styles.heading}>
-          Recently viewed
-        </h2>
-        {hidden > 0 && (
-          <button
-            type="button"
-            className={styles.more}
-            onClick={() => setShowAll(!showAll)}
-            aria-expanded={showAll}
-            aria-controls="recent-list">
-            {showAll ? 'Show less' : `View more (${hidden})`}
-          </button>
-        )}
-      </div>
+      <h2 id="recent-heading" ref={headingRef} tabIndex={-1} className={styles.heading}>
+        Recently viewed
+      </h2>
       <div className={styles.recentSlot}>
         {paths !== null && items.length === 0 && (
           <p className={styles.empty}>Pages you open show up here.</p>
@@ -125,6 +113,16 @@ function RecentlyViewed(): ReactNode {
             ))}
           </ul>
         )}
+        {hidden > 0 && (
+          <button
+            type="button"
+            className={styles.more}
+            onClick={() => setShowAll(!showAll)}
+            aria-expanded={showAll}
+            aria-controls="recent-list">
+            {showAll ? 'Show less' : `View more (${hidden})`}
+          </button>
+        )}
       </div>
     </section>
   );
@@ -133,11 +131,9 @@ function RecentlyViewed(): ReactNode {
 function ExploreFortanix(): ReactNode {
   return (
     <section className={styles.section} aria-labelledby="explore-heading">
-      <div className={styles.headingRow}>
-        <h2 id="explore-heading" className={styles.heading}>
-          Explore Fortanix
-        </h2>
-      </div>
+      <h2 id="explore-heading" className={styles.heading}>
+        Explore Fortanix
+      </h2>
       <ul className={styles.exploreGrid}>
         {featured.map((card) => (
           <li key={card.href}>

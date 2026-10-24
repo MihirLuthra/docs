@@ -31,11 +31,13 @@ export function addRecent(path: string): void {
 
 /** Updates the variable the head script sets, after recents change. */
 export function setRecentsLayout(count: number): void {
-  document.documentElement.style.setProperty('--fx-recent-count', String(Math.min(count, RECENTS_VISIBLE)));
+  const style = document.documentElement.style;
+  style.setProperty('--fx-recent-count', String(Math.min(count, RECENTS_VISIBLE)));
+  style.setProperty('--fx-recent-more', count > RECENTS_VISIBLE ? '1' : '0');
 }
 
 /**
  * Inline <head> script: before first paint, exposes how many recents exist so
- * the home page can reserve their space (no layout shift on hydration).
+ * (and whether "View more" shows) so the home page can reserve their space (no layout shift on hydration).
  */
-export const recentsHeadScript = `try{var n=JSON.parse(localStorage.getItem('${RECENTS_KEY}')||'[]').length;var s=document.documentElement.style;s.setProperty('--fx-recent-count',Math.min(n,${RECENTS_VISIBLE}));}catch(e){}`;
+export const recentsHeadScript = `try{var n=JSON.parse(localStorage.getItem('${RECENTS_KEY}')||'[]').length;var s=document.documentElement.style;s.setProperty('--fx-recent-count',Math.min(n,${RECENTS_VISIBLE}));s.setProperty('--fx-recent-more',n>${RECENTS_VISIBLE}?1:0);}catch(e){}`;
