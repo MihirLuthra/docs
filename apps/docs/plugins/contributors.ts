@@ -54,14 +54,35 @@ async function githubAccounts(repo: string, branch: string): Promise<Map<string,
   return accounts;
 }
 
+/**
+ * The GitHub account of an email the commits list didn't cover (typically a
+ * co-author), from the public commit search: one request per email, at most
+ * MAX_SEARCHES (unauthenticated search allows 10 a minute).
+ */
+const MAX_SEARCHES = 8;
+async function searchAccount(email: string): Promise<{login: string; avatar: string} | undefined> {
+  try {
+    const res = await fetch(
+      `https://api.github.com/search/commits?q=${encodeURIComponent(`author-email:${email}`)}&per_page=1`,
+      {headers: {Accept: 'application/vnd.github+json'}, signal: AbortSignal.timeout(TIMEOUT_MS)},
+    );
+    if (!res.ok) return undefined;
+    const {items} = (await res.json()) as {items: GitHubCommit[]};
+    const author = items[0]?.author;
+    return author ? {login: author.login, avatar: author.avatar_url} : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 const isBot = (name: string, login?: string) => /\[bot\]$/i.test(login ?? '') || /\[bot\]$/i.test(name);
 
 /**
  * Contributors for every doc page, like GitHub's file contributors (commit
- * authors; co-author trailers aren't counted), worked out when the site is
- * built: `git log --follow` per page file (follows renames), and GitHub
- * accounts and avatars from the public API. Published as global data for
- * the doc footer (components/Contributors).
+ * authors and Co-authored-by trailers, one commit each), worked out when the
+ * site is built: `git log --follow` per page file (follows renames), and
+ * GitHub accounts and avatars from the public API. Published as global data
+ * for components/Contributors.
  */
 export default function contributorsPlugin(context: LoadContext, options: {repo: string; branch: string}): Plugin {
   return {
@@ -76,32 +97,72 @@ export default function contributorsPlugin(context: LoadContext, options: {repo:
       const branch = process.env.CONTRIBUTORS_BRANCH ?? git(root, ['rev-parse', '--abbrev-ref', 'HEAD']).trim();
       const accounts = await githubAccounts(options.repo, branch);
 
+      // Per page, its commits' contributors, newest commit first: the author,
+      // then any Co-authored-by trailers ("Name <email>").
+      const logs = docs.loadedVersions[0].docs.map((doc) => {
+        const file = path.resolve(context.siteDir, doc.source.replace(/^@site\//, ''));
+        const out = git(root, [
+          'log',
+          '--follow',
+          '--format=%an%x1f%ae%x1f%(trailers:key=Co-authored-by,valueonly,separator=%x1d)%x1e',
+          '--',
+          file,
+        ]);
+        const commits = out
+          .split('\x1e')
+          .map((record) => record.trim())
+          .filter(Boolean)
+          .map((record) => {
+            const [name, email, trailers] = record.split('\x1f');
+            const coAuthors = (trailers ?? '')
+              .split('\x1d')
+              .map((t) => /^(.*?)\s*<([^>]+)>$/.exec(t.trim()))
+              .filter((m): m is RegExpExecArray => !!m)
+              .map((m) => ({name: m[1], email: m[2]}));
+            return [{name, email}, ...coAuthors];
+          });
+        return {doc, file, commits};
+      });
+
+      // Emails the commits list didn't cover (co-authors): GitHub's search.
+      const unknown = new Set(
+        logs.flatMap((l) => l.commits.flat()).map((c) => c.email.toLowerCase()).filter((e) => !accounts.has(e)),
+      );
+      for (const email of [...unknown].slice(0, MAX_SEARCHES)) {
+        const account = await searchAccount(email);
+        if (account) accounts.set(email, account);
+      }
+
       const people: Person[] = [];
       const personIndex = new Map<string, number>();
       const pages: Contributors['pages'] = {};
 
-      for (const doc of docs.loadedVersions[0].docs) {
-        const file = path.resolve(context.siteDir, doc.source.replace(/^@site\//, ''));
-        const log = git(root, ['log', '--follow', '--format=%an%x1f%ae', '--', file]).trim();
-        if (!log) continue;
-        // Per author: commits, and their order of last commit (git log is
-        // newest first), for ties.
+      for (const {doc, file, commits} of logs) {
+        if (commits.length === 0) continue;
+        // Per contributor: commits, and their order of last commit (newest
+        // first), for ties.
         const byAuthor = new Map<number, {commits: number; recent: number}>();
-        for (const line of log.split('\n')) {
-          const [name, rawEmail] = line.split('\x1f');
-          const email = rawEmail.toLowerCase();
-          const account = accounts.get(email);
-          if (isBot(name, account?.login)) continue;
-          // One person per GitHub account, else per email.
-          const id = account ? `gh:${account.login}` : `email:${email}`;
-          let index = personIndex.get(id);
-          if (index === undefined) {
-            index = people.push({name, ...(account && {login: account.login, avatar: account.avatar})}) - 1;
-            personIndex.set(id, index);
+        for (const commit of commits) {
+          // Each person once per commit, even if both author and co-author.
+          const inCommit = new Set<number>();
+          for (const {name, email: rawEmail} of commit) {
+            const email = rawEmail.toLowerCase();
+            const account = accounts.get(email);
+            if (isBot(name, account?.login)) continue;
+            // One person per GitHub account, else per email.
+            const id = account ? `gh:${account.login}` : `email:${email}`;
+            let index = personIndex.get(id);
+            if (index === undefined) {
+              index = people.push({name, ...(account && {login: account.login, avatar: account.avatar})}) - 1;
+              personIndex.set(id, index);
+            }
+            inCommit.add(index);
           }
-          const entry = byAuthor.get(index);
-          if (entry) entry.commits += 1;
-          else byAuthor.set(index, {commits: 1, recent: byAuthor.size});
+          for (const index of inCommit) {
+            const entry = byAuthor.get(index);
+            if (entry) entry.commits += 1;
+            else byAuthor.set(index, {commits: 1, recent: byAuthor.size});
+          }
         }
         if (byAuthor.size === 0) continue;
         pages[doc.permalink.replace(/\/+$/, '') || '/'] = {

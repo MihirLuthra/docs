@@ -7,7 +7,7 @@ export default function DocItemFooter(): ReactNode {
   return (
     <>
       <Footer />
-      <Contributors />
+      <Contributors placement="footer" />
     </>
   );
 }

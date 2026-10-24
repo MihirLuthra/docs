@@ -1,4 +1,5 @@
-import type {ReactNode} from 'react';
+import {useId, type ReactNode} from 'react';
+import clsx from 'clsx';
 import {useLocation} from '@docusaurus/router';
 import {usePluginData} from '@docusaurus/useGlobalData';
 import {normalize} from '@site/src/components/DocsTree/tree';
@@ -49,16 +50,23 @@ function Avatar({person, commits}: {person: Person; commits: number}): ReactNode
  * count, their avatars (to their GitHub profiles), and "+ N contributors"
  * (the file's history on GitHub) when there are more. From
  * plugins/contributors.ts.
+ *
+ * Rendered twice: in the right-hand column under the table of contents
+ * ("rail"), and under the page ("footer"). CSS shows the rail one on wide
+ * screens when the page has that column, else the footer one.
  */
-export default function Contributors(): ReactNode {
+export default function Contributors({placement}: {placement: 'rail' | 'footer'}): ReactNode {
+  const headingId = useId();
   const {repo, branch, people, pages} = usePluginData('contributors') as Data;
   const page = pages[normalize(useLocation().pathname)];
   if (!page) return null;
   const count = page.authors.length;
   const hidden = count - MAX_SHOWN;
   return (
-    <section className={styles.contributors} aria-labelledby="contributors-heading">
-      <h2 id="contributors-heading" className={styles.heading}>
+    <section
+      className={clsx(styles.contributors, placement === 'rail' ? styles.inRail : styles.inFooter)}
+      aria-labelledby={headingId}>
+      <h2 id={headingId} className={styles.heading}>
         Contributors <span className={styles.count}>{count}</span>
       </h2>
       <ul className={styles.avatars}>

@@ -1,9 +1,41 @@
+/* 996px is Docusaurus's desktop breakpoint (media queries can't use vars). */
+
 /* Like a GitHub repo's Contributors box: heading and count, a grid of
-   avatars, "+ N contributors". Under "Edit this page". */
+   avatars, "+ N contributors". */
 .contributors {
-  margin-top: var(--fx-space-6);
   padding-top: var(--fx-space-4);
   border-top: var(--fx-border-width) solid var(--fx-border);
+}
+
+/* Under "Edit this page". */
+.inFooter {
+  margin-top: var(--fx-space-6);
+}
+
+/* Right-hand column, under the table of contents (theme/DocItem/TOC). */
+.inRail {
+  margin-top: var(--fx-space-5);
+  /* Lined up with the table of contents' links (its 1px line, its padding,
+     and theirs). */
+  padding-left: calc(2 * var(--ifm-toc-padding-horizontal) + var(--fx-border-width));
+}
+
+.inRail .heading {
+  font-size: var(--fx-text-md);
+}
+
+/* One place at a time: the column on wide screens when the page has one
+   (its copy is in the same .row), else under the page. */
+@media (min-width: 997px) {
+  :global(.row):has(.inRail) .inFooter {
+    display: none;
+  }
+}
+
+@media (max-width: 996px) {
+  .inRail {
+    display: none;
+  }
 }
 
 .heading {
