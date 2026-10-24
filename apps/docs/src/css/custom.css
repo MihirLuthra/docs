@@ -225,6 +225,17 @@
   --ifm-footer-background-color: var(--fx-bg);
   --doc-sidebar-width: var(--fx-sidebar-width);
   --docusaurus-highlighted-code-line-bg: rgb(153 23 255 / 0.1);
+  /* Code highlighting (src/lib/prism-theme.ts): GitHub's accessible code
+     palette, every token at least 4.5:1 on --fx-code-bg. */
+  --fx-code-bg: #f6f8fa;
+  --fx-code-text: #1f2328;
+  --fx-code-comment: #59636e;
+  --fx-code-string: #0a3069;
+  --fx-code-keyword: #cf222e;
+  --fx-code-function: #8250df;
+  --fx-code-property: #0550ae;
+  --fx-code-tag: #116329;
+  --fx-code-variable: #953800;
 }
 
 [data-theme='dark'] {
@@ -293,6 +304,15 @@
   --ifm-color-primary-light: var(--fx-purple-light);
   --ifm-color-primary-lighter: var(--fx-purple-light);
   --docusaurus-highlighted-code-line-bg: rgb(0 0 0 / 0.3);
+  --fx-code-bg: #1f1f24;
+  --fx-code-text: #e6edf3;
+  --fx-code-comment: #9198a1;
+  --fx-code-string: #a5d6ff;
+  --fx-code-keyword: #ff7b72;
+  --fx-code-function: #d2a8ff;
+  --fx-code-property: #79c0ff;
+  --fx-code-tag: #7ee787;
+  --fx-code-variable: #ffa657;
 }
 
 /* Keep the scrollbar's space when search or the drawer locks scrolling

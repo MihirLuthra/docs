@@ -18,10 +18,14 @@ function Tab({children}: TabProps): ReactNode {
   return children;
 }
 
-/** `<Tabs>` of `<Tab label>`: Docusaurus's tabs, each tab's value its label. */
-function Tabs({children}: {children?: ReactNode}): ReactNode {
+/**
+ * `<Tabs>` of `<Tab label>`: Docusaurus's tabs, each tab's value its label.
+ * Tabs with the same `groupId` switch together, and the choice is kept
+ * (e.g. groupId="runtime": pick the runtime once per page).
+ */
+function Tabs({groupId, children}: {groupId?: string; children?: ReactNode}): ReactNode {
   return (
-    <DocusaurusTabs>
+    <DocusaurusTabs groupId={groupId}>
       {Children.toArray(children)
         .filter((child) => isValidElement<TabProps>(child))
         .map((child) => {

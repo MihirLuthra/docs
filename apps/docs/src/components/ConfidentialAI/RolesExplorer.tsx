@@ -40,21 +40,24 @@ export function RolesExplorer({
 
   return (
     <figure className="cai cai-roles" aria-label="Who holds which role">
-      <div className="cai-picker" role="tablist" aria-label="Scenario" onKeyDown={onKey}>
-        {list.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            role="tab"
-            aria-selected={s.id === sc.id}
-            tabIndex={s.id === sc.id ? 0 : -1}
-            onClick={() => setId(s.id)}
-          >
-            {showUseCase && <small>{USE_CASE_NAMES[s.useCase]}</small>}
-            {s.label}
-          </button>
-        ))}
-      </div>
+      {/* One scenario (e.g. on an end-to-end guide): no picker. */}
+      {list.length > 1 && (
+        <div className="cai-picker" role="tablist" aria-label="Scenario" onKeyDown={onKey}>
+          {list.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              role="tab"
+              aria-selected={s.id === sc.id}
+              tabIndex={s.id === sc.id ? 0 : -1}
+              onClick={() => setId(s.id)}
+            >
+              {showUseCase && <small>{USE_CASE_NAMES[s.useCase]}</small>}
+              {s.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="cai-roles-stage">
         {sc.parties.map((p) => {

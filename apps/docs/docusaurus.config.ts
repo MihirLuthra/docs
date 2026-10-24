@@ -1,9 +1,9 @@
-import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import stubNotice from './src/remark/stub-notice';
 import docsTree from './plugins/docs-tree';
 import contributors from './plugins/contributors';
+import prismTheme from './src/lib/prism-theme';
 import {recentsHeadScript} from './src/lib/recents';
 import {FONT_URL, fontFaceCss} from './src/lib/fonts';
 import {searchEarlyScript} from './src/lib/search-early';
@@ -98,9 +98,10 @@ const config: Config = {
     footer: {
       copyright: `© ${new Date().getFullYear()} Fortanix, Inc.`,
     },
+    // One theme made of CSS tokens; light and dark come from custom.css.
     prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+      theme: prismTheme,
+      darkTheme: prismTheme,
     },
   } satisfies Preset.ThemeConfig,
 };
