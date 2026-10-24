@@ -21,4 +21,4 @@ Each gets its own decision entry when we start it.
 - Downloads and release-notes sections
 - Search upgrade
 - Translations (e.g. Japanese)
-- Backend: sign-in, roles, edit-to-PR workflow
+- Backend: sign-in, roles, edit-to-PR workflow. Goal: edit directly on the doc page, with "Edit on GitHub" still offered; if the editor doesn't go the GitHub way, a bot opens the PR on their behalf. Needs the backend (D12), so the GitHub link stays the only edit path until then.

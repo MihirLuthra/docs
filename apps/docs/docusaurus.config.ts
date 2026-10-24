@@ -8,7 +8,7 @@ import {FONT_URL, fontFaceCss} from './src/lib/fonts';
 import {searchEarlyScript} from './src/lib/search-early';
 
 // Edit links open GitHub's editor (D12).
-const EDIT_BASE = 'https://github.com/mhrk0/docs/edit/main';
+const EDIT_BASE = 'https://github.com/MihirLuthra/docs/edit/main';
 
 const config: Config = {
   title: 'Fortanix Documentation',
