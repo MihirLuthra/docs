@@ -8,6 +8,7 @@ import Logo from '@site/src/components/Logo';
 import {useOverlays} from '@site/src/components/Overlays/context';
 import {SparkleIcon} from '@site/src/components/AskAI/SparkleIcon';
 import {SEARCH_TRIGGER_ATTR} from '@site/src/lib/search-early';
+import {resetNav} from '@site/src/lib/nav-reset';
 import styles from './styles.module.css';
 
 type HeaderLink = {label: string; to: string};
@@ -173,7 +174,7 @@ export default function Navbar(): ReactNode {
         aria-controls="docs-drawer">
         <MenuIcon />
       </button>
-      <Link to="/" className={styles.brand} aria-label="Fortanix Docs, home">
+      <Link to="/" className={styles.brand} onClick={resetNav} aria-label="Fortanix Docs, home">
         <Logo className={styles.logo} />
         <span className={styles.brandDivider} aria-hidden="true" />
         <span className={styles.brandDocs} aria-hidden="true">

@@ -1,5 +1,5 @@
 .nav {
-  padding: var(--fx-content-top) var(--fx-space-3) var(--fx-space-3);
+  padding: var(--fx-sidebar-top) var(--fx-space-3) var(--fx-space-3);
   font-size: var(--fx-text-md);
 }
 
@@ -42,6 +42,15 @@
 /* Home and the top-level sections. */
 .top {
   font-weight: 600;
+}
+
+/* Taller, with larger text, and a little space before the divider. The
+   extra height and margin are multiples of 4px, so the dividers below stay
+   on the 4px grid. */
+.home {
+  height: var(--fx-tree-home-h);
+  margin-bottom: var(--fx-tree-home-gap);
+  font-size: var(--fx-tree-home-size);
 }
 
 /* After Home and between top-level sections: its own margin, so rows keep

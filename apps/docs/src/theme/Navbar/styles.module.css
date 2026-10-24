@@ -39,9 +39,10 @@
   background-color: var(--fx-border);
 }
 
-/* line-height 1 puts Inter's capitals at the centre of the box, so flex
-   centring lines them up with the logo's letters. */
+/* Centred on the logo, then dropped onto the wordmark's baseline. */
 .brandDocs {
+  position: relative;
+  top: var(--fx-brand-docs-drop);
   color: var(--fx-brand-docs);
   font-size: var(--fx-brand-docs-size);
   font-weight: 600;

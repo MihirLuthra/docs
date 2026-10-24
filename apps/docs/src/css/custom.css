@@ -66,15 +66,24 @@
   --fx-sidebar-width: 300px;
   --fx-tree-indent: 16px;
   --fx-tree-row-h: 32px;
-  --fx-z-popover: calc(var(--ifm-z-index-fixed) - 1);
+  --fx-tree-home-h: 40px;
+  --fx-tree-home-gap: 4px; /* below Home, before its divider */
+  --fx-tree-home-size: 0.9375rem; /* 15px */
+  /* Above the mobile drawer, below the search modal. */
+  --fx-z-popover: calc(var(--ifm-z-index-fixed) + 1);
   --fx-tree-divider-gap: 6px; /* above the line; 5px below, 12px in all */
   --fx-brand-divider-h: 18px;
   --fx-brand-docs-size: 20px; /* "Docs" in the header lockup */
+  /* Moves "Docs" down onto the wordmark's baseline (20.7px down the 24px
+     logo); centred, it sits 2px higher (measured). */
+  --fx-brand-docs-drop: 2px;
   /* Gap between the header and the first row/element of the sidebar, the
      home page and doc pages, so they start level. 22px (not 24) so that,
      with 32px rows and 12px divider blocks, every sidebar divider lands on
      a whole device pixel at 125%, 150%, 175% and 200% scaling. */
   --fx-content-top: 22px;
+  /* The sidebar starts a little lower; +8px keeps that grid. */
+  --fx-sidebar-top: calc(var(--fx-content-top) + 8px);
   --fx-home-max: 1080px; /* home main column */
   --fx-rail-width: 260px; /* home right rail */
   --fx-rail-gap: var(--fx-space-8);

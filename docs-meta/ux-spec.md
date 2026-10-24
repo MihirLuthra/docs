@@ -18,13 +18,15 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
   - Dropdown: floats over the content, left-aligned with the input, ~640px wide (at most the viewport − 32px); the full drawer width inside the mobile drawer. Radius 12px, soft shadow.
   - Rows: a page icon, then the path with the matched parts in bold. Long paths wrap onto the next line, indented to the text (no ellipsis). The active or hovered row uses the neutral grey of sidebar row hover.
   - ↑ ↓ Enter work in it, and Esc clears it.
-- Every row, Home included, is 32px with the same padding; text 14px in the main text colour. Home and top-level sections are semi-bold (600), deeper rows regular. The Home icon sits in the chevron's slot so labels line up.
+- Every tree row is 32px with the same padding; text 14px in the main text colour. Home and top-level sections are semi-bold (600), deeper rows regular. The Home icon sits in the chevron's slot so labels line up.
+- Home is a little larger: 40px tall, 15px text, a 16px icon, and 4px of space before its divider.
+- Clicking Home, or the logo in the header, goes home and resets the sidebar: every section collapsed, "Go to page" cleared, scrolled to the top.
 - All sections are collapsed by default; the tree opens along the current page's path.
 - Clicking a section row toggles it. Clicking a page navigates.
 - **Full-row highlight** on hover and on the selected row. Selected: background `#F5EDFF`, text `#4B0A80`.
 - Indent 16px per level, with thin vertical **indent guides**. The chevron rotates 90° when open (150ms).
 - A divider after Home and between top-level sections: a 1px line with its own spacing (6px above, 5px below), so rows keep one height. A small "standalone" pill on DSM.
-- The sidebar's first element, the home page content and a doc page's breadcrumbs start the same distance below the header.
+- The home page content and a doc page's breadcrumbs start the same distance below the header; the sidebar starts 8px lower.
 - Uses `role="tree"` / `treeitem` and `aria-expanded`. Keyboard: ↑ ↓ ← → Enter.
 
 ## Home
@@ -49,6 +51,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 - Opens with ⌘K / Ctrl+K or `/`, or by clicking the trigger.
 - Closes on Esc, a **click outside**, or the **× button**.
+- **Opening grows the header's search bar into the panel** (~260ms): it starts at the bar's position, size and corner radius, expands to the panel, and the results fade in as it does. Closing shrinks it back into the bar (~160ms). No animation with reduced motion.
 - The panel is **slightly translucent**: `rgba(255,255,255,0.80)` with `backdrop-filter: blur(28px) saturate(180%)`, a light backdrop of `rgba(19,19,19,0.14)`, and a solid fallback when backdrop-filter isn't supported. Dark mode uses the same idea on a dark base.
 - **No "Top hit".** Every result is one uniform row:
   - kind icon tile

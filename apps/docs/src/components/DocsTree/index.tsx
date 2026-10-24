@@ -1,10 +1,11 @@
-import {useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import {useLocation} from '@docusaurus/router';
 import type {TreeNode} from './types';
 import {ancestors, findKey, normalize, useTree} from './tree';
 import GoToPage from './GoToPage';
+import {resetNav, useNavReset} from '@site/src/lib/nav-reset';
 import styles from './styles.module.css';
 
 type Row = {
@@ -37,7 +38,7 @@ function Chevron(): ReactNode {
 
 function HomeIcon(): ReactNode {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
       <path
         d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"
         fill="none"
@@ -61,12 +62,24 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
   const [open, setOpen] = useState(() => new Set(ancestors(currentKey)));
   const [focusKey, setFocusKey] = useState<string | null>(null);
   const itemRefs = useRef(new Map<string, HTMLElement>());
+  const navRef = useRef<HTMLElement>(null);
 
   // Open the tree along the current page whenever it changes.
   useEffect(() => {
     const along = ancestors(currentKey);
     setOpen((prev) => (along.every((k) => prev.has(k)) ? prev : new Set([...prev, ...along])));
   }, [currentKey]);
+
+  // Home row or header logo: collapse everything and scroll back up.
+  useNavReset(
+    useCallback(() => {
+      setOpen(new Set());
+      setFocusKey(null);
+      for (let el = navRef.current?.parentElement; el; el = el.parentElement) {
+        if (el.scrollTop) el.scrollTop = 0;
+      }
+    }, []),
+  );
 
   const rows = useMemo(() => visibleRows(tree, open), [tree, open]);
   const tabKey =
@@ -128,12 +141,15 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
   };
 
   return (
-    <nav className={styles.nav} aria-label="Documentation">
+    <nav ref={navRef} className={styles.nav} aria-label="Documentation">
       <Link
         to="/"
-        className={clsx(styles.row, styles.top, pathname === '/' && styles.selected)}
+        className={clsx(styles.row, styles.top, styles.home, pathname === '/' && styles.selected)}
         aria-current={pathname === '/' ? 'page' : undefined}
-        onClick={onNavigate}>
+        onClick={() => {
+          resetNav();
+          onNavigate?.();
+        }}>
         {/* The icon takes the chevron's slot, so "Home" lines up with the sections. */}
         <span className={styles.twisty} aria-hidden="true">
           <HomeIcon />

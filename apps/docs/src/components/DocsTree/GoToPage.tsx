@@ -10,9 +10,11 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from 'react';
+import {createPortal} from 'react-dom';
 import {useHistory} from '@docusaurus/router';
 import {flattenPages, goToPage, type Highlights} from './goto';
 import {useTree} from './tree';
+import {useNavReset} from '@site/src/lib/nav-reset';
 import styles from './styles.module.css';
 
 const PANEL_WIDTH = 640;
@@ -132,9 +134,10 @@ export default function GoToPage({onNavigate}: {onNavigate?: () => void}): React
     const onKeyDown = (e: globalThis.KeyboardEvent) => {
       if (e.key !== 't' || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
       const input = inputRef.current;
-      // Only the visible instance (sidebar or drawer), and not behind a modal.
+      // Only the visible instance (sidebar or drawer), and not behind a modal
+      // (one animating out is inert).
       if (!input || input.offsetParent === null) return;
-      if (document.querySelector('[role="dialog"][aria-modal="true"]:not(#docs-drawer)')) return;
+      if (document.querySelector('[role="dialog"][aria-modal="true"]:not(#docs-drawer):not([inert] *)')) return;
       e.preventDefault();
       input.focus();
     };
@@ -143,6 +146,8 @@ export default function GoToPage({onNavigate}: {onNavigate?: () => void}): React
       document.removeEventListener('keydown', onKeyDown);
     };
   }, []);
+
+  useNavReset(useCallback(() => setQuery(''), []));
 
   const go = (href: string) => {
     setQuery('');
@@ -208,42 +213,47 @@ export default function GoToPage({onNavigate}: {onNavigate?: () => void}): React
           </kbd>
         )}
       </div>
-      {open && position && (
-        <div className={styles.gotoPanel} style={position}>
-          {matches.length > 0 ? (
-            <ul id={`${id}-list`} role="listbox" aria-label="Pages" className={styles.gotoList}>
-              {matches.map(({entry, highlights}, i) => (
-                <li
-                  key={entry.href}
-                  id={`${id}-${i}`}
-                  role="option"
-                  aria-selected={i === current}
-                  className={styles.gotoOption}
-                  // mousedown, not click: runs before the input loses focus.
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    go(entry.href);
-                  }}
-                  onMouseMove={() => i !== current && setActive(i)}>
-                  <PageIcon />
-                  <span className={styles.gotoPath}>
-                    {entry.names.map((name, n) => (
-                      <span key={n}>
-                        {n > 0 && <span className={styles.gotoSep}> / </span>}
-                        <Name name={name} ranges={highlights[n]} />
-                      </span>
-                    ))}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className={styles.gotoEmpty} role="status">
-              No matching pages
-            </p>
-          )}
-        </div>
-      )}
+      {/* On <body>: the sticky sidebar is its own stacking context, so from
+          inside it the panel would paint under the page's cards. */}
+      {open &&
+        position &&
+        createPortal(
+          <div className={styles.gotoPanel} style={position}>
+            {matches.length > 0 ? (
+              <ul id={`${id}-list`} role="listbox" aria-label="Pages" className={styles.gotoList}>
+                {matches.map(({entry, highlights}, i) => (
+                  <li
+                    key={entry.href}
+                    id={`${id}-${i}`}
+                    role="option"
+                    aria-selected={i === current}
+                    className={styles.gotoOption}
+                    // mousedown, not click: runs before the input loses focus.
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      go(entry.href);
+                    }}
+                    onMouseMove={() => i !== current && setActive(i)}>
+                    <PageIcon />
+                    <span className={styles.gotoPath}>
+                      {entry.names.map((name, n) => (
+                        <span key={n}>
+                          {n > 0 && <span className={styles.gotoSep}> / </span>}
+                          <Name name={name} ranges={highlights[n]} />
+                        </span>
+                      ))}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.gotoEmpty} role="status">
+                No matching pages
+              </p>
+            )}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
