@@ -182,6 +182,14 @@
   margin-right: 0;
 }
 
+/* The "h" shortcut, at the right of the Home row, lined up with the "c"
+   chip below (that button's right padding is space-1, the row's space-2). */
+.filterKbd.rowKbd {
+  margin-right: calc(var(--fx-space-1) - var(--fx-space-2));
+  margin-left: auto;
+  font-weight: 400;
+}
+
 /* Label (and shortcut) under a toolbar button, on hover or keyboard focus,
    after a short pause. Right-aligned, so it stays inside the sidebar. */
 .tip {

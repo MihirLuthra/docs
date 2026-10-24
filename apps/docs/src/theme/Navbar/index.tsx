@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState, type KeyboardEvent, type ReactNode} from 'react';
 import Link from '@docusaurus/Link';
-import {useLocation} from '@docusaurus/router';
+import {useHistory, useLocation} from '@docusaurus/router';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import NavbarColorModeToggle from '@theme/Navbar/ColorModeToggle';
 import DocsTree from '@site/src/components/DocsTree';
@@ -9,6 +9,7 @@ import {useOverlays} from '@site/src/components/Overlays/context';
 import {SparkleIcon} from '@site/src/components/AskAI/SparkleIcon';
 import {SEARCH_TRIGGER_ATTR} from '@site/src/lib/search-early';
 import {resetNav} from '@site/src/lib/nav-reset';
+import {isPlainShortcut} from '@site/src/lib/keys';
 import styles from './styles.module.css';
 
 type HeaderLink = {label: string; to: string};
@@ -159,6 +160,22 @@ export default function Navbar(): ReactNode {
   useEffect(() => {
     setDrawerOpen(false);
   }, [pathname]);
+
+  // "h" (when not typing) does what the Home row does: home, sidebar reset.
+  const history = useHistory();
+  useEffect(() => {
+    const onKeyDown = (e: globalThis.KeyboardEvent) => {
+      if (!isPlainShortcut(e, 'h')) return;
+      e.preventDefault();
+      resetNav();
+      setDrawerOpen(false);
+      if (window.location.pathname !== '/') history.push('/');
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [history]);
 
   const closeDrawer = () => {
     setDrawerOpen(false);

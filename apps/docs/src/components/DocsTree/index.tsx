@@ -228,6 +228,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
         to="/"
         className={clsx(styles.row, styles.top, styles.home, pathname === '/' && styles.selected)}
         aria-current={pathname === '/' ? 'page' : undefined}
+        aria-keyshortcuts="h"
         onClick={() => {
           resetNav();
           onNavigate?.();
@@ -237,6 +238,9 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
           <HomeIcon />
         </span>
         <span className={styles.label}>Home</span>
+        <kbd className={`${styles.filterKbd} ${styles.rowKbd}`} aria-hidden="true">
+          h
+        </kbd>
       </Link>
       <div className={styles.divider} aria-hidden="true" />
       {/* Stays at the top while the tree scrolls. */}
