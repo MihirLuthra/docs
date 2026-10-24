@@ -261,11 +261,11 @@
 .exploreCard {
   display: flex;
   flex-direction: column;
-  gap: var(--fx-space-1);
+  gap: var(--fx-card-gap);
   height: 100%;
   padding: var(--fx-space-4);
   border: var(--fx-border-width) solid var(--fx-border);
-  border-radius: var(--fx-radius-lg);
+  border-radius: var(--fx-radius-card);
   background-color: var(--fx-bg);
   color: var(--fx-text);
   transition:
@@ -273,33 +273,40 @@
     box-shadow var(--fx-duration-fast) var(--fx-ease);
 }
 
+/* One line, so titles in the same row line up. */
 .explorePath {
+  overflow: hidden;
   color: var(--fx-text-muted);
   font-family: var(--fx-font-mono);
   font-size: var(--fx-text-xs);
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .exploreTitle {
   font-size: var(--fx-text-lg);
   font-weight: 700;
+  line-height: 1.3;
 }
 
 .exploreLine {
   color: var(--fx-text-secondary);
   font-size: var(--fx-text-sm);
+  line-height: 1.5;
 }
 
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--fx-space-1);
-  margin-top: var(--fx-space-1);
+  gap: var(--fx-tag-gap);
 }
 
 .tag {
-  padding: 0 var(--fx-space-2);
+  padding: var(--fx-tag-py) var(--fx-tag-px);
   border-radius: var(--fx-radius-sm);
   background-color: var(--fx-chip);
   color: var(--fx-text-secondary);
   font-size: var(--fx-text-xs);
+  line-height: 1.5;
 }

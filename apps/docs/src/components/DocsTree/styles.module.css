@@ -101,3 +101,99 @@
   font-weight: 600;
   line-height: 1.6;
 }
+
+/* "Go to page" filter. Its block is 40px (32 + 8), a multiple of 4, so the
+   dividers below stay on the 4px grid. */
+.goto {
+  position: relative;
+  margin-bottom: var(--fx-space-2);
+}
+
+.filterBox {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-2);
+  box-sizing: border-box;
+  height: var(--fx-tree-row-h);
+  padding: 0 var(--fx-space-2);
+  border: var(--fx-border-width) solid var(--fx-border-strong);
+  border-radius: var(--fx-radius-md);
+  background-color: var(--fx-surface);
+}
+
+.filterBox:focus-within {
+  border-color: var(--fx-focus);
+  background-color: var(--fx-bg);
+}
+
+.filterIcon {
+  flex: none;
+  width: var(--fx-kind-icon-md);
+  height: var(--fx-kind-icon-md);
+  color: var(--fx-text-muted);
+}
+
+.filterInput {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--fx-text);
+  font: inherit;
+}
+
+.filterInput::placeholder {
+  color: var(--fx-text-muted);
+}
+
+.gotoPanel {
+  position: absolute;
+  top: calc(100% + var(--fx-space-1));
+  right: 0;
+  left: 0;
+  z-index: 1;
+  max-height: var(--fx-goto-max-h);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--fx-space-1);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-lg);
+  background-color: var(--fx-bg);
+  box-shadow: var(--fx-shadow-card);
+}
+
+.gotoList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gotoOption {
+  padding: var(--fx-space-2);
+  border-radius: var(--fx-radius-md);
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-sm);
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.gotoOption[aria-selected='true'] {
+  background-color: var(--fx-search-active);
+}
+
+.gotoOption b {
+  color: var(--fx-text);
+  font-weight: 700;
+}
+
+.gotoSep {
+  color: var(--fx-text-muted);
+}
+
+.gotoEmpty {
+  margin: 0;
+  padding: var(--fx-space-2);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-sm);
+}

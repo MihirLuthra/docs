@@ -4,6 +4,7 @@ import Link from '@docusaurus/Link';
 import {useLocation} from '@docusaurus/router';
 import type {TreeNode} from './types';
 import {ancestors, findKey, normalize, useTree} from './tree';
+import GoToPage from './GoToPage';
 import styles from './styles.module.css';
 
 type Row = {
@@ -128,6 +129,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
 
   return (
     <nav className={styles.nav} aria-label="Documentation">
+      <GoToPage onNavigate={onNavigate} />
       <Link
         to="/"
         className={clsx(styles.row, styles.top, pathname === '/' && styles.selected)}

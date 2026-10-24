@@ -10,23 +10,31 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 ## Sidebar (GitHub-style tree)
 
-- A **Home** row first, then one collapsible tree (information-architecture.md).
+- **"Go to page" filter at the top**, like GitHub's "Go to file". It matches against the full path (e.g. `ccm api`, `armor/dsm/pkcs`) and shows a dropdown of matching paths with the matched parts in bold. ↑ ↓ Enter work in it, and Esc clears it. It is separate from the ⌘K search, which stays in the header.
+  - Words are separated by spaces or `/` and can come in any order. Each word must match part of a path segment as text, or as the initials of consecutive words in one segment (`dsm` → Data Security Manager).
+  - Results are pages only (folders have none), best first: words matched in the page's own title, then at word starts, then shallower pages. Up to 8 are shown; no match shows "No matching pages".
+- A **Home** row next, separated from the tree like the other sections, then one collapsible tree (information-architecture.md).
+- Every row, Home included, is 32px with the same padding; text 14px in the main text colour. Home and top-level sections are semi-bold (600), deeper rows regular. The Home icon sits in the chevron's slot so labels line up.
 - All sections are collapsed by default; the tree opens along the current page's path.
 - Clicking a section row toggles it. Clicking a page navigates.
 - **Full-row highlight** on hover and on the selected row. Selected: background `#F5EDFF`, text `#4B0A80`.
 - Indent 16px per level, with thin vertical **indent guides**. The chevron rotates 90° when open (150ms).
-- A divider between top-level sections. A small "standalone" pill on DSM.
+- A divider after Home and between top-level sections: a 1px line with its own spacing (6px above, 5px below), so rows keep one height. A small "standalone" pill on DSM.
+- The sidebar's first element, the home page content and a doc page's breadcrumbs start the same distance below the header.
 - Uses `role="tree"` / `treeitem` and `aria-expanded`. Keyboard: ↑ ↓ ← → Enter.
 
 ## Home
 
 1. **"New to Fortanix? Get familiar first"**: a prominent purple banner linking to *What Fortanix does*.
 2. **Recently viewed** (stored in localStorage, max 12):
-   - Cards in a 3-column grid, each with a title and a breadcrumb path.
+   - Cards in a 3-column grid, each with a title and its closest parent section (the full path is in the tooltip).
    - Each card has its own **×** to remove it. There is **no "clear all"**.
    - Shows 2 rows (6 cards), then a "View more (n)" / "Show less" toggle.
    - Empty state: "Pages you open show up here."
-3. **Explore Fortanix**: 6 curated cards (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness). Each card has a mono path, a title, one line, and tags. The cards come from one data file.
+3. **Explore Fortanix**: 6 curated cards (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness). Each card has a mono path, a title, one line, and tags. The cards come from one data file (`apps/docs/src/data/featured.ts`).
+   - The path is one line (ellipsis if too long, never wraps), so titles in a row line up. Paths say "Armor" for "Fortanix Armor".
+   - About 6px between path, title, description and tags. Description line-height 1.5.
+   - Tags: 11px text, padding 1px 6px, radius 4px, background `#F2F3F6` (a dark grey in dark mode), 4px apart.
 
 ## Search bar
 

@@ -129,7 +129,6 @@ function RecentlyViewed(): ReactNode {
 }
 
 function ExploreFortanix(): ReactNode {
-  const tree = useTree();
   return (
     <section className={styles.section} aria-labelledby="explore-heading">
       <h2 id="explore-heading" className={styles.heading}>
@@ -139,8 +138,8 @@ function ExploreFortanix(): ReactNode {
         {featured.map((card) => (
           <li key={card.href}>
             <Link to={card.href} className={styles.exploreCard}>
-              <span className={styles.explorePath}>
-                {locate(tree, card.href)?.path.join(' / ')}
+              <span className={styles.explorePath} title={card.path}>
+                {card.path}
               </span>
               <span className={styles.exploreTitle}>{card.title}</span>
               <span className={styles.exploreLine}>{card.line}</span>

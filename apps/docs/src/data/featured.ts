@@ -1,12 +1,13 @@
 /**
- * Explore Fortanix cards on the home page (ux-spec.md, Home). The path shown
- * on each card comes from the docs tree, so only the link is given here.
+ * Explore Fortanix cards on the home page (ux-spec.md, Home).
  */
 export type FeaturedCard = {
+  /** Shown above the title, on one line; "Armor" abbreviates "Fortanix Armor". */
+  path: string;
   title: string;
   line: string;
   tags: string[];
-  /** A page in the docs tree; the card's path is its folder path. */
+  /** A page in the docs tree. */
   href: string;
 };
 
@@ -14,36 +15,42 @@ export type FeaturedCard = {
 // claims (e.g. "HSM-backed", "REST API", "cloud scanning") need review.
 export const featured: FeaturedCard[] = [
   {
+    path: 'Solutions / Confidential AI',
     title: 'Confidential AI',
     line: 'Protect models and data while they run on GPUs.',
     tags: ['GPU attestation', 'model protection', 'Rafay'],
     href: '/solutions/confidential-ai/overview',
   },
   {
+    path: 'Products / Armor / Data Security Manager',
     title: 'Key management',
     line: 'Generate, store and control keys with an HSM-backed KMS.',
     tags: ['KMS', 'HSM', 'BYOK', 'PKCS#11'],
     href: '/products/fortanix-armor/data-security-manager/overview',
   },
   {
+    path: 'Solutions / Tokenization',
     title: 'Tokenization',
     line: 'Replace sensitive fields with format-preserving tokens.',
     tags: ['format-preserving', 'masking', 'REST API'],
     href: '/solutions/tokenization/overview',
   },
   {
+    path: 'Products / Armor / Confidential Computing',
     title: 'Confidential Computing',
     line: 'Verify workloads in TEEs before they get secrets.',
     tags: ['attestation', 'CoCo', 'Enclave OS'],
     href: '/products/fortanix-armor/confidential-computing/overview',
   },
   {
+    path: 'Solutions / File system encryption',
     title: 'File system encryption',
     line: 'Encrypt files on Linux and Windows with keys in DSM.',
     tags: ['Linux', 'Windows', 'key rotation'],
     href: '/solutions/file-system-encryption/overview',
   },
   {
+    path: 'Solutions / PQC readiness',
     title: 'PQC readiness',
     line: 'Find quantum-vulnerable cryptography across your estate.',
     tags: ['crypto inventory', 'cloud scanning'],
