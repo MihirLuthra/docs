@@ -174,11 +174,10 @@ export default function Navbar(): ReactNode {
         aria-controls="docs-drawer">
         <MenuIcon />
       </button>
-      <Link to="/" className={styles.brand} onClick={resetNav} aria-label="Fortanix Docs, home">
+      <Link to="/" className={styles.brand} onClick={resetNav} aria-label="Fortanix Documentation, home">
         <Logo className={styles.logo} />
-        <span className={styles.brandDivider} aria-hidden="true" />
-        <span className={styles.brandDocs} aria-hidden="true">
-          Docs
+        <span className={styles.brandText} aria-hidden="true">
+          Documentation
         </span>
       </Link>
       <div className={styles.center}>

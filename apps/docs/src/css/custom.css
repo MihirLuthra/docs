@@ -72,11 +72,7 @@
   /* Above the mobile drawer, below the search modal. */
   --fx-z-popover: calc(var(--ifm-z-index-fixed) + 1);
   --fx-tree-divider-gap: 6px; /* above the line; 5px below, 12px in all */
-  --fx-brand-divider-h: 18px;
-  --fx-brand-docs-size: 20px; /* "Docs" in the header lockup */
-  /* Moves "Docs" down onto the wordmark's baseline (20.7px down the 24px
-     logo); centred, it sits 2px higher (measured). */
-  --fx-brand-docs-drop: 2px;
+  --fx-brand-text-size: 18px; /* "Documentation" next to the mark */
   /* Gap between the header and the first row/element of the sidebar, the
      home page and doc pages, so they start level. 22px (not 24) so that,
      with 32px rows and 12px divider blocks, every sidebar divider lands on
@@ -130,7 +126,7 @@
   --fx-border-strong: #d9dce2;
   --fx-link: #7a12cc;
   --fx-link-hover: #4b0a80;
-  --fx-brand-docs: #7a12cc;
+  --fx-brand-text: #7a12cc;
   --fx-hover: rgb(19 19 19 / 0.05);
   --fx-selected-bg: #f5edff;
   --fx-selected-text: #4b0a80;
@@ -217,7 +213,7 @@
   --fx-border: #2e2e36;
   --fx-border-strong: #3a3a44;
   --fx-link: #d3a6ff;
-  --fx-brand-docs: #d3a6ff;
+  --fx-brand-text: #d3a6ff;
   --fx-link-hover: var(--fx-white);
   --fx-hover: rgb(255 255 255 / 0.06);
   --fx-selected-bg: #2c1640;

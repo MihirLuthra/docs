@@ -31,20 +31,10 @@
   display: block;
 }
 
-/* Lockup: logo | Docs */
-.brandDivider {
-  flex: none;
-  width: var(--fx-border-width);
-  height: var(--fx-brand-divider-h);
-  background-color: var(--fx-border);
-}
-
-/* Centred on the logo, then dropped onto the wordmark's baseline. */
-.brandDocs {
-  position: relative;
-  top: var(--fx-brand-docs-drop);
-  color: var(--fx-brand-docs);
-  font-size: var(--fx-brand-docs-size);
+/* Lockup: mark, then "Documentation", centred on it. */
+.brandText {
+  color: var(--fx-brand-text);
+  font-size: var(--fx-brand-text-size);
   font-weight: 600;
   line-height: 1;
 }
@@ -72,7 +62,8 @@
   font: inherit;
   font-size: var(--fx-text-md);
   text-align: left;
-  cursor: pointer;
+  /* Looks like a text box, so it gets the text cursor. */
+  cursor: text;
 }
 
 .searchTrigger:hover {
@@ -188,10 +179,12 @@
     justify-content: flex-end;
   }
 
+  /* Just an icon button here. */
   .searchTrigger {
     justify-content: center;
     width: var(--fx-control-h);
     padding: 0;
+    cursor: pointer;
   }
 
   .searchText,
