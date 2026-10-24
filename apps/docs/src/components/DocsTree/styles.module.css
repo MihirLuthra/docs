@@ -51,6 +51,18 @@
   font-weight: 600;
 }
 
+/* "No pages yet" inside an empty folder: muted, not clickable. */
+.row.emptyRow {
+  color: var(--fx-text-muted);
+  font-style: italic;
+  cursor: default;
+}
+
+.row.emptyRow:hover {
+  background: none;
+  color: var(--fx-text-muted);
+}
+
 /* Home and the top-level sections. */
 .top {
   font-weight: 600;

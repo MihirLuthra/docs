@@ -2,6 +2,8 @@
 
 .layout {
   display: flex;
+  /* Fills the page down to the footer, so the sidebar column does too. */
+  flex: 1 0 auto;
   width: 100%;
 }
 
@@ -20,7 +22,7 @@
 .sidebarScroll {
   position: sticky;
   top: var(--fx-header-height);
-  max-height: calc(100vh - var(--fx-header-height) - var(--fx-footer-overlap, 0px));
+  max-height: min(100%, calc(100vh - var(--fx-header-height) - var(--fx-footer-overlap, 0px)));
   overflow-y: auto;
   overscroll-behavior: contain;
 }

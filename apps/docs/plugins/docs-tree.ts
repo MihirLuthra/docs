@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import type {LoadContext, Plugin} from '@docusaurus/types';
 import type {TreeNode} from '../src/components/DocsTree/types';
 import type {IndexEntry, Kind} from '../src/components/Search/types';
@@ -21,6 +23,7 @@ type DocMeta = {
 };
 
 type LoadedVersion = {
+  contentPath: string;
   docs: DocMeta[];
   sidebars: {[name: string]: SidebarItem[]};
 };
@@ -126,11 +129,73 @@ export default function docsTreePlugin(_context: LoadContext): Plugin {
           return [];
         });
 
-      actions.setGlobalData({tree: toNodes(version.sidebars.docs, [])});
+      const tree = withEmptyFolders(toNodes(version.sidebars.docs, []), version.contentPath, version.contentPath);
+      actions.setGlobalData({tree});
       // Loaded on demand by the search modal, not shipped with every page.
       await actions.createData('search-index.json', index);
     },
   };
+}
+
+type Category = {label?: string; position?: number; customProps?: {badge?: string}};
+
+/**
+ * Docusaurus leaves folders without pages out of the sidebar. The tree keeps
+ * them (the planned structure shows before its pages exist), so this adds
+ * every folder in content/ that has a _category_.json and no node yet, in
+ * the order Docusaurus would place it (position, then name). Nodes already
+ * there keep their order; empty folders go before the first node that sorts
+ * after them. They have no href, so they aren't in the search index.
+ */
+function withEmptyFolders(nodes: TreeNode[], dir: string, contentPath: string): TreeNode[] {
+  const readCategory = (folder: string): Category | null => {
+    const file = path.join(folder, '_category_.json');
+    return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as Category) : null;
+  };
+  const docPosition = (file: string): number | undefined => {
+    const match = /^sidebar_position:\s*([\d.]+)\s*$/m.exec(fs.readFileSync(file, 'utf8'));
+    return match ? Number(match[1]) : undefined;
+  };
+
+  // Each folder and page in `dir`, with its sort key and its node (if any).
+  type Entry = {position: number; name: string; node?: TreeNode; empty?: TreeNode};
+  const entries: Entry[] = [];
+  for (const item of fs.readdirSync(dir, {withFileTypes: true})) {
+    const full = path.join(dir, item.name);
+    if (item.isDirectory()) {
+      const category = readCategory(full);
+      if (!category) continue;
+      const label = category.label ?? item.name;
+      const existing = nodes.find((n) => n.items && n.label === label);
+      const position = category.position ?? Infinity;
+      if (existing) {
+        existing.items = withEmptyFolders(existing.items!, full, contentPath);
+        entries.push({position, name: item.name, node: existing});
+      } else {
+        const items = withEmptyFolders([], full, contentPath);
+        const empty: TreeNode = {
+          label,
+          items,
+          ...(category.customProps?.badge && {badge: category.customProps.badge}),
+        };
+        entries.push({position, name: item.name, empty});
+      }
+    } else if (/\.mdx?$/.test(item.name)) {
+      const route = `/${path.relative(contentPath, full).replace(/\.mdx?$/, '')}`;
+      const node = nodes.find((n) => !n.items && n.href?.replace(/\/+$/, '') === route);
+      if (node) entries.push({position: docPosition(full) ?? Infinity, name: item.name, node});
+    }
+  }
+  entries.sort((a, b) => a.position - b.position || a.name.localeCompare(b.name));
+
+  const result = [...nodes];
+  entries.forEach((entry, i) => {
+    if (!entry.empty) return;
+    const later = entries.slice(i + 1).find((e) => e.node);
+    const at = later?.node ? result.indexOf(later.node) : -1;
+    result.splice(at === -1 ? result.length : at, 0, entry.empty);
+  });
+  return result;
 }
 
 function firstHref(nodes: TreeNode[]): string {

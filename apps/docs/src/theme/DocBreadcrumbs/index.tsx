@@ -80,6 +80,7 @@ function FolderCrumb({tree, folderKey, currentHref}: {tree: TreeNode[]; folderKe
               <p className={menuStyles.heading}>{shown.label}</p>
             </>
           )}
+          {shown.items.length === 0 && <p className={menuStyles.heading}>No pages yet</p>}
           {shown.items.map((child, i) =>
             child.items ? (
               <button

@@ -2,6 +2,8 @@
 
 One tree. Every page has exactly one home in it. Accuracy over marketing.
 
+**What exists now (2026-10-24):** `content/` only has pages with content, and the stub pages something links to (the header pages, the home banner and Explore cards, links in the Confidential AI pages). Undecided stubs were removed. Get familiar, Products and Learn keep their folder tree (empty folders show "No pages yet"); Solutions has only Confidential AI (Overview and Use cases). The tree below is the plan.
+
 ## Rules
 
 - **One home per page.** Solutions link to canonical product pages; they don't copy them.

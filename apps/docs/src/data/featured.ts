@@ -29,31 +29,10 @@ export const featured: FeaturedCard[] = [
     href: '/products/fortanix-armor/data-security-manager/overview',
   },
   {
-    path: 'Solutions / Tokenization',
-    title: 'Tokenization',
-    line: 'Replace sensitive fields with format-preserving tokens.',
-    tags: ['format-preserving', 'masking', 'REST API'],
-    href: '/solutions/tokenization/overview',
-  },
-  {
     path: 'Products / Armor / Confidential Computing',
     title: 'Confidential Computing',
     line: 'Verify workloads in TEEs before they get secrets.',
     tags: ['attestation', 'CoCo', 'Enclave OS'],
     href: '/products/fortanix-armor/confidential-computing/overview',
-  },
-  {
-    path: 'Solutions / File system encryption',
-    title: 'File system encryption',
-    line: 'Encrypt files on Linux and Windows with keys in DSM.',
-    tags: ['Linux', 'Windows', 'key rotation'],
-    href: '/solutions/file-system-encryption/overview',
-  },
-  {
-    path: 'Solutions / PQC readiness',
-    title: 'PQC readiness',
-    line: 'Find quantum-vulnerable cryptography across your estate.',
-    tags: ['crypto inventory', 'cloud scanning'],
-    href: '/solutions/pqc-readiness/overview',
   },
 ];

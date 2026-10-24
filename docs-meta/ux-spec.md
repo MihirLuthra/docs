@@ -26,6 +26,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 - Home is a little larger: 40px tall, 15px text, a 16px icon, and 4px of space before its divider.
 - Clicking Home, the logo in the header, or pressing **h** (when not typing; on any page, also on phones) goes home and resets the sidebar: every section collapsed, "Go to page" cleared, scrolled to the top. The Home row shows an **h** key chip on the right, lined up with the **c** chip below.
 - All sections are collapsed by default; the tree opens along the current page's path.
+- Folders without pages yet still show (the planned structure); opened, they show a muted, italic "No pages yet" row. The path menus show the same.
 - Clicking a section row toggles it. Clicking a page navigates.
 - **Hover to open:** resting the mouse on a section (~200ms) opens it, and it stays open. Only a click closes it (a click on a closed section opens it). If the click lands on a section the hover has just opened, while the pointer is still on it, it keeps it open (the user meant to open it); a second click closes it. Mouse only; touch and keyboard are unchanged. It can be turned off with the pointer button next to "Go to page" (on by default; the choice is kept in localStorage).
 - **Collapse all:** a button next to "Go to page", or the **c** key when not typing, closes every section (the button is disabled when none is open).
@@ -48,7 +49,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
    - Cards are ~56px tall.
    - Shows 2 rows (6 cards). A "View more (n)" / "Show less" toggle sits below the cards.
    - Empty state: "Pages you open show up here."
-3. **Explore Fortanix**: 6 curated cards (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness). Each card has a mono path, a title, one line, and tags. The cards come from one data file (`apps/docs/src/data/featured.ts`).
+3. **Explore Fortanix**: curated cards, for now 3 (Confidential AI, Key management→DSM, Confidential Computing); Tokenization, File system encryption and PQC readiness come back when those solutions have pages. Each card has a mono path, a title, one line, and tags. The cards come from one data file (`apps/docs/src/data/featured.ts`).
    - The path is one line (ellipsis if too long, never wraps), so titles in a row line up. Paths say "Armor" for "Fortanix Armor".
    - At most 3 columns (6 cards = 2 rows); fewer on narrow screens.
    - About 6px between path, title, description and tags. Description line-height 1.5.

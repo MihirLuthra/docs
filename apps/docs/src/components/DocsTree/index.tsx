@@ -26,6 +26,8 @@ type Row = {
   node: TreeNode;
   depth: number;
   parentKey: string | null;
+  /** "No pages yet": the content of an open folder that has no pages. */
+  empty?: boolean;
 };
 
 function visibleRows(nodes: TreeNode[], open: Set<string>): Row[] {
@@ -34,7 +36,11 @@ function visibleRows(nodes: TreeNode[], open: Set<string>): Row[] {
     list.forEach((node, i) => {
       const key = parentKey ? `${parentKey}.${i}` : `${i}`;
       rows.push({key, node, depth, parentKey});
-      if (node.items && open.has(key)) walk(node.items, depth + 1, key);
+      if (!node.items || !open.has(key)) return;
+      if (node.items.length === 0) {
+        rows.push({key: `${key}.empty`, node: {label: 'No pages yet'}, depth: depth + 1, parentKey: key, empty: true});
+      }
+      walk(node.items, depth + 1, key);
     });
   };
   walk(nodes, 0, null);
@@ -327,6 +333,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
               styles.row,
               depth === 0 && styles.top,
               isCurrent && styles.selected,
+              row.empty && styles.emptyRow,
               key === revealed && styles.revealed,
             ),
             style: {'--depth': depth} as CSSProperties,
@@ -347,7 +354,11 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
           return (
             <div key={key}>
               {depth === 0 && index > 0 && <div className={styles.divider} aria-hidden="true" />}
-              {isFolder ? (
+              {row.empty ? (
+                <div {...common} aria-disabled="true">
+                  {content}
+                </div>
+              ) : isFolder ? (
                 <div
                   {...common}
                   aria-expanded={isOpen}
