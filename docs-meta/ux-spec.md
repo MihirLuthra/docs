@@ -16,6 +16,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
   - Results are pages only (folders have none), best first: words matched in the page's own title, then at word starts, then shallower pages. Up to 8 are shown; no match shows "No matching pages".
   - Input: a search icon, a **×** clear button when there's text, and a **t** shortcut chip when empty. Pressing **t** when not typing focuses it; **/** opens the ⌘K search (also from the empty filter; once there's text, "/" is a path separator). The ⌘K search is separate and stays in the header.
   - It stays visible at the top of the sidebar while the tree scrolls, with the hover and "Collapse all" buttons beside it.
+- The sidebar scrolls on its own: it sits under the header and ends above the footer when the footer is on screen, so the page scrolling never takes "Go to page" off screen, and a long tree never makes a short page scroll.
   - Dropdown: floats over the content, left-aligned with the input, ~640px wide (at most the viewport − 32px); the full drawer width inside the mobile drawer. Radius 12px, soft shadow.
   - Rows: a page icon, then the path with the matched parts in bold. Long paths wrap onto the next line, indented to the text (no ellipsis). The active or hovered row uses the neutral grey of sidebar row hover.
   - ↑ ↓ Enter work in it, and Esc clears it.
@@ -24,7 +25,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 - Clicking Home, or the logo in the header, goes home and resets the sidebar: every section collapsed, "Go to page" cleared, scrolled to the top.
 - All sections are collapsed by default; the tree opens along the current page's path.
 - Clicking a section row toggles it. Clicking a page navigates.
-- **Hover to open:** resting the mouse on a section (~200ms) opens it, and it stays open. Only a click closes it (a click on a closed section opens it). Mouse only; touch and keyboard are unchanged. It can be turned off with the pointer button next to "Go to page" (on by default; the choice is kept in localStorage).
+- **Hover to open:** resting the mouse on a section (~200ms) opens it, and it stays open. Only a click closes it (a click on a closed section opens it). If the click lands on a section the hover has just opened, while the pointer is still on it, it keeps it open (the user meant to open it); a second click closes it. Mouse only; touch and keyboard are unchanged. It can be turned off with the pointer button next to "Go to page" (on by default; the choice is kept in localStorage).
 - **Collapse all:** a button next to "Go to page", or the **c** key when not typing, closes every section (the button is disabled when none is open).
 - The Collapse all button shows its **c** shortcut as a key chip, like the **t** chip in the filter. Both buttons also show a small tooltip on hover or keyboard focus: "Open sections on hover: on/off" and "Collapse all".
 - **Full-row highlight** on hover and on the selected row. Selected: background `#F5EDFF`, text `#4B0A80`.

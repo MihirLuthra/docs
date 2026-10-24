@@ -300,9 +300,21 @@ body {
 /* Docs layout: the sidebar column starts below the sticky header (Docusaurus
    pulls it up under its own navbar by default). */
 .theme-doc-sidebar-container {
+  position: relative;
   margin-top: 0 !important;
   clip-path: none !important;
   border-right: var(--fx-border-width) solid var(--fx-border) !important;
+}
+
+/* Docusaurus's wrapper inside it fills the column without adding to the
+   page's height, so a tall tree never makes the page scroll (and then get
+   pushed up by the footer). The tree's own sticky scroller is in
+   theme/DocSidebar. */
+.theme-doc-sidebar-container > [class*='sidebarViewport'] {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  max-height: none;
 }
 
 /* Doc pages: compact, like the home page (prototype proportions). */

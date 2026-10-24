@@ -1,7 +1,9 @@
+/* Ends above the footer when it's on screen (lib/footer-overlap.ts), so the
+   footer never pushes it, and the "Go to page" filter, up off screen. */
 .sidebar {
   position: sticky;
   top: var(--fx-header-height);
-  max-height: calc(100vh - var(--fx-header-height));
+  max-height: calc(100vh - var(--fx-header-height) - var(--fx-footer-overlap, 0px));
   overflow-y: auto;
   overscroll-behavior: contain;
 }

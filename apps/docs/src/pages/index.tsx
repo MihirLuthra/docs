@@ -5,6 +5,7 @@ import DocsTree from '@site/src/components/DocsTree';
 import {locate, useTree} from '@site/src/components/DocsTree/tree';
 import {featured} from '@site/src/data/featured';
 import {RECENTS_VISIBLE, readRecents, setRecentsLayout, writeRecents} from '@site/src/lib/recents';
+import {useFooterOverlap} from '@site/src/lib/footer-overlap';
 import styles from './index.module.css';
 
 function CompassIcon(): ReactNode {
@@ -128,6 +129,25 @@ function RecentlyViewed(): ReactNode {
   );
 }
 
+/**
+ * The docs tree beside the home page. The column is as tall as the page; the
+ * frame fills it without adding height, and the scroller inside sticks under
+ * the header and ends above the footer (like the doc pages' sidebar).
+ */
+function HomeSidebar(): ReactNode {
+  const ref = useRef<HTMLDivElement>(null);
+  useFooterOverlap(ref);
+  return (
+    <aside className={styles.sidebar}>
+      <div className={styles.sidebarFrame}>
+        <div ref={ref} className={styles.sidebarScroll}>
+          <DocsTree />
+        </div>
+      </div>
+    </aside>
+  );
+}
+
 function ExploreFortanix(): ReactNode {
   return (
     <section className={styles.section} aria-labelledby="explore-heading">
@@ -162,9 +182,7 @@ export default function Home(): ReactNode {
   return (
     <Layout title="Home" description="Documentation for Fortanix products.">
       <div className={styles.layout}>
-        <aside className={styles.sidebar}>
-          <DocsTree />
-        </aside>
+        <HomeSidebar />
         {/* Main column + right rail, centred together beside the sidebar. */}
         <div className={styles.content}>
           <main className={styles.main}>

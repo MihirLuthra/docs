@@ -6,15 +6,23 @@
 }
 
 .sidebar {
+  position: relative;
+  flex: none;
+  width: var(--fx-sidebar-width);
+  border-right: var(--fx-border-width) solid var(--fx-border);
+}
+
+.sidebarFrame {
+  position: absolute;
+  inset: 0;
+}
+
+.sidebarScroll {
   position: sticky;
   top: var(--fx-header-height);
-  flex: none;
-  align-self: flex-start;
-  width: var(--fx-sidebar-width);
-  max-height: calc(100vh - var(--fx-header-height));
+  max-height: calc(100vh - var(--fx-header-height) - var(--fx-footer-overlap, 0px));
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-right: var(--fx-border-width) solid var(--fx-border);
 }
 
 .content {
