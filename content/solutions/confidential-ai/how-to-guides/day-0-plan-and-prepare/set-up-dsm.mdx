@@ -14,13 +14,15 @@ You need two DSM apps in one group. One encrypts the model, and the workload aut
 ## Before you begin
 
 - A Fortanix DSM account.
-- The model consumer's zone CA certificate, from [Set up CCM](prepare-the-infrastructure.mdx#set-up-ccm).
+- For the second app, the model consumer's zone CA certificate, from [Set up CCM](prepare-the-infrastructure.mdx#set-up-ccm). You can create the first app before it arrives.
 - The certificate domain the workload will have in CCM, for example `chat.northwind.example`.
 
 ## Create the apps
 
 1. In DSM, create a group for the model, such as `llama-chat-keys`, or use an existing one.
-2. Create the app the workload authenticates as. In the group, go to **APPS** and click **ADD APP**, then set these fields.
+2. Create the app you encrypt with. In the group, go to **APPS** and click **ADD APP**, with **Interface** set to REST API and **Authentication Method** set to API Key.
+3. Click **SAVE**, and copy its API key. Keep it with the people who encrypt models, and out of every image. You can now [protect the model](protect-the-model.mdx).
+4. Once the consumer sends its zone CA certificate, create the app the workload authenticates as. Click **ADD APP** again, then set these fields.
 
    | Field | Value |
    |---|---|
@@ -29,9 +31,7 @@ You need two DSM apps in one group. One encrypts the model, and the workload aut
    | **DNS Name** | The certificate domain of the workload |
    | **Upload Trusted CA Cert** | The consumer's zone CA certificate |
 
-3. Click **SAVE**, and note the app's UUID.
-4. Create the app you encrypt with. Click **ADD APP** again, with **Interface** set to REST API and **Authentication Method** set to API Key.
-5. Click **SAVE**, and copy its API key. Keep it with the people who encrypt models, and out of every image.
+5. Click **SAVE**, and note the app's UUID.
 
 {/* TODO(verify): the source examples use the DNS name "my-server" for the DSM app and a different domain in CCM. Confirm the two must match. */}
 

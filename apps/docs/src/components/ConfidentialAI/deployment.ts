@@ -81,53 +81,23 @@ const STEPS: StepDef[] = [
     task: `${GUIDES}/day-0-plan-and-prepare/plan-a-deployment#choose-the-runtime`,
   },
   {
-    id: "ccm-account", phase: "day0", actor: "consumer", title: "Create a CCM account",
-    to: "ccm:consumer",
-    text: (c) => `${c.Name("consumer")} gets a Fortanix CCM account and creates a group in it, such as llm-serving. The infrastructure and the workload's certificates will belong to this account.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#set-up-ccm`,
-  },
-  {
-    id: "prepare", phase: "day0", actor: "infra", title: "Prepare the infrastructure",
-    to: "infra",
-    text: (c) => `${c.Name("infra")} turns on the TEE in each host's BIOS, for example Intel TDX, registers the platform with the CPU vendor, and sets the NVIDIA GPUs up for confidential computing.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#prepare-the-hosts`,
-  },
-  {
-    id: "join-token", phase: "day0", actor: "consumer", title: "Get a join token",
-    from: "ccm:consumer", to: "infra", carries: "Join token",
-    text: (c) => `${c.Name("consumer")} copies a join token from Enroll Compute Node. ${c.sameInfra ? "It keeps it for its own hosts." : `It sends it to ${c.name("infra")} over a channel it trusts. Anyone with the token can enrol a host in the account.`}`,
-    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#set-up-ccm`,
-  },
-  {
-    id: "enrol", phase: "day0", actor: "infra", title: "Enrol the hosts",
-    from: "infra", to: "ccm:consumer", carries: "Node attestation",
-    text: (c) => `${c.Name("infra")} installs the node agent with the join token. The agent attests each host, and the hosts appear as compute nodes in the CCM account of ${c.name("consumer")}.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#enrol-the-hosts`,
-  },
-  {
-    id: "install", phase: "day0", actor: "infra", title: "Install the runtime",
-    to: "infra",
-    text: (c, rt) => cc(rt)
-      ? `${c.Name("infra")} installs the NVIDIA GPU Operator and the Confidential Containers runtime on the Kubernetes cluster. The runtime brings the guest firmware and kernel that every pod's TEE boots.`
-      : `${c.Name("infra")} binds the GPUs to vfio-pci so they can be passed through. Nothing else is installed for Enclave OS, since each converted container brings its own TEE.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#install-the-runtime`,
-  },
-  {
     id: "dsm-account", phase: "day0", actor: "owner", title: "Create a DSM account",
     to: "dsm:owner", when: model,
     text: (c) => `${c.Name("owner")} gets a Fortanix DSM account and creates a group for the model, such as llama-chat-keys. The model's key will never leave it.`,
     task: `${GUIDES}/day-0-plan-and-prepare/set-up-dsm`,
   },
   {
-    id: "zone-ca", phase: "day0", actor: "consumer", title: "Share the zone CA",
-    from: "ccm:consumer", to: "dsm:owner", carries: "Zone CA certificate", when: model,
-    text: (c) => `${c.Name("consumer")} downloads the zone CA certificate of its CCM account${c.separate ? ` and sends it to ${c.name("owner")}` : ""}. DSM will trust workload certificates signed by this CA, and no others.`,
+    id: "ccm-account", phase: "day0", actor: "builder", title: "Create a CCM account",
+    to: "ccm:owner",
+    text: (c) => c.separate
+      ? `${c.Name("owner")} gets a Fortanix CCM account and creates a group in it. The application and its approved builds will belong to this account.`
+      : `${c.Name("builder")} gets a Fortanix CCM account and creates a group in it, such as llm-serving. The application, the infrastructure and the workload's certificates will belong to this account.`,
     task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#set-up-ccm`,
   },
   {
-    id: "dsm-apps", phase: "day0", actor: "owner", title: "Set up the DSM apps",
+    id: "enc-app", phase: "day0", actor: "owner", title: "Create the encryption app",
     to: "dsm:owner", when: model,
-    text: (c) => `${c.Name("owner")} creates two apps in the group. The workload authenticates as the Trusted CA app, which trusts the zone CA and expects the workload's domain, such as chat.northwind.example. The other app has an API key and is used to encrypt.`,
+    text: (c) => `${c.Name("owner")} creates an app with an API key in the group. It is used to encrypt the model, and its API key stays with the people who do that.`,
     task: `${GUIDES}/day-0-plan-and-prepare/set-up-dsm`,
   },
   {
@@ -165,7 +135,50 @@ const STEPS: StepDef[] = [
     text: (c) => `An administrator of ${c.name("builder")} approves build 1 and its domain on Tasks. Until then, CCM issues no certificate for it.`,
     task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#register-and-approve-in-ccm`,
   },
-
+  {
+    id: "ccm-consumer-account", phase: "day0", actor: "consumer", title: "Create a CCM account",
+    to: "ccm:consumer", when: separate,
+    text: (c) => `${c.Name("consumer")} gets its own Fortanix CCM account and creates a group in it, such as llm-serving. The infrastructure and the workload's certificates will belong to this account.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#set-up-ccm`,
+  },
+  {
+    id: "prepare", phase: "day0", actor: "infra", title: "Prepare the infrastructure",
+    to: "infra",
+    text: (c) => `${c.Name("infra")} turns on the TEE in each host's BIOS, for example Intel TDX, registers the platform with the CPU vendor, and sets the NVIDIA GPUs up for confidential computing.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#prepare-the-hosts`,
+  },
+  {
+    id: "join-token", phase: "day0", actor: "consumer", title: "Get a join token",
+    from: "ccm:consumer", to: "infra", carries: "Join token",
+    text: (c) => `${c.Name("consumer")} copies a join token from Enroll Compute Node. ${c.sameInfra ? "It keeps it for its own hosts." : `It sends it to ${c.name("infra")} over a channel it trusts. Anyone with the token can enrol a host in the account.`}`,
+    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#set-up-ccm`,
+  },
+  {
+    id: "enrol", phase: "day0", actor: "infra", title: "Enrol the hosts",
+    from: "infra", to: "ccm:consumer", carries: "Node attestation",
+    text: (c) => `${c.Name("infra")} installs the node agent with the join token. The agent attests each host, and the hosts appear as compute nodes in the CCM account of ${c.name("consumer")}.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#enrol-the-hosts`,
+  },
+  {
+    id: "install", phase: "day0", actor: "infra", title: "Install the runtime",
+    to: "infra",
+    text: (c, rt) => cc(rt)
+      ? `${c.Name("infra")} installs the NVIDIA GPU Operator and the Confidential Containers runtime on the Kubernetes cluster. The runtime brings the guest firmware and kernel that every pod's TEE boots.`
+      : `${c.Name("infra")} binds the GPUs to vfio-pci so they can be passed through. Nothing else is installed for Enclave OS, since each converted container brings its own TEE.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#install-the-runtime`,
+  },
+  {
+    id: "zone-ca", phase: "day0", actor: "consumer", title: "Share the zone CA",
+    from: "ccm:consumer", to: "dsm:owner", carries: "Zone CA certificate", when: model,
+    text: (c) => `${c.Name("consumer")} downloads the zone CA certificate of its CCM account${c.separate ? ` and sends it to ${c.name("owner")}` : ""}. DSM will trust workload certificates signed by this CA, and no others.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#set-up-ccm`,
+  },
+  {
+    id: "trust-app", phase: "day0", actor: "owner", title: "Create the Trusted CA app",
+    to: "dsm:owner", when: model,
+    text: (c) => `${c.Name("owner")} creates the app the workload authenticates as. It trusts the zone CA and expects the workload's domain, such as chat.northwind.example.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/set-up-dsm`,
+  },
   // Day 1
   {
     id: "collaborate", phase: "day1", actor: "owner", title: "Link the CCM accounts",
@@ -383,18 +396,19 @@ export function deployment(scenarioId: string): Deployment {
         id: "dsm:owner", service: "dsm", at: ["dsm-account"],
         items: [
           { id: "group", label: "Group llama-chat-keys", at: ["dsm-account"] },
-          { id: "apps", label: "Trusted CA app", at: ["dsm-apps"] },
-          { id: "enc", label: "Encryption app", at: ["dsm-apps"] },
+          { id: "enc", label: "Encryption app", at: ["enc-app"] },
           { id: "key", label: { cc: "Key encryption key", eos: "Model key" }, at: ["encrypt"] },
+          { id: "apps", label: "Trusted CA app", at: ["trust-app"] },
         ],
       });
     }
-    if (party === owner && isSeparate) accounts.push({ id: "ccm:owner", service: "ccm", at: ["measure"], items: builds });
+    if (party === owner && isSeparate) accounts.push({ id: "ccm:owner", service: "ccm", at: ["ccm-account"], items: builds });
     if (party === consumer) {
+      const created = isSeparate ? "ccm-consumer-account" : "ccm-account";
       accounts.push({
-        id: "ccm:consumer", service: "ccm", at: ["ccm-account"],
+        id: "ccm:consumer", service: "ccm", at: [created],
         items: [
-          { id: "group", label: "Group llm-serving", at: ["ccm-account"] },
+          { id: "group", label: "Group llm-serving", at: [created] },
           { id: "nodes", label: "Compute nodes", at: ["enrol"] },
           ...(isSeparate
             ? [

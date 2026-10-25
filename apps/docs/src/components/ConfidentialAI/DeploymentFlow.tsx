@@ -349,7 +349,7 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
               ))}
               {/* Nothing of theirs yet: what this party cares about, in their own space. */}
               {!t.accounts.some((a) => has(a.at)) && !assetsFor(t, runtime).some((a) => has(a.at)) && (
-                wrap(t.roles.map((x) => ROLES[x].cares).join(" "), charsFor(r.w - 28, 12.5)).slice(0, 6).map((line, k) => (
+                wrap(t.party.cares ?? t.roles.map((x) => ROLES[x].cares).join(" "), charsFor(r.w - 28, 12.5)).slice(0, 6).map((line, k) => (
                   <text key={`c${k}`} x={r.x + 14} y={r.y + HEAD + 22 + k * 15} className="cai-s-cares">{line}</text>
                 ))
               )}

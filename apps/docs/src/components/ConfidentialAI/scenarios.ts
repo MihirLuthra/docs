@@ -40,6 +40,7 @@ export interface Party {
   phrase: string; // the party inside a sentence: "the model vendor"
   roles: RoleId[]; // must be adjacent in ROLE_ORDER
   note?: string;
+  cares?: string; // what this party wants, when its roles' own lines don't read as one party
 }
 
 export interface Scenario {
@@ -63,7 +64,10 @@ export const SCENARIOS: Scenario[] = [
     summary: "A model vendor deploys its model on the servers of one of its customers.",
     parties: [
       { name: "Model vendor", phrase: "the model vendor", roles: ["owner"] },
-      { name: "Vendor's customer", phrase: "the vendor's customer", roles: ["consumer", "infra"] },
+      {
+        name: "Vendor's customer", phrase: "the vendor's customer", roles: ["consumer", "infra"],
+        cares: "Wants its prompts and data private from the host software and its administrators. Runs the vendor's model without access to its weights.",
+      },
       { name: "End users", phrase: "the end users", roles: ["user"] },
     ],
     protects: [
@@ -99,7 +103,10 @@ export const SCENARIOS: Scenario[] = [
     guide: "in-house-own-infrastructure",
     summary: "Your organization runs its own model on its own servers.",
     parties: [
-      { name: "Your organization", phrase: "your organization", roles: ["owner", "consumer", "infra"] },
+      {
+        name: "Your organization", phrase: "your organization", roles: ["owner", "consumer", "infra"],
+        cares: "Wants the weights and data kept from infrastructure administrators and compromised host software.",
+      },
       { name: "End users", phrase: "the end users", roles: ["user"] },
     ],
     protects: [
@@ -152,7 +159,10 @@ export const SCENARIOS: Scenario[] = [
     summary: "Your organization runs a public open-source model on its own servers.",
     parties: [
       { name: "Open-source project", phrase: "the open-source project", roles: ["owner"], note: "Weights are public" },
-      { name: "Your organization", phrase: "your organization", roles: ["consumer", "infra"] },
+      {
+        name: "Your organization", phrase: "your organization", roles: ["consumer", "infra"],
+        cares: "Wants its prompts and data kept from infrastructure administrators and compromised host software.",
+      },
       { name: "End users", phrase: "the end users", roles: ["user"] },
     ],
     protects: [
