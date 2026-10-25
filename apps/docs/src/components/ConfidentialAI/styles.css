@@ -201,3 +201,94 @@
 @media (prefers-reduced-motion: reduce) {
   .cai *, .cai *::before { transition: none !important; animation: none !important; }
 }
+
+/* ---------- Deployment flow ---------- */
+
+.cai-phases { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid var(--fx-border-strong); }
+.cai-phases button {
+  padding: 6px 10px; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  background: none; color: var(--fx-text-muted); font-weight: 500;
+}
+.cai-phases button[aria-selected="true"] { color: var(--fx-text); border-bottom-color: var(--fx-diagram-accent); }
+
+.cai-deploy-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--lanes), minmax(0, 1fr));
+  gap: 28px; /* GUTTER in DeploymentFlow.tsx */
+  align-items: start;
+  padding-top: 18px; /* the channel arrows take between lanes that aren't side by side */
+}
+.cai-lane {
+  min-width: 0;
+  padding: 8px;
+  border: 1.5px solid var(--fx-diagram-party);
+  border-radius: 12px;
+  background: var(--fx-diagram-party-soft);
+  transition: box-shadow 250ms;
+}
+.cai-lane.is-acting { box-shadow: 0 0 0 1.5px var(--fx-diagram-party); }
+.cai-lane.is-you .cai-lane-head strong::after { content: " · you"; color: var(--fx-text-secondary); font-weight: 500; }
+.cai-lane-head { display: flex; flex-direction: column; margin-bottom: 12px; }
+.cai-lane-head strong { font-size: 14px; }
+.cai-lane-head span { font-size: 11.5px; color: var(--fx-text-muted); line-height: 1.35; }
+.cai-lane-boxes { display: grid; gap: 12px; }
+.cai-box {
+  position: relative;
+  display: flex; flex-direction: column; min-width: 0;
+  padding: 7px 9px;
+  border: 1.5px solid var(--fx-border-strong);
+  border-radius: 8px;
+  background: var(--fx-bg);
+  transition: border-color 250ms, box-shadow 250ms;
+}
+.cai-box strong { font-size: 13px; }
+.cai-box span { font-size: 11.5px; color: var(--fx-text-muted); line-height: 1.35; overflow-wrap: anywhere; }
+.cai-box.is-tee { border-color: var(--fx-diagram-secure); }
+.cai-box-tee { margin-top: 4px; align-self: flex-start; padding: 0 6px; border-radius: 999px; background: var(--fx-diagram-secure-soft); color: var(--fx-diagram-secure) !important; font-weight: 600; }
+.cai-box.is-from, .cai-box.is-to { border-color: var(--fx-text-muted); box-shadow: 0 0 0 3px var(--fx-chip); }
+.cai-box.is-tee.is-from, .cai-box.is-tee.is-to { border-color: var(--fx-diagram-secure); box-shadow: 0 0 0 3px var(--fx-diagram-secure-soft); }
+
+.cai-deploy-arrow { position: absolute; inset: 0; width: 100% !important; height: 100% !important; overflow: visible; pointer-events: none; color: var(--fx-diagram-accent); }
+/* What a step moves, on the box that receives it; "Sends" on the box it comes from. */
+.cai-box-carry, .cai-box-send {
+  position: absolute; top: -9px; right: 6px; max-width: calc(100% - 12px);
+  padding: 0 7px; border-radius: 999px;
+  font-size: 11px !important; font-weight: 600; line-height: 16px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cai-box-carry { border: 1px solid var(--fx-diagram-accent); background: var(--fx-diagram-accent); color: var(--fx-bg) !important; }
+.cai-box-send { border: 1px solid var(--fx-border-strong); background: var(--fx-bg); color: var(--fx-text-muted) !important; }
+
+.cai-deploy-nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 16px 0 10px; }
+.cai-deploy-dots { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.cai-deploy-dots li { margin: 0; }
+.cai-deploy-dots button {
+  width: 28px; height: 28px; padding: 0; border-radius: 999px;
+  border: 1px solid var(--fx-border-strong); background: var(--fx-bg); color: var(--fx-text-muted);
+  font-size: 12px; font-weight: 600; line-height: 1;
+}
+.cai-deploy-dots button.is-yours { border-color: var(--fx-diagram-party); color: var(--fx-text); }
+.cai-deploy-dots button[aria-current="step"] { border-color: var(--fx-diagram-accent); background: var(--fx-selected-bg); color: var(--fx-selected-text); }
+.cai-deploy-controls { display: flex; gap: 6px; }
+.cai-deploy-controls button { padding: 4px 12px; border-radius: 999px; border: 1px solid var(--fx-border-strong); background: var(--fx-bg); color: var(--fx-text); }
+.cai-deploy-controls button:disabled { opacity: 0.45; cursor: default; }
+
+.cai-deploy-panels { display: grid; }
+.cai-deploy-panel { grid-area: 1 / 1; }
+.cai-deploy-panel[data-active="false"] { visibility: hidden; }
+.cai-deploy-panel .cai-deploy-title { margin: 2px 0 4px; font-size: 15px; font-weight: 700; }
+.cai-deploy-panel p { margin: 0 0 6px; }
+.cai-deploy-who { font-size: 12px; color: var(--fx-text-muted); }
+.cai-deploy-you { margin-left: 8px; padding: 0 6px; border-radius: 999px; border: 1px solid var(--fx-diagram-party); color: var(--fx-text); }
+
+.cai-deploy-accounts { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--fx-border-strong); }
+.cai-deploy-accounts p { margin: 4px 0 0; }
+
+.cai-steps-table small { color: var(--fx-text-muted); }
+
+/* Narrow: lanes stack, their boxes side by side. */
+@container (max-width: 600px) {
+  .cai-deploy-stage { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .cai-lane-boxes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

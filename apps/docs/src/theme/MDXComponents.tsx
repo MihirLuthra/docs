@@ -4,6 +4,7 @@ import Admonition from '@theme/Admonition';
 import TabItem from '@theme/TabItem';
 import DocusaurusTabs from '@theme/Tabs';
 import AttestationFlow from '@site/src/components/ConfidentialAI/AttestationFlow';
+import {DeploymentFlow, DeploymentSteps, DeploymentsTable} from '@site/src/components/ConfidentialAI/DeploymentFlow';
 import RolesExplorer from '@site/src/components/ConfidentialAI/RolesExplorer';
 import {Screenshot, Screenshots} from '@site/src/components/Screenshots';
 import {CurrentVersions, SupportMatrix, Version} from '@site/src/components/Versions';
@@ -62,6 +63,9 @@ function Callout({
 export default {
   ...MDXComponents,
   AttestationFlow,
+  DeploymentFlow,
+  DeploymentSteps,
+  DeploymentsTable,
   RolesExplorer,
   Version,
   SupportMatrix,

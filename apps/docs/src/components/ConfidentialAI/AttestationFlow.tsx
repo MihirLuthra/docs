@@ -51,7 +51,7 @@ const WITH_KEY: Step[] = [
   {
     id: "present",
     title: "Authenticate to DSM over mutual TLS",
-    text: "The workload connects to DSM over mutual TLS, with its certificate as its client certificate, and asks for the model encryption key. The certificate stays with the workload; the TLS handshake proves the workload holds it.",
+    text: "The workload connects to DSM over mutual TLS, with its certificate as its client certificate, and asks for the model encryption key. The certificate stays with the workload. The TLS handshake proves the workload holds it.",
     token: { from: "wl", to: "dsm", kind: "mtls" },
   },
   {
