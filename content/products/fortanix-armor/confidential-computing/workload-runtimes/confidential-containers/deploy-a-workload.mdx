@@ -1,0 +1,61 @@
+---
+title: Deploy a workload
+description: Run a pod in an Intel TDX TEE with Confidential Containers, using the InitData its build was measured with.
+doc_type: how-to
+keywords: [deploy, pod, runtime class, kata-qemu-tdx, kata-qemu-nvidia-gpu-tdx, initdata, encrypted image, gpu]
+sidebar_position: 5
+---
+
+## Before you begin
+
+- A cluster with the runtime [installed](install-on-kubernetes.mdx).
+- The encoded InitData the build was [measured](measure-a-workload.mdx) with, and the build approved in CCM.
+
+## Deploy the pod
+
+1. Create `workload.yaml`. Use the same InitData and resources as the measurement:
+
+   ```yaml
+   apiVersion: v1
+   kind: Pod
+   metadata:
+     name: <WORKLOAD_NAME>
+     annotations:
+       io.katacontainers.config.hypervisor.kernel_params: "agent.guest_components_rest_api=all"
+       io.katacontainers.config.hypervisor.cc_init_data: "<INITDATA>"
+       io.containerd.cri.runtime-handler: kata-qemu-nvidia-gpu-tdx
+   spec:
+     runtimeClassName: kata-qemu-nvidia-gpu-tdx
+     restartPolicy: Never
+     containers:
+       - name: <CONTAINER_NAME>
+         image: <IMAGE>:<TAG>
+         resources:
+           limits:
+             nvidia.com/pgpu: "1"
+             memory: 16Gi
+         securityContext:
+           privileged: true
+         ports:
+           - containerPort: <PORT>
+   ```
+
+   - `<INITDATA>`: the encoded InitData.
+   - `<IMAGE>:<TAG>`: the image, encrypted or not.
+   - `<PORT>`: the port the workload serves on.
+
+   Without a GPU, use `kata-qemu-tdx` in both places and remove `nvidia.com/pgpu`. Give the pod at least twice the uncompressed image size in memory.
+
+2. Deploy it:
+
+   ```bash
+   kubectl apply -f workload.yaml
+   kubectl get pods
+   ```
+
+{/* TODO(verify): why the example runs the workload privileged, and whether it's required. */}
+
+## Verify
+
+- The pod is `Running`.
+- In CCM, the application's audit log shows a successful `REQUEST_APP_CERTIFICATE` event, the build is **Deployed** on **Builds**, and the **Certificates** tab shows the issued certificate.

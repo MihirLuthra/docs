@@ -1,0 +1,67 @@
+---
+title: Measure a workload
+description: Write a workload's InitData and read its TDX measurements from a pod started with the same runtime, to register them as a build in CCM.
+doc_type: how-to
+keywords: [measurements, initdata, mrtd, rtmr, mrconfigid, tdx quote, evidence, aa.toml, cdh.toml]
+sidebar_position: 4
+---
+
+CCM certifies a pod only when its measurements match an approved build. The measurements come from the runtime install and the pod's InitData, so you read them from a pod started the same way as the workload.
+
+## Before you begin
+
+- A cluster with the runtime [installed](install-on-kubernetes.mdx). Measure on the same runtime version the workload will run on.
+- The certificate domain of the workload's application in CCM.
+- If the image is encrypted: the DSM endpoint, and the UUID of the DSM app the workload authenticates as.
+
+## Write the InitData
+
+1. Create `initdata.toml`:
+
+   ```toml
+   version = "0.1.0"
+   algorithm = "sha384"
+   [data]
+   "aa.toml" = '''
+   [token_configs.ccm_as]
+   ccm_domain_names = ["<CERT_DOMAIN>"]
+   '''
+   "cdh.toml" = '''
+   [kbc]
+   name = "ccm_kbc"
+   url = "<DSM_URL>"
+   [kbc_configs.ccm_kbc]
+   dsm_app_id = "<DSM_APP_UUID>"
+   '''
+   ```
+
+   - `<CERT_DOMAIN>`: the certificate domain of the application in CCM.
+   - `<DSM_URL>`: your DSM endpoint.
+   - `<DSM_APP_UUID>`: the DSM app the workload authenticates as.
+
+2. Encode it. The workload must use exactly this value:
+
+   ```bash
+   initdata=$(cat initdata.toml | gzip | base64 -w0)
+   ```
+
+## Read the measurements
+
+1. Start a measurement pod with the runtime class the workload uses, the annotation `io.katacontainers.config.hypervisor.cc_init_data` set to `$initdata`, and the same resources as the workload.
+2. In the pod, fetch the TDX evidence from `http://127.0.0.1:8006/aa/evidence`, and read the measurements from the quote:
+
+   | Value | Byte offset in the quote |
+   |---|---|
+   | MRTD | 184 |
+   | MRCONFIGID | 232 |
+   | RTMR0 | 376 |
+   | RTMR1 | 424 |
+   | RTMR2 | 472 |
+   | RTMR3 | 520 |
+
+{/* TODO(verify): add the complete measurement pod YAML and the script that parses the quote; the source shows them only in part. */}
+
+## Next steps
+
+- [Register the build in CCM](../../ccm/applications/register-an-application.mdx#add-a-build)
+- [Deploy the workload](deploy-a-workload.mdx)

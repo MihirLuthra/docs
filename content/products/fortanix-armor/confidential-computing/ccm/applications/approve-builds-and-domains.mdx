@@ -1,0 +1,40 @@
+---
+title: Approve builds and domains
+description: Approve or decline applications, builds and certificate domains on the CCM Tasks page.
+doc_type: how-to
+keywords: [tasks, approval, build approval, domain whitelist, decline, certificate]
+sidebar_position: 2
+---
+
+A new build, or a new certificate domain, is a request on the **Tasks** page. Until it is approved, CCM refuses the certificate of any workload that uses it.
+
+## Before you begin
+
+- The Administrator or Editor role in the CCM account.
+
+{/* TODO(verify): how these CCM approval roles relate to the Armor account and group roles (Administrator, Member, Auditor; Group Administrator, Group Auditor). */}
+
+## Approve a request
+
+1. Go to **Tasks**. The **Pending** tab lists the requests waiting for approval, with their type, requester and group.
+2. Click a request to see its details.
+3. Check that it is the build or domain you expect, then click **APPROVE**, or **DECLINE** to refuse it.
+
+<Screenshots>
+<Screenshot caption="Pending requests">
+
+![The Tasks page with two pending requests for the llama-chat application: a domain whitelist and a build approval](../img/tasks-pending.jpg)
+
+</Screenshot>
+<Screenshot caption="Request details">
+
+![The details of a pending application build approval, with the APPROVE and DECLINE buttons](../img/task-build-approval.jpg)
+
+</Screenshot>
+</Screenshots>
+
+Approve only builds whose measurements you produced or checked yourself: an approved build is what CCM certifies.
+
+## Verify
+
+- The request moves to the **Approved** tab.

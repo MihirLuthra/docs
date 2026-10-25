@@ -1,0 +1,41 @@
+---
+title: Prepare a host for Enclave OS
+description: Get an Intel TDX host ready to run converted images, with NVIDIA GPUs bound to vfio-pci for passthrough.
+doc_type: how-to
+keywords: [host, intel tdx, docker, gpu passthrough, vfio-pci, lspci, nvidia]
+sidebar_position: 2
+---
+
+## Before you begin
+
+- An Intel TDX host [enrolled in CCM](../../ccm/compute-nodes/enrol-an-intel-tdx-node.mdx), with Docker.
+
+{/* TODO(verify): Docker and host package requirements for running converted images. */}
+
+## Pass GPUs through
+
+Skip this without GPUs. A GPU can be passed through to only one TEE at a time.
+
+1. Find the NVIDIA GPUs and check their driver:
+
+   ```bash
+   lspci -D -d 10de:
+   lspci -nnk -d 10de:
+   ```
+
+2. If a GPU doesn't show `Kernel driver in use: vfio-pci`, bind it, as root:
+
+   ```bash
+   sudo modprobe vfio-pci
+   echo <VENDOR_ID> <DEVICE_ID> | sudo tee /sys/bus/pci/drivers/vfio-pci/new_id
+   ```
+
+   - `<VENDOR_ID> <DEVICE_ID>`: from the `lspci -nnk` output, for example `10de 2330`.
+
+## Verify
+
+- `lspci -nnk -d 10de:` shows `Kernel driver in use: vfio-pci` for each GPU.
+
+## Next steps
+
+- [Run a converted image](run-a-converted-image.mdx)

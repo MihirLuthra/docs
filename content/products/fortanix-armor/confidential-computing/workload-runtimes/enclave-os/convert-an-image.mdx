@@ -1,0 +1,72 @@
+---
+title: Convert an image
+description: Turn a container image into an Enclave OS image with the Fortanix TDX Converter, and get the measurements to register in CCM.
+doc_type: how-to
+keywords: [tdx converter, convert, converter-request.json, measurements, mrtd, rtmr, gpu passthrough, env_vars]
+sidebar_position: 3
+---
+
+## Before you begin
+
+- A Linux machine with Docker, and the image to convert pushed to a registry.
+- Registry credentials for the converter, from Fortanix support.
+
+{/* TODO(verify): build machine requirements; the source says only "a supported Linux distribution". */}
+
+## Get the converter
+
+Use the converter version from the release notes:
+
+```bash
+docker login cr.download.fortanix.com -u <USERNAME> -p <PASSWORD>
+docker pull cr.download.fortanix.com/tdx-converter:<VERSION>
+docker tag cr.download.fortanix.com/tdx-converter:<VERSION> tdx-converter:<VERSION>
+```
+
+{/* TODO(verify): add the converter's versions to versions/ (tdx-converter has none yet), then use {{tdx-converter.version}} here. */}
+
+## Convert the image
+
+1. Create `converter-request.json`:
+
+   ```json
+   {
+     "input_image": { "name": "<IMAGE>:<TAG>" },
+     "output_image": {
+       "name": "<CONVERTED_IMAGE>:<TAG>",
+       "auth_config": { "username": "<REGISTRY_USER>", "password": "<REGISTRY_PASSWORD>" }
+     },
+     "converter_options": { "push_converted_image": true },
+     "tdx_enclaves_options": {
+       "cpu_count": 1,
+       "mem_size": "3G",
+       "enable_gpu_passthrough": true
+     }
+   }
+   ```
+
+   - `cpu_count`, `mem_size`: the virtual CPUs and memory of the TEE.
+   - `enable_gpu_passthrough`: `true` to give the workload GPUs; which ones is chosen when it runs.
+
+   Variables you set with `converter_options.env_vars` can be overridden when the image runs. Set the ones that must not change in the input image.
+
+2. Run the converter:
+
+   ```bash
+   docker run --rm --privileged \
+     -v /var/run/docker.sock:/var/run/docker.sock \
+     -e PRESERVE_IMAGES=input,result \
+     -v "$PWD/converter-request.json:/app/req.json" \
+     tdx-converter:<VERSION> --request-file /app/req.json
+   ```
+
+3. Save the measurements from the response, under `config.measurements`: `mrtd`, `rtmr0`, `rtmr1`, `rtmr2` and `rtmr3`.
+
+## Verify
+
+- The converted image is in the registry at `<CONVERTED_IMAGE>:<TAG>`.
+
+## Next steps
+
+- [Register the application in CCM](../../ccm/applications/register-an-application.mdx)
+- [Run the converted image](run-a-converted-image.mdx)

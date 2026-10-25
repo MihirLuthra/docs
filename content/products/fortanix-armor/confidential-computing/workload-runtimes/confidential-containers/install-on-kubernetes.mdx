@@ -1,0 +1,73 @@
+---
+title: Install Confidential Containers on Kubernetes
+description: Install Fortanix's Confidential Containers runtime on a Kubernetes cluster of Intel TDX nodes, with or without NVIDIA GPUs.
+doc_type: how-to
+keywords: [install, kata-deploy, helm, kubernetes, containerd, gpu operator, vm passthrough, runtime class]
+sidebar_position: 2
+---
+
+The runtime adds Confidential Containers runtime classes to the cluster, such as `kata-qemu-tdx`, and with GPUs `kata-qemu-nvidia-gpu-tdx`.
+
+## Before you begin
+
+- Intel TDX nodes [enrolled in CCM](../../ccm/compute-nodes/enrol-an-intel-tdx-node.mdx).
+- Kubernetes <Version of="fortanix-kata-deploy" field="requires.kubernetes" /> set up with kubeadm. Kind and Minikube don't work with the QEMU runtime.
+- containerd <Version of="fortanix-kata-deploy" field="requires.containerd" /> and Helm <Version of="fortanix-kata-deploy" field="requires.helm" />.
+- SELinux disabled, and at least one node labelled `node.kubernetes.io/worker`.
+- For GPUs: NVIDIA GPUs that support confidential computing, and no NVIDIA driver installed or loaded on the host.
+
+## Prepare GPU nodes
+
+Skip this without GPUs.
+
+1. Install the NVIDIA GPU Operator in VM passthrough mode:
+
+   ```bash
+   kubectl label node <NODE_NAME> nvidia.com/gpu.workload.config=vm-passthrough
+   helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+   helm repo update
+   helm install --generate-name -n gpu-operator --create-namespace nvidia/gpu-operator \
+     --set sandboxWorkloads.enabled=true \
+     --set sandboxWorkloads.mode=kata \
+     --set nfd.enabled=true \
+     --set nfd.nodefeaturerules=true \
+     --version={{nvidia-gpu-operator.version}}
+   ```
+
+   - `<NODE_NAME>`: the GPU node.
+
+2. Add these settings to `/var/lib/kubelet/config.yaml`, then run `sudo systemctl restart kubelet`:
+
+   ```yaml
+   volumeStatsAggPeriod: 0s
+   featureGates:
+     KubeletPodResourcesGet: true
+     RuntimeClassInImageCriApi: true
+   ```
+
+## Install the runtime
+
+1. Install Confidential Containers with Fortanix's attestation and key broker modules:
+
+   ```bash
+   helm install coco {{coco-chart.artifact}} \
+     --version {{coco-chart.version}} --namespace coco-system --create-namespace \
+     --set kata-as-coco-runtime.image.reference={{fortanix-kata-deploy.artifact}} \
+     --set kata-as-coco-runtime.image.tag={{fortanix-kata-deploy.version}}
+   ```
+
+2. Wait for it to roll out:
+
+   ```bash
+   kubectl -n coco-system rollout status ds/kata-as-coco-runtime
+   ```
+
+## Verify
+
+- `kubectl -n coco-system logs -l name=kata-as-coco-runtime` lists the runtimes it configured, including `qemu-tdx` and `qemu-nvidia-gpu-tdx-runtime-rs`.
+- With GPUs, the `gpu-operator` pods are running.
+
+## Next steps
+
+- [Encrypt an image](encrypt-an-image.mdx)
+- [Measure a workload](measure-a-workload.mdx)

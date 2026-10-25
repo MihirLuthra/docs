@@ -1,0 +1,61 @@
+---
+title: Encrypt an image with a key in DSM
+description: Encrypt a container image's layers with a key-encryption key kept in Fortanix DSM, so they are decrypted only inside an attested TEE.
+doc_type: how-to
+keywords: [encrypt image, coco-keyprovider, dsm, kek, lek, layer encryption, registry]
+sidebar_position: 3
+---
+
+The encryption tool encrypts each layer of an image and wraps the layer key with a key-encryption key (KEK) in DSM. Only a TEE that DSM trusts gets the layer key unwrapped.
+
+## Before you begin
+
+- A DSM app with an API key, to encrypt with.
+- Docker, signed in to the registry you push the encrypted image to.
+- The image to encrypt, pushed to a registry.
+
+## Encrypt the image
+
+1. Create `dsm-config.json`:
+
+   ```json
+   {
+     "api-endpoint": "<DSM_URL>",
+     "api-key": "<DSM_API_KEY>"
+   }
+   ```
+
+   - `<DSM_URL>`: your DSM endpoint, for example `https://amer.smartkey.io`.
+   - `<DSM_API_KEY>`: the API key of the DSM app you encrypt with.
+
+   Keep this file with the people who encrypt images, and out of the image.
+
+2. Encrypt the image:
+
+   ```bash
+   docker run -v <PATH>/dsm-config.json:/dsm-config.json:ro \
+     -v ~/.docker/config.json:/root/.docker/config.json \
+     {{coco-keyprovider.artifact}}:{{coco-keyprovider.version}} /dsm-encrypt.sh \
+     --fortanix-dsm-config /dsm-config.json \
+     --input-image docker://<IMAGE>:<TAG> \
+     --output-image docker://<ENCRYPTED_IMAGE>:<TAG> \
+     --kek-name <KEK_NAME> \
+     --kek-mode shared
+   ```
+
+   - `<PATH>`: the folder with `dsm-config.json`.
+   - `<IMAGE>:<TAG>`: the image to encrypt.
+   - `<ENCRYPTED_IMAGE>:<TAG>`: where to push the encrypted image.
+   - `<KEK_NAME>`: the name of the key-encryption key in DSM.
+
+   Use `--kek-mode per-layer` for a key per layer. Only the encrypted image is pushed.
+
+## Verify
+
+- The encrypted image is in the registry at `<ENCRYPTED_IMAGE>:<TAG>`.
+
+{/* TODO(verify): whether the tool creates the KEK when it doesn't exist, and in which DSM group. */}
+
+## Next steps
+
+- [Measure a workload](measure-a-workload.mdx)

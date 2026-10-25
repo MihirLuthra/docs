@@ -1,0 +1,98 @@
+---
+title: Enrol an Intel TDX node
+description: Prepare an Intel TDX host, register it with Intel, and enrol it in CCM with the node agent and a join token.
+doc_type: how-to
+keywords: [compute node, intel tdx, node agent, join token, enroll, em-agent, sgx registration, zone ca]
+sidebar_position: 1
+---
+
+A node enrolled in CCM can attest, so the workloads on it can get certificates. The node agent attests the host to CCM and passes attestation requests and certificates between the workloads and CCM.
+
+## Before you begin
+
+- A bare-metal host with an Intel TDX CPU.
+- A CCM account.
+- Outbound access from the host to `download.01.org`, `api.trustedservices.intel.com` and CCM.
+
+{/* TODO(verify): supported host OS and kernel. The sources disagree (Ubuntu 26.04 in titles, 25.10 in one section, the 24.04 "noble" Intel repository, and kernel 6.17.0 for Confidential Containers). */}
+{/* TODO(verify): the node agent's network requirements; the only documented port is 9092, without direction or protocol. */}
+{/* TODO(verify): which CCM role can add nodes. */}
+
+## Prepare the host
+
+1. In the BIOS, enable Intel TDX and disable simultaneous multithreading (SMT). With SMT on, a TEE fails to start with `fw_error=7 'Policy is not allowed'`.
+2. Install the Intel SGX registration agent:
+
+   ```bash
+   wget -q https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key -O /tmp/intel-sgx.key
+   sudo gpg --dearmor -o /usr/share/keyrings/intel-sgx-keyring.gpg /tmp/intel-sgx.key
+   echo "deb [signed-by=/usr/share/keyrings/intel-sgx-keyring.gpg] https://download.01.org/intel-sgx/sgx_repo/ubuntu noble main" \
+     | sudo tee /etc/apt/sources.list.d/intel-sgx.list
+   sudo apt-get update
+   sudo apt-get install -y sgx-ra-service
+   ```
+
+3. Register the platform with Intel. Either enable **SGX Auto MP Registration** in the BIOS and reboot, or register manually:
+
+   ```bash
+   /opt/intel/sgx-ra-service/mpa_manage -get_platform_manifest platform_manifest
+   curl -H "Content-Type: application/octet-stream" --data-binary @platform_manifest \
+     -X POST "https://api.trustedservices.intel.com/sgx/registration/v1/platform"
+   ```
+
+   A manual registration returns `201 Created`.
+
+4. Check the registration:
+
+   ```bash
+   cat /var/log/mpa_registration.log
+   ```
+
+   It shows `Registration Flow - PLATFORM_ESTABLISHMENT passed successfully` or `Registration Flow - TCB_RECOVERY passed successfully`.
+
+## Get a join token
+
+1. In CCM, go to **Infrastructure** > **COMPUTE NODES** > **Intel TDX** and click **ADD NODE**.
+2. In **Enroll Compute Node**, click **COPY** or **DOWNLOAD** to get the join token.
+3. Click **DOWNLOAD ZONE CA** if a relying party, such as a DSM app, needs to trust your workloads' certificates.
+
+<Screenshots>
+<Screenshot caption="Get the join token">
+
+![The Enroll Compute Node dialog, with the join token hidden and the COPY, DOWNLOAD and DOWNLOAD ZONE CA buttons below it](../img/enroll-compute-node.jpg)
+
+</Screenshot>
+<Screenshot caption="See the enrolled node">
+
+![The Intel TDX compute node list, with six nodes, their status, labels, CPUs and last attestation](../img/compute-nodes-intel-tdx.jpg)
+
+</Screenshot>
+</Screenshots>
+
+Anyone with the join token can enrol a node in your account. If someone else runs the host, send it to them over a channel you trust.
+
+## Install the node agent
+
+1. Download `TDX-Node-Agent-installer.tar.gz` from the link in **Enroll Compute Node**, and extract it:
+
+   ```bash
+   tar -zxvf TDX-Node-Agent-installer.tar.gz
+   cd em-agent-installer-tdx
+   ```
+
+2. Run the installer with the join token:
+
+   ```bash
+   sudo bash installer.sh <JOIN_TOKEN>
+   ```
+
+   - `<JOIN_TOKEN>`: the join token from CCM.
+
+## Verify
+
+- `systemctl status em-agent` shows the agent running. For its log, run `journalctl -xe | grep em-agent`.
+- The node is listed under **Infrastructure** > **COMPUTE NODES** > **Intel TDX**. Its labels, such as `fortanix.cloud/node-tee-type`, describe the host.
+
+## Next steps
+
+- Install a runtime: [Confidential Containers](../../workload-runtimes/confidential-containers/install-on-kubernetes.mdx) or [Enclave OS](../../workload-runtimes/enclave-os/prepare-a-host.mdx).
