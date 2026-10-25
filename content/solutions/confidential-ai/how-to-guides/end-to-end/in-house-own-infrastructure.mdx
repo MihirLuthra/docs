@@ -1,46 +1,30 @@
 ---
-title: "Run your own model on your own GPUs"
-description: "An enterprise runs a model it owns on its own GPUs, end to end."
+title: "Run your own model on your own servers"
+description: "Your organization runs a model it owns on its own servers, end to end."
 doc_type: how-to
-keywords: [in-house model, own infrastructure, enterprise, end to end]
-sidebar_label: In-house on own infrastructure
+keywords: [in-house model, own infrastructure, end to end]
+sidebar_label: In-house on own servers
 sidebar_position: 3
 ---
 
-Your organization owns the model and the GPUs. One CCM account and one DSM account are enough, and there is no shared workflow. Give CCM approvals and DSM keys to a team other than the platform team.
+Your organization owns the model and the servers. One CCM account and one DSM account are enough, and there is no shared workflow. Give CCM approvals and DSM keys to a team other than the one that runs the servers.
 
-## Who is involved
+## The deployment, step by step
 
-<RolesExplorer scenarios={["inhouse-own"]} />
+<DeploymentFlow scenario="inhouse-own" />
 
 ## Before you begin
 
-- [Plan the deployment](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/plan-a-deployment), and choose the runtime, Confidential Containers or Enclave OS. Each linked step has both.
-- Register the workload in the same CCM account the nodes are enrolled in. You don't need a shared workflow, and the zone CA you upload to DSM is your own.
+- [Plan the deployment](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/plan-a-deployment), and choose the runtime, Confidential Containers or Enclave OS. Each linked task has both.
+- Register the workload in the same CCM account the servers are enrolled in. The zone CA you upload to DSM is your own.
 
 ## Steps
 
-Each step links to its task in the how-to guides; do them in this order.
+Do the tasks in this order. Each one links to its how-to guide.
 
-| | Day | Who | Task |
-|---|---|---|---|
-| 1 | 0 | Application team | [Set up CCM: create a group, a join token and the zone CA](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#set-up-ccm) |
-| 2 | 0 | Platform team | [Prepare the host](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#prepare-the-host) |
-| 3 | 0 | Platform team | [Enrol the node with the join token](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#enrol-the-node) |
-| 4 | 0 | Platform team | [Install the runtime](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#install-the-runtime) |
-| 5 | 0 | Model team | [Set up DSM with the zone CA](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/set-up-dsm) |
-| 6 | 0 | Model team | [Encrypt the model](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/protect-the-model#encrypt-the-model) |
-| 7 | 0 | Model team | [Build the confidential image and measure it](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/protect-the-model#build-the-confidential-image-and-measure-it) |
-| 8 | 0 | Model team | [Register and approve it in CCM](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/protect-the-model#register-and-approve-in-ccm) |
-| 9 | 1 | Application team | [Deploy the workload](/solutions/confidential-ai/how-to-guides/day-1-deploy/deploy-and-verify#deploy-the-workload) |
-| 10 | 1 | Application team | [Verify attestation](/solutions/confidential-ai/how-to-guides/day-1-deploy/deploy-and-verify#verify-attestation) |
-| 11 | 1 | Application team | [Connect clients](/solutions/confidential-ai/how-to-guides/day-1-deploy/deploy-and-verify#connect-clients) |
-
-On day 2, the same parties [update the model or the runtime](/solutions/confidential-ai/how-to-guides/day-2-operate/update-the-model-or-runtime) and [audit and revoke access](/solutions/confidential-ai/how-to-guides/day-2-operate/audit-and-revoke-access).
+<DeploymentSteps scenario="inhouse-own" />
 
 ## Verify
 
-The consumer's last checks confirm the whole chain: CCM's audit log shows a successful `REQUEST_APP_CERTIFICATE`, the build is deployed, and the DSM Trusted CA app shows the key being used.
-
-## Next steps
+The last checks confirm the whole chain. CCM's audit log shows a successful `REQUEST_APP_CERTIFICATE`, the build is deployed, and the DSM Trusted CA app shows the key being used.
 

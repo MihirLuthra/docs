@@ -1,49 +1,32 @@
 ---
-title: "Deploy a proprietary model through an NCP"
-description: "A model vendor's model runs on an NCP's GPUs and is used by an enterprise, end to end."
+title: "Deploy a proprietary model for a customer on an NCP"
+description: "A model vendor's customer runs the vendor's model on servers rented from an NCP, end to end."
 doc_type: how-to
-keywords: [proprietary model, ncp, neocloud, model vendor, enterprise, end to end]
-sidebar_label: Vendor, NCP, enterprise
+keywords: [proprietary model, ncp, neocloud, model vendor, customer, end to end]
+sidebar_label: Vendor to its customer, on an NCP
 sidebar_position: 2
 ---
 
-A model vendor's model runs on an NCP's GPUs, and an enterprise uses it. Three companies each do their part.
+A model vendor's customer runs the vendor's model on servers it rents from an NCP, a GPU cloud provider. Three companies each do their part, and none of them sees what it shouldn't.
 
-## Who is involved
+## The deployment, step by step
 
-<RolesExplorer scenarios={["vendor-ncp-enterprise"]} />
+<DeploymentFlow scenario="vendor-ncp-enterprise" />
 
 ## Before you begin
 
-- [Plan the deployment](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/plan-a-deployment), and choose the runtime, Confidential Containers or Enclave OS. Each linked step has both.
-- The model owner and the consumer use separate CCM accounts, linked by a shared workflow. The owner approves it first.
+- [Plan the deployment](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/plan-a-deployment), and choose the runtime, Confidential Containers or Enclave OS. Each linked task has both.
+- The model vendor and its customer use separate CCM accounts, linked by a shared workflow. The vendor approves it first.
 
-{/* TODO(verify): which CCM account the NCP's nodes are enrolled in. This guide assumes the enterprise's, as with the Rafay integration, where the NCP onboards the node with the enterprise's join token. */}
+{/* TODO(verify): which CCM account the NCP's servers are enrolled in. This guide assumes the customer's, as with the Rafay integration, where the NCP onboards the server with the customer's join token. */}
 
 ## Steps
 
-Each step links to its task in the how-to guides; do them in this order.
+Do the tasks in this order. Each one links to its how-to guide.
 
-| | Day | Who | Task |
-|---|---|---|---|
-| 1 | 0 | Enterprise | [Set up CCM: create a group, a join token and the zone CA](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#set-up-ccm) |
-| 2 | 0 | NCP | [Prepare the host](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#prepare-the-host) |
-| 3 | 0 | NCP | [Enrol the node with the join token](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#enrol-the-node) |
-| 4 | 0 | NCP | [Install the runtime](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#install-the-runtime) |
-| 5 | 0 | Model vendor | [Set up DSM with the zone CA](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/set-up-dsm) |
-| 6 | 0 | Model vendor | [Encrypt the model](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/protect-the-model#encrypt-the-model) |
-| 7 | 0 | Model vendor | [Build the confidential image and measure it](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/protect-the-model#build-the-confidential-image-and-measure-it) |
-| 8 | 0 | Model vendor | [Register and approve it in CCM](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/protect-the-model#register-and-approve-in-ccm) |
-| 9 | 1 | Model vendor and enterprise | [Share it through a shared workflow](/solutions/confidential-ai/how-to-guides/day-1-deploy/share-the-model) |
-| 10 | 1 | Enterprise | [Deploy the workload](/solutions/confidential-ai/how-to-guides/day-1-deploy/deploy-and-verify#deploy-the-workload) |
-| 11 | 1 | Enterprise | [Verify attestation](/solutions/confidential-ai/how-to-guides/day-1-deploy/deploy-and-verify#verify-attestation) |
-| 12 | 1 | Enterprise | [Connect clients](/solutions/confidential-ai/how-to-guides/day-1-deploy/deploy-and-verify#connect-clients) |
-
-On day 2, the same parties [update the model or the runtime](/solutions/confidential-ai/how-to-guides/day-2-operate/update-the-model-or-runtime) and [audit and revoke access](/solutions/confidential-ai/how-to-guides/day-2-operate/audit-and-revoke-access).
+<DeploymentSteps scenario="vendor-ncp-enterprise" />
 
 ## Verify
 
-The consumer's last checks confirm the whole chain: CCM's audit log shows a successful `REQUEST_APP_CERTIFICATE`, the build is deployed, and the DSM Trusted CA app shows the key being used.
-
-## Next steps
+The customer's last checks confirm the whole chain. CCM's audit log shows a successful `REQUEST_APP_CERTIFICATE`, the build is deployed, and the DSM Trusted CA app shows the key being used.
 

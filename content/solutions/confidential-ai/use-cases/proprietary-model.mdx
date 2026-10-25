@@ -1,6 +1,6 @@
 ---
 title: Proprietary model
-description: Let customers or NCPs run your model without exposing the weights. DSM releases the model encryption key only for your approved model.
+description: Let your customers run your model, on their servers or an NCP's, without exposing the weights. DSM releases the model encryption key only for your approved model.
 doc_type: concept
 keywords: [proprietary model, model owner, model vendor, model ip, ncp, weights]
 sidebar_position: 1
@@ -14,10 +14,7 @@ The vendor is the model owner. Who runs the infrastructure, and who uses the mod
 
 <RolesExplorer useCase="proprietary" />
 
-| Deployment | Model owner | Model consumer | Infrastructure provider |
-|---|---|---|---|
-| Vendor to customer | Model vendor | Customer | Customer |
-| Vendor, NCP, enterprise | Model vendor | Enterprise | NCP |
+<DeploymentsTable useCase="proprietary" />
 
 A vendor that serves its own model to users, on an NCP or a cloud, holds both the model owner and the model consumer roles. That case is described under [In-house model](/solutions/confidential-ai/use-cases/in-house-model).
 

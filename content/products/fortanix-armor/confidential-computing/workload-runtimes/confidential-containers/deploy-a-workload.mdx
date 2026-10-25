@@ -9,11 +9,11 @@ sidebar_position: 5
 ## Before you begin
 
 - A cluster with the runtime [installed](install-on-kubernetes.mdx).
-- The encoded InitData the build was [measured](measure-a-workload.mdx) with, and the build approved in CCM.
+- The encoded InitData the build was [measured](take-measurements.mdx) with, and the build approved in CCM.
 
 ## Deploy the pod
 
-1. Create `workload.yaml`. Use the same InitData and resources as the measurement:
+1. Create `workload.yaml`. Use the same InitData and resources as the measurement.
 
    ```yaml
    apiVersion: v1
@@ -40,13 +40,13 @@ sidebar_position: 5
            - containerPort: <PORT>
    ```
 
-   - `<INITDATA>`: the encoded InitData.
-   - `<IMAGE>:<TAG>`: the image, encrypted or not.
-   - `<PORT>`: the port the workload serves on.
+   - `<INITDATA>` is the encoded InitData.
+   - `<IMAGE>:<TAG>` is the image, encrypted or not.
+   - `<PORT>` is the port the workload serves on.
 
    Without a GPU, use `kata-qemu-tdx` in both places and remove `nvidia.com/pgpu`. Give the pod at least twice the uncompressed image size in memory.
 
-2. Deploy it:
+2. Deploy it.
 
    ```bash
    kubectl apply -f workload.yaml

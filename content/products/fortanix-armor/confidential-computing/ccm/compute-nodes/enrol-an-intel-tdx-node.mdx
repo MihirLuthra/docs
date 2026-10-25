@@ -21,7 +21,7 @@ A node enrolled in CCM can attest, so the workloads on it can get certificates. 
 ## Prepare the host
 
 1. In the BIOS, enable Intel TDX and disable simultaneous multithreading (SMT). With SMT on, a TEE fails to start with `fw_error=7 'Policy is not allowed'`.
-2. Install the Intel SGX registration agent:
+2. Install the Intel SGX registration agent.
 
    ```bash
    wget -q https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key -O /tmp/intel-sgx.key
@@ -32,7 +32,7 @@ A node enrolled in CCM can attest, so the workloads on it can get certificates. 
    sudo apt-get install -y sgx-ra-service
    ```
 
-3. Register the platform with Intel. Either enable **SGX Auto MP Registration** in the BIOS and reboot, or register manually:
+3. Register the platform with Intel. Either enable **SGX Auto MP Registration** in the BIOS and reboot, or register manually.
 
    ```bash
    /opt/intel/sgx-ra-service/mpa_manage -get_platform_manifest platform_manifest
@@ -42,7 +42,7 @@ A node enrolled in CCM can attest, so the workloads on it can get certificates. 
 
    A manual registration returns `201 Created`.
 
-4. Check the registration:
+4. Check the registration.
 
    ```bash
    cat /var/log/mpa_registration.log
@@ -73,20 +73,20 @@ Anyone with the join token can enrol a node in your account. If someone else run
 
 ## Install the node agent
 
-1. Download `TDX-Node-Agent-installer.tar.gz` from the link in **Enroll Compute Node**, and extract it:
+1. Download `TDX-Node-Agent-installer.tar.gz` from the link in **Enroll Compute Node**, and extract it.
 
    ```bash
    tar -zxvf TDX-Node-Agent-installer.tar.gz
    cd em-agent-installer-tdx
    ```
 
-2. Run the installer with the join token:
+2. Run the installer with the join token.
 
    ```bash
    sudo bash installer.sh <JOIN_TOKEN>
    ```
 
-   - `<JOIN_TOKEN>`: the join token from CCM.
+   - `<JOIN_TOKEN>` is the join token from CCM.
 
 ## Verify
 
@@ -95,4 +95,4 @@ Anyone with the join token can enrol a node in your account. If someone else run
 
 ## Next steps
 
-- Install a runtime: [Confidential Containers](../../workload-runtimes/confidential-containers/install-on-kubernetes.mdx) or [Enclave OS](../../workload-runtimes/enclave-os/prepare-a-host.mdx).
+- Install a runtime, [Confidential Containers](../../workload-runtimes/confidential-containers/install-on-kubernetes.mdx) or [Enclave OS](../../workload-runtimes/enclave-os/prepare-a-host.mdx).

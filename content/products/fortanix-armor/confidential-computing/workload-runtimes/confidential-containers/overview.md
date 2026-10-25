@@ -12,7 +12,7 @@ Confidential Containers runs each Kubernetes pod in its own TEE, a confidential 
 ## How it works
 
 1. You install the runtime on the cluster. It brings the guest firmware, kernel and root filesystem that every pod's TEE boots.
-2. You start a pod with a Confidential Containers runtime class and an **InitData** annotation: the attestation and key broker settings for that pod.
+2. You start a pod with a Confidential Containers runtime class and an **InitData** annotation, which holds the attestation and key broker settings for that pod.
 3. In the TEE, the attestation module (`ccm_as`) attests to CCM, which issues a certificate if the measurements match an approved build.
 4. To pull an encrypted image, the key broker client (`ccm_kbc`) presents that certificate to DSM. DSM holds the key-encryption key and unwraps the image's layer key, and the layers are decrypted inside the TEE.
 
@@ -34,10 +34,10 @@ Every pod on a node boots the same firmware, kernel and root filesystem, so they
 
 - [Install on Kubernetes](install-on-kubernetes.mdx)
 - [Encrypt an image](encrypt-an-image.mdx)
-- [Measure a workload](measure-a-workload.mdx)
+- [Take measurements](take-measurements.mdx)
 - [Deploy a workload](deploy-a-workload.mdx)
 
-Sources: [Confidential Containers trust model](https://confidentialcontainers.org/docs/architecture/trust-model/trust-model/), [InitData](https://confidentialcontainers.org/docs/features/initdata/), [Fortanix: CoCo on Intel TDX](https://support.fortanix.com/docs/deploy-confidential-container-coco-workloads-on-intel-tdx-platform.md).
+Sources are the [Confidential Containers trust model](https://confidentialcontainers.org/docs/architecture/trust-model/trust-model/), [InitData](https://confidentialcontainers.org/docs/features/initdata/), [Fortanix guide to CoCo on Intel TDX](https://support.fortanix.com/docs/deploy-confidential-container-coco-workloads-on-intel-tdx-platform.md).
 
 ## Used in
 

@@ -1,21 +1,28 @@
 ---
-title: "Model owner: protect and publish a model"
-description: The model owner's tasks from day 0 to day 2, keeping the key in DSM, protecting the model, sharing it, and keeping it up to date.
+title: "Model owner"
+description: "The model owner's tasks from day 0 to day 2. Keep the key in DSM, protect the model, share it, and keep it up to date."
 doc_type: how-to
 keywords: [model owner, model vendor, encrypt model, dsm, ccm, measurements, publisher]
 sidebar_label: Model owner
 sidebar_position: 1
 ---
 
-As the model owner, you make sure the weights are only ever readable by your approved workload inside a TEE. You keep the key in DSM, encrypt the model, build the confidential image, and register its measurements in CCM. The model consumer then runs it.
+As the model owner, you make sure only your approved workload, inside a TEE, can ever read the weights. You keep the key in DSM, encrypt the model, and register its measurements in CCM. The model consumer then runs it.
+
+## Your tasks
 
 | Day | Task |
 |---|---|
 | 0 | [Plan the deployment](../day-0-plan-and-prepare/plan-a-deployment.mdx) with the consumer |
 | 0 | [Set up DSM](../day-0-plan-and-prepare/set-up-dsm.mdx) with the consumer's zone CA |
-| 0 | [Protect the model](../day-0-plan-and-prepare/protect-the-model.mdx): encrypt, build and measure, register and approve |
+| 0 | [Protect the model](../day-0-plan-and-prepare/protect-the-model.mdx). Encrypt it, take measurements, register and approve the build. |
 | 1 | [Share the model](../day-1-deploy/share-the-model.mdx) through a shared workflow, as the publisher |
-| 2 | [Update the model or the runtime](../day-2-operate/update-the-model-or-runtime.mdx) |
+| 2 | [Update the model](../day-2-operate/update-the-model.mdx) |
+| 2 | [Update the workload TCB](../day-2-operate/update-the-workload-tcb.mdx). Take measurements again and approve them before the upgrade. |
 | 2 | [Audit and revoke access](../day-2-operate/audit-and-revoke-access.mdx) |
 
-The [end-to-end guides](../end-to-end/vendor-to-customer.mdx) show where these fit among the other roles' tasks.
+## Where they fit
+
+Pick a deployment. Your lane and your steps are marked, and the rest shows what the other parties do around them.
+
+<DeploymentFlow scenarios role="owner" />

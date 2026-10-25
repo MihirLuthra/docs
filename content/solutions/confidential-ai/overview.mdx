@@ -40,7 +40,7 @@ Before the model workload gets any secret, attestation proves exactly what is ru
 | Infrastructure provider | Running the workload without having access to what is inside it. This can be a cloud, an NCP, or the organization's own data centre. |
 | End user | Their requests to the AI application stay private. |
 
-One party can hold more than one role. For example, an enterprise that runs its own model on its own GPUs is the model owner, the model consumer and the infrastructure provider. Pick a scenario to see who holds which role.
+One party can hold more than one role. For example, an organization that runs its own model on its own servers is the model owner, the model consumer and the infrastructure provider. Pick a scenario to see who holds which role.
 
 <RolesExplorer />
 
@@ -49,21 +49,21 @@ One party can hold more than one role. For example, an enterprise that runs its 
 <Tabs>
 <Tab label="Proprietary model">
 
-A model vendor lets others run its model without giving away the weights. DSM releases the model encryption key into the TEE only for the vendor's approved model. The model can run on the customer's infrastructure or on an NCP.
+A model vendor lets others run its model without giving away the weights. DSM releases the model encryption key into the TEE only for the vendor's approved model. The vendor's customer can run it on its own servers or on an NCP's.
 
 [Read the proprietary model use case](/solutions/confidential-ai/use-cases/proprietary-model)
 
 </Tab>
 <Tab label="In-house model">
 
-An organization runs a model it owns, on its own GPUs or on rented ones. The TEE protects the model and the data from infrastructure administrators and compromised host software. A model vendor serving its own model as a service fits this case too.
+An organization runs a model it owns, on its own servers or on rented ones. The TEE protects the model and the data from infrastructure administrators and compromised host software. A model vendor serving its own model as a service fits this case too.
 
 [Read the in-house model use case](/solutions/confidential-ai/use-cases/in-house-model)
 
 </Tab>
 <Tab label="Open-source model">
 
-An enterprise runs a public model, so the weights need no protection. The TEE protects the prompts and the data, and attestation proves which model and code are running. The workload can still get keys from DSM for anything else it needs.
+An organization runs a public model, so the weights need no protection. The TEE protects the prompts and the data, and attestation proves which model and code are running. The workload can still get keys from DSM for anything else it needs.
 
 [Read the open-source model use case](/solutions/confidential-ai/use-cases/open-source-model)
 

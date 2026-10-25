@@ -1,58 +1,39 @@
 ---
-title: Update the model or the runtime
-description: Roll out a new model version, or upgrade the runtime and nodes, without workloads losing their certificates.
+title: Update the model
+description: Roll out a new model version without the workload losing its certificate or its key.
 doc_type: how-to
-keywords: [update model, new build, build version, upgrade runtime, measurements, kata-deploy, converter, edit workflow, tcb recovery]
+keywords: [update model, new model version, new build, build version, edit workflow, redeploy]
 sidebar_position: 1
 ---
 
-Anything that changes a workload's measurements needs a new approved build before the workload restarts. Otherwise CCM refuses its certificate, and DSM releases no key.
+A new model version is a new image. If it changes the workload's measurements, it needs a new approved build before it runs. Otherwise CCM refuses its certificate, and DSM releases no key.
 
-| Change | Measurements change? | What to do first |
-|---|---|---|
-| New model or application image | Yes, with Enclave OS (a new converted image). With Confidential Containers, only if the InitData changes. | Add and approve a build |
-| Confidential Containers runtime upgrade | Yes, for every pod on the upgraded nodes | Add and approve a build for every workload |
-| New Enclave OS converter | Converted again, so yes | Add and approve a build |
+| Runtime | Do the measurements change? |
+|---|---|
+| Confidential Containers | Only if the InitData changes. The container image is not measured. |
+| Enclave OS | Yes. Every new image is converted again. |
 
-{/* TODO(verify): whether a new converter version always changes the measurements of the same input image. */}
+## Build the new version
 
-## Update the model
+The model owner encrypts the new model and builds the new image, as in [Protect the model](../day-0-plan-and-prepare/protect-the-model.mdx), then pushes it.
 
-1. The model owner encrypts the new model and builds the new image, as in [Protect the model](../day-0-plan-and-prepare/protect-the-model.mdx).
-2. If the measurements changed, the owner [adds a build](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application#add-a-build) with a new **Build Version**, and [approves it](/products/fortanix-armor/confidential-computing/ccm/applications/approve-builds-and-domains).
-3. With a shared workflow, an approved workflow can't be edited: **EDIT WORKFLOW** creates a new version, which replaces the old one once both sides approve it.
-4. The consumer [deploys](../day-1-deploy/deploy-and-verify.mdx) the new image.
+## Register and approve the build
+
+If the measurements changed, the model owner [adds a build](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application#add-a-build) with a new **Build Version**, and [approves it](/products/fortanix-armor/confidential-computing/ccm/applications/approve-builds-and-domains).
 
 The old build stays approved, so workloads of the old version still get certificates.
 
-{/* TODO(verify): whether a new build needs a new workflow version, and how to withdraw an approved build. */}
+{/* TODO(verify): how to withdraw an approved build. */}
 
-## Upgrade the runtime
+## Update the shared workflow
 
-<Tabs groupId="runtime">
-<Tab label="Confidential Containers">
+Skip this when one organization both owns and runs the model. An approved workflow can't be edited. **EDIT WORKFLOW** creates a new version, which replaces the old one once both sides approve it.
 
-Every pod boots the guest firmware, kernel and root filesystem of the runtime install, so an upgrade changes the measurements of every workload on the node.
+{/* TODO(verify): whether a new build needs a new workflow version. */}
 
-1. Take the new runtime version from the [support matrix](../../support-matrix.mdx).
-2. On a node with the new version, [measure each workload](/products/fortanix-armor/confidential-computing/workload-runtimes/confidential-containers/measure-a-workload) with its unchanged InitData.
-3. Add and approve a build for each, in the model owner's CCM account.
-4. Upgrade the remaining nodes, then restart the workloads on them.
+## Redeploy
 
-{/* TODO(verify): the supported upgrade path for the runtime (helm upgrade, or uninstall and install), and whether running pods keep their TEEs during it. */}
-
-</Tab>
-<Tab label="Enclave OS">
-
-Each converted image carries its own firmware and kernel. To move a workload to a new converter, [convert the image again](/products/fortanix-armor/confidential-computing/workload-runtimes/enclave-os/convert-an-image), and add and approve the new measurements before you run it.
-
-</Tab>
-</Tabs>
-
-## Update the hosts
-
-- After a BIOS or microcode update, check `/var/log/mpa_registration.log` on the host: it shows `Registration Flow - TCB_RECOVERY passed successfully`.
-- Before changing GPU firmware, VBIOS or driver, check the combination in the [NVIDIA Secure AI compatibility matrix](https://www.nvidia.com/en-us/data-center/solutions/confidential-computing/secure-ai-compatibility-matrix/).
+The model consumer [deploys](../day-1-deploy/deploy-and-verify.mdx) the new image. The workload attests again and gets its certificate and key as on day 1.
 
 ## Verify
 

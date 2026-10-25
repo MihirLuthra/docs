@@ -1,0 +1,63 @@
+---
+title: Update the workload TCB
+description: Move workloads to a new runtime release, such as a kernel patch, by approving their new measurements before the servers are upgraded.
+doc_type: how-to
+keywords: [tcb update, runtime upgrade, kata, confidential containers release, kernel patch, converter, measurements, new build]
+sidebar_position: 2
+---
+
+The workload TCB is what runs inside the TEE besides your application, such as the guest firmware, kernel and root filesystem. Updating it looks like a model update. The measurements change, so a new build is approved first, and the workloads restart.
+
+| Runtime | Where the TCB comes from | What changes the measurements |
+|---|---|---|
+| Confidential Containers | The runtime installed on the servers, the same for every pod | A new release, for example with a kernel patch. It changes the measurements of every workload on the servers that run it. |
+| Enclave OS | Each converted container | A new converter. Each image is converted again. |
+
+## Take measurements again
+
+<Tabs groupId="runtime">
+<Tab label="Confidential Containers">
+
+The model owner [takes measurements](/products/fortanix-armor/confidential-computing/workload-runtimes/confidential-containers/take-measurements) with the new release, and the unchanged InitData. Take the new version from the [support matrix](../../support-matrix.mdx).
+
+</Tab>
+<Tab label="Enclave OS">
+
+The model owner [converts the image again](/products/fortanix-armor/confidential-computing/workload-runtimes/enclave-os/convert-an-image) with the new converter, and saves the new measurements.
+
+{/* TODO(verify): whether a new converter version always changes the measurements of the same input image. */}
+
+</Tab>
+</Tabs>
+
+## Approve before the upgrade
+
+The model owner [adds a build](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application#add-a-build) with the new measurements and [approves it](/products/fortanix-armor/confidential-computing/ccm/applications/approve-builds-and-domains). Do this before any server is upgraded, so no workload is left without a certificate.
+
+## Upgrade the servers
+
+<Tabs groupId="runtime">
+<Tab label="Confidential Containers">
+
+The infrastructure provider upgrades the runtime on the servers, then the workloads restart.
+
+{/* TODO(verify): the supported upgrade path for the runtime (helm upgrade, or uninstall and install), and whether running pods keep their TEEs during it. */}
+
+</Tab>
+<Tab label="Enclave OS">
+
+The model consumer runs the newly converted container in place of the old one.
+
+</Tab>
+</Tabs>
+
+## Update the hosts
+
+Updates to the server itself need their own checks.
+
+- After a BIOS or microcode update, check `/var/log/mpa_registration.log` on the server. It shows `Registration Flow - TCB_RECOVERY passed successfully`.
+- Before changing GPU firmware, VBIOS or driver, check the combination in the [NVIDIA Secure AI compatibility matrix](https://www.nvidia.com/en-us/data-center/solutions/confidential-computing/secure-ai-compatibility-matrix/).
+
+## Verify
+
+- The new build is **Deployed** on the application's **Builds** tab, and the audit log shows a successful `REQUEST_APP_CERTIFICATE` after the restart.

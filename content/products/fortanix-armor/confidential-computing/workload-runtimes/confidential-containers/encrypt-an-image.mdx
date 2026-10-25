@@ -16,7 +16,7 @@ The encryption tool encrypts each layer of an image and wraps the layer key with
 
 ## Encrypt the image
 
-1. Create `dsm-config.json`:
+1. Create `dsm-config.json`.
 
    ```json
    {
@@ -25,12 +25,12 @@ The encryption tool encrypts each layer of an image and wraps the layer key with
    }
    ```
 
-   - `<DSM_URL>`: your DSM endpoint, for example `https://amer.smartkey.io`.
-   - `<DSM_API_KEY>`: the API key of the DSM app you encrypt with.
+   - `<DSM_URL>` is your DSM endpoint, for example `https://amer.smartkey.io`.
+   - `<DSM_API_KEY>` is the API key of the DSM app you encrypt with.
 
    Keep this file with the people who encrypt images, and out of the image.
 
-2. Encrypt the image:
+2. Encrypt the image.
 
    ```bash
    docker run -v <PATH>/dsm-config.json:/dsm-config.json:ro \
@@ -43,10 +43,10 @@ The encryption tool encrypts each layer of an image and wraps the layer key with
      --kek-mode shared
    ```
 
-   - `<PATH>`: the folder with `dsm-config.json`.
-   - `<IMAGE>:<TAG>`: the image to encrypt.
-   - `<ENCRYPTED_IMAGE>:<TAG>`: where to push the encrypted image.
-   - `<KEK_NAME>`: the name of the key-encryption key in DSM.
+   - `<PATH>` is the folder with `dsm-config.json`.
+   - `<IMAGE>:<TAG>` is the image to encrypt.
+   - `<ENCRYPTED_IMAGE>:<TAG>` is where to push the encrypted image.
+   - `<KEK_NAME>` is the name of the key-encryption key in DSM.
 
    Use `--kek-mode per-layer` for a key per layer. Only the encrypted image is pushed.
 
@@ -58,4 +58,4 @@ The encryption tool encrypts each layer of an image and wraps the layer key with
 
 ## Next steps
 
-- [Measure a workload](measure-a-workload.mdx)
+- [Take measurements](take-measurements.mdx)

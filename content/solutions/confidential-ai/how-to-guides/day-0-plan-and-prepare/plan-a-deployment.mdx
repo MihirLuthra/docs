@@ -1,60 +1,46 @@
 ---
 title: Plan a deployment
-description: Choose the deployment and the runtime, decide whose CCM account the nodes join, and list what the parties exchange before anything is installed.
+description: Pick the deployment and the runtime, and see the accounts each party holds and what the parties send each other.
 doc_type: how-to
-keywords: [plan, deployment, runtime choice, confidential containers, enclave os, ccm account, join token, zone ca, collaboration token]
+keywords: [plan, deployment, runtime choice, confidential containers, coco, enclave os, custom cvm, ccm account, dsm account, join token, zone ca, collaboration token]
 sidebar_position: 1
 ---
 
-Settle these before day 1: who plays which role, which runtime runs the model, and what the parties send each other.
+Day 0 is everything before the model runs. Start by deciding who does what, and which runtime runs the model.
 
 ## Choose the deployment
 
-Each deployment has an end-to-end guide that orders every task in this section.
+Each deployment has an end-to-end guide, and each role has a guide of its own.
 
-| Deployment | Model owner | Infrastructure provider | Model consumer |
-|---|---|---|---|
-| [Vendor to customer](../end-to-end/vendor-to-customer.mdx) | Model vendor | Customer | Customer |
-| [Vendor, NCP, enterprise](../end-to-end/vendor-ncp-enterprise.mdx) | Model vendor | NCP | Enterprise |
-| [In-house, own infrastructure](../end-to-end/in-house-own-infrastructure.mdx) | Enterprise | Enterprise | Enterprise |
-| [In-house, cloud or NCP](../end-to-end/in-house-cloud-or-ncp.mdx) | Enterprise or model vendor | Cloud or NCP | Enterprise or model vendor |
-| [Open model on an NCP](../end-to-end/open-model-on-ncp.mdx) | Open-source project (public weights) | NCP | Enterprise |
-| [Open model on own GPUs](../end-to-end/open-model-on-own-gpus.mdx) | Open-source project (public weights) | Enterprise | Enterprise |
+<DeploymentsTable />
 
-With an open model, nobody holds the owner's tasks: the weights are public, and the consumer builds and registers the workload itself.
+## See the accounts and the steps
+
+Pick a deployment to see each party's accounts and servers, and every step from day 0 to the day 2 updates. The arrows show what one party sends another, such as the join token or the zone CA certificate.
+
+<DeploymentFlow scenarios />
+
+{/* TODO(verify): which party's CCM account the servers are enrolled in when an NCP runs them. The diagram assumes the model consumer's. */}
 
 ## Choose the runtime
 
-Both run the model in an Intel TDX TEE with NVIDIA GPUs, attested by CCM. They differ in how the model is packaged and run.
+The model runs in an Intel TDX TEE in all three. They differ in what you build, where it runs, and what has to happen again on day 2.
 
-| | [Confidential Containers](/products/fortanix-armor/confidential-computing/workload-runtimes/confidential-containers/overview) | [Enclave OS](/products/fortanix-armor/confidential-computing/workload-runtimes/enclave-os/overview) |
-|---|---|---|
-| Runs on | Kubernetes | Docker on the host |
-| One TEE per | Pod | Converted container |
-| Model protection | The whole image is encrypted; DSM unwraps its key | The model files are encrypted with a PGP key in DSM, and decrypted when the workload starts |
-| Measurements come from | The runtime install and the pod's InitData | The converted image |
-| Guest firmware and kernel | From the runtime install, the same for every pod | In each converted image |
-
-Every guide in this section has a tab for each runtime. Pick one, and the tabs follow it.
-
-## Decide the accounts
-
-- The model owner and the model consumer each have their own CCM account. A [shared workflow](/products/fortanix-armor/confidential-computing/ccm/workflows/shared-workflows) links them. When one organization is both, there is one account and no shared workflow.
-- The GPU nodes are enrolled in the model consumer's CCM account.
-- The model owner has a DSM account, which holds the model's key.
-
-{/* TODO(verify): which party's CCM account the nodes are enrolled in when an NCP runs them. */}
-
-## List what the parties exchange
-
-| What | From | To | Used for |
+| Compared | Confidential Containers | Fortanix Enclave OS | Custom confidential VM |
 |---|---|---|---|
-| Join token | Model consumer | Infrastructure provider | Enrolling the nodes in the consumer's CCM account |
-| Zone CA certificate | Model consumer | Model owner | Letting the owner's DSM app trust the workload's certificate |
-| Collaboration token | Model owner | Model consumer | Linking their CCM groups for the shared workflow |
+| What it is | Kubernetes pods in TEEs, based on the CNCF [Confidential Containers](https://confidentialcontainers.org/) project | A converter that turns a container image into an Enclave OS container. The converted container is what runs. | A confidential VM you build yourself |
+| What you build | A normal container image | A normal container image, which you then convert | The whole VM image, with its firmware, kernel and disk |
+| Where it runs | Kubernetes, with the Confidential Containers runtime installed on the servers | Anywhere that runs containers, such as Docker or Kubernetes, on a server with Intel TDX | Wherever you start it, for example with QEMU |
+| The TEE | One TEE per pod | The container starts its own TEE from within | One TEE per VM |
+| How the model is protected | The image layers are encrypted with ocicrypt, and DSM wraps the layer keys. Inside the TEE, the layers are decrypted as the image is pulled, after attestation and before the container starts. | The model files are encrypted separately, with a key stored in DSM. The workload decrypts them when it starts, after attestation. | Your choice |
+| Guest firmware and kernel | Installed with the runtime on the servers, the same for every pod | Inside each converted container | Yours |
+| On day 2 | A runtime release changes every workload's measurements, so new builds are approved before the servers are upgraded | Every new version is converted again and approved as a new build | Any change to the VM image or how it starts needs a new build |
 
-Send them over a channel you trust. Anyone with the join token can enrol a node in the consumer's account.
+{/* TODO(verify): link the security architecture of each runtime here, once those pages are published. */}
+{/* TODO(verify): add the custom confidential VM guides; these guides cover Confidential Containers and Enclave OS only. */}
+
+The guides in this section have a tab for Confidential Containers and one for Enclave OS. Pick one, and every tab set follows it.
 
 ## Next steps
 
-- [Prepare the GPU nodes](prepare-gpu-nodes.mdx)
+- [Prepare the servers](prepare-the-servers.mdx)

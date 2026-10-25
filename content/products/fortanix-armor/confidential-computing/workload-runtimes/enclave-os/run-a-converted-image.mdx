@@ -14,7 +14,7 @@ sidebar_position: 4
 ## Run the image
 
 1. In CCM, open the application's configuration and copy its **Runtime configuration hash**.
-2. Start the converted image:
+2. Start the converted image.
 
    ```bash
    docker run --privileged --runtime=runc \
@@ -23,9 +23,9 @@ sidebar_position: 4
      <CONVERTED_IMAGE>:<TAG>
    ```
 
-   - `<RUNTIME_CONFIG_HASH>`: the hash from step 1.
-   - `<GPU_COUNT>`: how many GPUs to give the workload. To pick specific GPUs, set `TDX_GPU_BDF` instead, to a comma-separated list of their PCI addresses.
-   - `<CONVERTED_IMAGE>:<TAG>`: the converted image.
+   - `<RUNTIME_CONFIG_HASH>` is the hash from step 1.
+   - `<GPU_COUNT>` sets how many GPUs to give the workload. To pick specific GPUs, set `TDX_GPU_BDF` instead, to a comma-separated list of their PCI addresses.
+   - `<CONVERTED_IMAGE>:<TAG>` is the converted image.
 
    Without GPUs, leave out `GPU_COUNT`.
 

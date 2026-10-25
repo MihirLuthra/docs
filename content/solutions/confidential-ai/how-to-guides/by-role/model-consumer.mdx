@@ -1,21 +1,27 @@
 ---
-title: "Model consumer: run and verify the workload"
-description: The model consumer's tasks from day 0 to day 2, setting up CCM for the nodes, running the owner's model through a shared workflow, and verifying it.
+title: "Model consumer"
+description: "The model consumer's tasks from day 0 to day 2. Set up CCM for the servers, run the owner's model through a shared workflow, and verify it."
 doc_type: how-to
-keywords: [model consumer, enterprise, shared workflow, collaborating groups, deploy, verify attestation, zone ca]
+keywords: [model consumer, shared workflow, collaborating groups, deploy, verify attestation, zone ca]
 sidebar_label: Model consumer
 sidebar_position: 3
 ---
 
-As the model consumer, you run the model and send it your data. You own the CCM account the nodes belong to, run the workload, and check that it really runs in a TEE before you trust it with anything.
+As the model consumer, you run the model and send it your data. You own the CCM account the servers belong to, run the workload, and check that it really runs in a TEE before you trust it with anything.
+
+## Your tasks
 
 | Day | Task |
 |---|---|
 | 0 | [Plan the deployment](../day-0-plan-and-prepare/plan-a-deployment.mdx) with the model owner |
-| 0 | [Set up CCM](../day-0-plan-and-prepare/prepare-gpu-nodes.mdx#set-up-ccm): a group, the join token and the zone CA |
+| 0 | [Set up CCM](../day-0-plan-and-prepare/prepare-the-servers.mdx#set-up-ccm). Create a group, the join token and the zone CA. |
 | 1 | [Share the model](../day-1-deploy/share-the-model.mdx) through a shared workflow, as the consumer |
 | 1 | [Deploy and verify](../day-1-deploy/deploy-and-verify.mdx), then connect clients |
-| 2 | [Update the model or the runtime](../day-2-operate/update-the-model-or-runtime.mdx) |
+| 2 | [Redeploy](../day-2-operate/update-the-model.mdx#redeploy) a new model version |
 | 2 | [Audit and revoke access](../day-2-operate/audit-and-revoke-access.mdx) |
 
-The [end-to-end guides](../end-to-end/vendor-to-customer.mdx) show where these fit among the other roles' tasks.
+## Where they fit
+
+Pick a deployment. Your lane and your steps are marked, and the rest shows what the other parties do around them.
+
+<DeploymentFlow scenarios role="consumer" />

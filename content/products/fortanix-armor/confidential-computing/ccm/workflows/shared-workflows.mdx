@@ -6,7 +6,7 @@ keywords: [shared workflow, collaborating groups, collaboration token, publisher
 sidebar_position: 1
 ---
 
-A shared workflow lets one CCM account run an application that another account owns, without the owner handing over the application. The **publisher** owns the application; the **consumer** runs it on its own nodes. The two link their groups as collaborating groups, and both approve the workflow.
+A shared workflow lets one CCM account run an application that another account owns, without the owner handing over the application. The **publisher** owns the application, and the **consumer** runs it on its own servers. The two link their groups as collaborating groups, and both approve the workflow.
 
 Collaborating groups link two accounts. Within one account, use a normal workflow.
 
@@ -17,7 +17,7 @@ Collaborating groups link two accounts. Within one account, use a normal workflo
 
 ## Link the groups
 
-| | Publisher | Consumer |
+| Step | Publisher | Consumer |
 |---|---|---|
 | 1 | Open the group and click **COLLABORATE**, then **+ GENERATE**, then **COPY**. Send the token to the consumer. | |
 | 2 | | Open the group, click **ACCEPT TOKEN**, paste the token and click **PROCEED**. |
@@ -27,7 +27,7 @@ Under **Groups** > **COLLABORATION GROUPS** > **CONSUMER**, the consumer sees th
 
 ## Create and approve the workflow
 
-| | Publisher | Consumer |
+| Step | Publisher | Consumer |
 |---|---|---|
 | 1 | | Go to **Workflows** and click **+ ADD WORKFLOW**. Enter a **Name**, select the group, and click **SAVE**. |
 | 2 | | Add an application placeholder, assign it to the publisher's group, and click **SAVE AS DRAFT**. |
@@ -36,7 +36,7 @@ Under **Groups** > **COLLABORATION GROUPS** > **CONSUMER**, the consumer sees th
 | 5 | Go to **Workflows** > **Pending**, select the workflow, click **VIEW REQUEST**, then **APPROVE**. | |
 | 6 | | Approve the workflow. It moves to **Approved**. |
 
-The publisher approves first; the consumer can't approve until it has. Each side can change only its own part of the workflow.
+The publisher approves first, and the consumer can't approve until it has. Each side can change only its own part of the workflow.
 
 {/* TODO(verify): these steps are documented for Intel TDX (Enclave OS and confidential VM) applications; confirm they apply to Confidential Containers applications. */}
 

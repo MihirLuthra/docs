@@ -16,21 +16,21 @@ sidebar_position: 2
 
 Skip this without GPUs. A GPU can be passed through to only one TEE at a time.
 
-1. Find the NVIDIA GPUs and check their driver:
+1. Find the NVIDIA GPUs and check their driver.
 
    ```bash
    lspci -D -d 10de:
    lspci -nnk -d 10de:
    ```
 
-2. If a GPU doesn't show `Kernel driver in use: vfio-pci`, bind it, as root:
+2. If a GPU doesn't show `Kernel driver in use: vfio-pci`, bind it, as root.
 
    ```bash
    sudo modprobe vfio-pci
    echo <VENDOR_ID> <DEVICE_ID> | sudo tee /sys/bus/pci/drivers/vfio-pci/new_id
    ```
 
-   - `<VENDOR_ID> <DEVICE_ID>`: from the `lspci -nnk` output, for example `10de 2330`.
+   - `<VENDOR_ID> <DEVICE_ID>` come from the `lspci -nnk` output, for example `10de 2330`.
 
 ## Verify
 

@@ -31,9 +31,9 @@ One tree; every page has exactly one home in it. Accuracy over marketing. The si
 Overview
 Use cases: Proprietary model · In-house model · Open-source model
 How-to guides
-  Day 0: plan and prepare   Plan a deployment · Prepare the GPU nodes · Set up DSM · Protect the model
-  Day 1: deploy             Share the model · Deploy and verify
-  Day 2: operate            Update the model or the runtime · Audit and revoke access
+  Day 0 · Plan and prepare  Plan a deployment · Prepare the servers · Set up DSM · Protect the model
+  Day 1 · Deploy            Share the model · Deploy and verify
+  Day 2 · Operate           Update the model · Update the workload TCB · Audit and revoke access
   By role                   Model owner · Infrastructure provider · Model consumer (each role's tasks)
   End to end                one per deployment, ordering the day 0–2 tasks
 Support matrix    generated from versions/
@@ -42,6 +42,7 @@ Examples
 ```
 
 - **End-to-end guides are compositions** of the day 0–2 tasks; each step is written once and reused (D15).
+- **One source for deployments.** `scenarios.ts` (who holds which role) and `deployment.ts` (the steps, by role) drive the deployments table, the step-by-step diagram, and the end-to-end step tables.
 - **Product steps live in product docs** (CCM, Enclave OS, Confidential Containers); a solution task links to them and adds only what is specific to the solution.
 - **Runtime choice is tabs, not pages** (Confidential Containers or Enclave OS inside each how-to).
 

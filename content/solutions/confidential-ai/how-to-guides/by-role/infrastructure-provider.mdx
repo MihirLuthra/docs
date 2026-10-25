@@ -1,19 +1,25 @@
 ---
-title: "Infrastructure provider: prepare and enrol GPU nodes"
-description: The infrastructure provider's tasks from day 0 to day 2, preparing Intel TDX hosts with GPUs, enrolling them in CCM, and keeping them up to date.
+title: "Infrastructure provider"
+description: "The infrastructure provider's tasks from day 0 to day 2. Prepare Intel TDX servers with GPUs, enrol them in CCM, and keep them up to date."
 doc_type: how-to
-keywords: [infrastructure provider, ncp, gpu node, intel tdx, node agent, enroll, kubernetes, gpu operator]
+keywords: [infrastructure provider, ncp, servers, intel tdx, node agent, enroll, kubernetes, gpu operator]
 sidebar_label: Infrastructure provider
 sidebar_position: 2
 ---
 
-As the infrastructure provider, you run the hardware the workload's TEE lives on. You prepare the host, enrol it in CCM so it can attest, and install the runtime. You never see the model or the data; you only need the host to be genuine and correctly configured.
+As the infrastructure provider, you run the servers the workload's TEE lives on. You prepare them, enrol them in CCM so they can attest, and install the runtime. You never see the model or the data. You only need the servers to be genuine and correctly configured.
+
+## Your tasks
 
 | Day | Task |
 |---|---|
-| 0 | [Prepare the host](../day-0-plan-and-prepare/prepare-gpu-nodes.mdx#prepare-the-host) |
-| 0 | [Enrol the node](../day-0-plan-and-prepare/prepare-gpu-nodes.mdx#enrol-the-node) with the consumer's join token |
-| 0 | [Install the runtime](../day-0-plan-and-prepare/prepare-gpu-nodes.mdx#install-the-runtime) |
-| 2 | [Upgrade the runtime](../day-2-operate/update-the-model-or-runtime.mdx#upgrade-the-runtime) and [update the hosts](../day-2-operate/update-the-model-or-runtime.mdx#update-the-hosts) |
+| 0 | [Prepare the servers](../day-0-plan-and-prepare/prepare-the-servers.mdx#prepare-the-servers) |
+| 0 | [Enrol the servers](../day-0-plan-and-prepare/prepare-the-servers.mdx#enrol-the-servers) with the consumer's join token |
+| 0 | [Install the runtime](../day-0-plan-and-prepare/prepare-the-servers.mdx#install-the-runtime) |
+| 2 | [Upgrade the servers](../day-2-operate/update-the-workload-tcb.mdx#upgrade-the-servers) once the new build is approved, and [update the hosts](../day-2-operate/update-the-workload-tcb.mdx#update-the-hosts) |
 
-The [end-to-end guides](../end-to-end/vendor-to-customer.mdx) show where these fit among the other roles' tasks.
+## Where they fit
+
+Pick a deployment. Your lane and your steps are marked, and the rest shows what the other parties do around them.
+
+<DeploymentFlow scenarios role="infra" />

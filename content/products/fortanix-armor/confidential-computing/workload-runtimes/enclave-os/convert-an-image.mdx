@@ -15,7 +15,7 @@ sidebar_position: 3
 
 ## Get the converter
 
-Use the converter version from the release notes:
+Use the converter version from the release notes.
 
 ```bash
 docker login cr.download.fortanix.com -u <USERNAME> -p <PASSWORD>
@@ -27,7 +27,7 @@ docker tag cr.download.fortanix.com/tdx-converter:<VERSION> tdx-converter:<VERSI
 
 ## Convert the image
 
-1. Create `converter-request.json`:
+1. Create `converter-request.json`.
 
    ```json
    {
@@ -45,12 +45,12 @@ docker tag cr.download.fortanix.com/tdx-converter:<VERSION> tdx-converter:<VERSI
    }
    ```
 
-   - `cpu_count`, `mem_size`: the virtual CPUs and memory of the TEE.
-   - `enable_gpu_passthrough`: `true` to give the workload GPUs; which ones is chosen when it runs.
+   - `cpu_count`, `mem_size` are the virtual CPUs and memory of the TEE.
+   - `enable_gpu_passthrough` set to `true` gives the workload GPUs. Which ones is chosen when it runs.
 
    Variables you set with `converter_options.env_vars` can be overridden when the image runs. Set the ones that must not change in the input image.
 
-2. Run the converter:
+2. Run the converter.
 
    ```bash
    docker run --rm --privileged \
@@ -60,7 +60,7 @@ docker tag cr.download.fortanix.com/tdx-converter:<VERSION> tdx-converter:<VERSI
      tdx-converter:<VERSION> --request-file /app/req.json
    ```
 
-3. Save the measurements from the response, under `config.measurements`: `mrtd`, `rtmr0`, `rtmr1`, `rtmr2` and `rtmr3`.
+3. Save the measurements from the response, under `config.measurements`. They are `mrtd`, `rtmr0`, `rtmr1`, `rtmr2` and `rtmr3`.
 
 ## Verify
 

@@ -25,6 +25,9 @@ No troubleshooting sections in how-tos.
 
 - Use the imperative and second person: "Run…", "you".
 - Write short sentences, one idea each.
+- No colons, semicolons or dashes (em dash, en dash, or a spaced hyphen) in doc prose, titles, captions or diagram text. Use a full stop or a comma, or rephrase. Lists of fields go in a table. Hyphens inside words (open-source), code, URLs and labels quoted exactly from a product UI are fine.
+- Name parties by who they are to each other: "the model vendor" and "the vendor's customer", or "your organization". Not "enterprise" or a bare "customer".
+- Call the machines the model runs on "servers", not "GPU nodes". CCM's own term for an enrolled server is a compute node.
 - Make link text describe the target. Never "click here".
 - No section numbers in headings, and no boilerplate intros.
 - Commands must be copy-pasteable. Write placeholders as `<PLACEHOLDER>` and define each one right after the block.

@@ -14,13 +14,13 @@ The runtime adds Confidential Containers runtime classes to the cluster, such as
 - Kubernetes <Version of="fortanix-kata-deploy" field="requires.kubernetes" /> set up with kubeadm. Kind and Minikube don't work with the QEMU runtime.
 - containerd <Version of="fortanix-kata-deploy" field="requires.containerd" /> and Helm <Version of="fortanix-kata-deploy" field="requires.helm" />.
 - SELinux disabled, and at least one node labelled `node.kubernetes.io/worker`.
-- For GPUs: NVIDIA GPUs that support confidential computing, and no NVIDIA driver installed or loaded on the host.
+- For GPUs, NVIDIA GPUs that support confidential computing, and no NVIDIA driver installed or loaded on the host.
 
-## Prepare GPU nodes
+## Prepare GPU servers
 
 Skip this without GPUs.
 
-1. Install the NVIDIA GPU Operator in VM passthrough mode:
+1. Install the NVIDIA GPU Operator in VM passthrough mode.
 
    ```bash
    kubectl label node <NODE_NAME> nvidia.com/gpu.workload.config=vm-passthrough
@@ -34,9 +34,9 @@ Skip this without GPUs.
      --version={{nvidia-gpu-operator.version}}
    ```
 
-   - `<NODE_NAME>`: the GPU node.
+   - `<NODE_NAME>` is the Kubernetes node name of the GPU server.
 
-2. Add these settings to `/var/lib/kubelet/config.yaml`, then run `sudo systemctl restart kubelet`:
+2. Add these settings to `/var/lib/kubelet/config.yaml`, then run `sudo systemctl restart kubelet`.
 
    ```yaml
    volumeStatsAggPeriod: 0s
@@ -47,7 +47,7 @@ Skip this without GPUs.
 
 ## Install the runtime
 
-1. Install Confidential Containers with Fortanix's attestation and key broker modules:
+1. Install Confidential Containers with Fortanix's attestation and key broker modules.
 
    ```bash
    helm install coco {{coco-chart.artifact}} \
@@ -56,7 +56,7 @@ Skip this without GPUs.
      --set kata-as-coco-runtime.image.tag={{fortanix-kata-deploy.version}}
    ```
 
-2. Wait for it to roll out:
+2. Wait for it to roll out.
 
    ```bash
    kubectl -n coco-system rollout status ds/kata-as-coco-runtime
@@ -70,4 +70,4 @@ Skip this without GPUs.
 ## Next steps
 
 - [Encrypt an image](encrypt-an-image.mdx)
-- [Measure a workload](measure-a-workload.mdx)
+- [Take measurements](take-measurements.mdx)
