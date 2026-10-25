@@ -279,34 +279,41 @@ const STEPS: StepDef[] = [
 
 // ---------- What the diagram shows ----------
 
+/** A step that brings something in: "step", or "step@rt" when only in one runtime. */
+type At = string;
+
 export interface Item {
-  id: string; // unique in the diagram
+  id: string;
   label: V<string>;
-  at: string; // step that brings it in
-  done?: string; // step that approves it (shows a tick)
-  runtimes?: Runtime[];
+  at: At[];
+  done?: At[]; // steps that approve it (shows a tick)
 }
 
+/** An account a party holds in a Fortanix service, drawn in the party's territory. */
 export interface Account {
-  id: string; // "ccm:owner", "ccm:consumer" (may be the same account), "dsm:owner"
-  party: Party;
-  at: string;
+  id: "ccm:owner" | "ccm:consumer" | "dsm:owner";
+  service: "ccm" | "dsm";
+  at: At[];
   items: Item[];
 }
 
-export interface Box {
-  id: string;
+export type AssetKind = "hub" | "build" | "registry" | "mhost" | "infra" | "clients";
+
+/** Something a party runs itself. */
+export interface Asset {
+  id: AssetKind;
   name: string;
   detail: V<string>;
-  at: string;
-  runtimes?: Runtime[];
+  at: At[];
   tee?: string; // step that starts the workload in it
 }
 
-export interface Lane {
+/** A party and what it holds. */
+export interface Territory {
   party: Party;
   roles: RoleId[];
-  boxes: Box[];
+  accounts: Account[];
+  assets: Asset[];
 }
 
 export interface Step {
@@ -326,12 +333,17 @@ export interface Step {
 export interface Deployment {
   scenario: Scenario;
   context: Context;
-  lanes: Lane[];
-  ccm: Account[];
-  dsm: Account[];
+  territories: Territory[];
   steps: Record<Runtime, Step[]>;
   accounts: string[];
 }
+
+/** Has something brought in at one of these steps happened, in this runtime? */
+export const reached = (at: At[], seen: Set<string>, rt: Runtime) =>
+  at.some((a) => {
+    const [step, only] = a.split("@");
+    return seen.has(step) && (!only || only === rt);
+  });
 
 const partyOf = (s: Scenario, role: RoleId) => s.parties.find((p) => p.roles.includes(role))!;
 const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
@@ -359,61 +371,54 @@ export function deployment(scenarioId: string): Deployment {
   const ccmOwner = isSeparate ? "ccm:owner" : "ccm:consumer";
   const resolve = (e?: End) => (e === "ccm:owner" ? ccmOwner : e);
 
-  const lanes: Lane[] = scenario.parties.map((party) => {
-    const boxes: Box[] = [];
-    if (party === infra) {
-      boxes.push({ id: "infra", name: "Infrastructure", detail: { cc: "Kubernetes on TEE hosts with GPUs", eos: "TEE hosts with GPUs that run containers" }, at: "prepare", tee: "deploy" });
-    }
-    if (party === owner && open) boxes.push({ id: "hub", name: "Model hub", detail: "Public weights", at: "weights" });
-    if (party === builder) {
-      boxes.push({ id: "build", name: "Build machine", detail: { cc: open ? "Docker" : "Docker and coco-keyprovider", eos: open ? "Docker and the converter" : "Docker, sq-dsm and the converter" }, at: open ? "weights" : "encrypt" });
-      boxes.push({ id: "registry", name: "Container registry", detail: { cc: open ? "Image" : "Encrypted image", eos: "Converted image" }, at: "push" });
-      boxes.push({ id: "mhost", name: "Measurement host", detail: "Same shape as the infrastructure", at: "measure", runtimes: ["cc"] });
-    }
-    if (party.roles.includes("user")) boxes.push({ id: "clients", name: "Clients", detail: "Apps calling the model", at: "clients" });
-    return { party, roles: party.roles, boxes };
-  });
+  const builds: Item[] = [
+    { id: "app", label: "Application llama-chat", at: ["measure"] },
+    { id: "b1", label: "Build 1", at: ["measure"], done: ["approve"] },
+    { id: "b2", label: "Build 2", at: ["new-build@eos", "remeasure"], done: ["new-build@eos", "reapprove"] },
+  ];
 
-  const ccm: Account[] = [];
-  if (isSeparate) {
-    ccm.push({
-      id: "ccm:owner", party: owner, at: "measure",
-      items: [
-        { id: "app", label: "Application llama-chat", at: "measure" },
-        { id: "b1", label: "Build 1", at: "measure", done: "approve" },
-        { id: "b2m", label: "Build 2", at: "new-build", done: "new-build", runtimes: ["eos"] },
-        { id: "b2t", label: "Build 2", at: "remeasure", done: "reapprove" },
-      ],
-    });
-  }
-  ccm.push({
-    id: "ccm:consumer", party: consumer, at: "ccm-account",
-    items: [
-      { id: "group", label: "Group llm-serving", at: "ccm-account" },
-      { id: "nodes", label: "Compute nodes", at: "enrol" },
-      ...(isSeparate
-        ? [
-            { id: "link", label: "Collaborating group", at: "collaborate" },
-            { id: "wf", label: "Shared workflow", at: "workflow", done: "workflow" },
-          ]
-        : [
-            { id: "app", label: "Application llama-chat", at: "measure" },
-            { id: "b1", label: "Build 1", at: "measure", done: "approve" },
-            { id: "b2m", label: "Build 2", at: "new-build", done: "new-build", runtimes: ["eos"] as Runtime[] },
-            { id: "b2t", label: "Build 2", at: "remeasure", done: "reapprove" },
-          ]),
-    ],
-  });
-  const dsm: Account[] = open
-    ? []
-    : [{
-        id: "dsm:owner", party: owner, at: "dsm-account",
+  const territories: Territory[] = scenario.parties.map((party) => {
+    const accounts: Account[] = [];
+    const assets: Asset[] = [];
+    if (party === owner && !open) {
+      accounts.push({
+        id: "dsm:owner", service: "dsm", at: ["dsm-account"],
         items: [
-          { id: "group", label: "Group llama-chat-keys", at: "dsm-account" },
-          { id: "apps", label: "Trusted CA and encryption apps", at: "dsm-apps" },
-          { id: "key", label: { cc: "Key encryption key", eos: "Model key" }, at: "encrypt" },
+          { id: "group", label: "Group llama-chat-keys", at: ["dsm-account"] },
+          { id: "apps", label: "Trusted CA app", at: ["dsm-apps"] },
+          { id: "enc", label: "Encryption app", at: ["dsm-apps"] },
+          { id: "key", label: { cc: "Key encryption key", eos: "Model key" }, at: ["encrypt"] },
         ],
-      }];
+      });
+    }
+    if (party === owner && isSeparate) accounts.push({ id: "ccm:owner", service: "ccm", at: ["measure"], items: builds });
+    if (party === consumer) {
+      accounts.push({
+        id: "ccm:consumer", service: "ccm", at: ["ccm-account"],
+        items: [
+          { id: "group", label: "Group llm-serving", at: ["ccm-account"] },
+          { id: "nodes", label: "Compute nodes", at: ["enrol"] },
+          ...(isSeparate
+            ? [
+                { id: "link", label: "Collaborating group", at: ["collaborate"] },
+                { id: "wf", label: "Shared workflow", at: ["workflow"], done: ["workflow"] },
+              ]
+            : builds),
+        ],
+      });
+    }
+    if (party === owner && open) assets.push({ id: "hub", name: "Model hub", detail: "Public weights", at: ["weights"] });
+    if (party === builder) {
+      assets.push({ id: "build", name: "Build machine", detail: { cc: open ? "Docker" : "coco-keyprovider", eos: open ? "The converter" : "sq-dsm, the converter" }, at: [open ? "weights" : "encrypt"] });
+      assets.push({ id: "registry", name: "Registry", detail: { cc: open ? "Image" : "Encrypted image", eos: "Converted image" }, at: ["push"] });
+      assets.push({ id: "mhost", name: "Measurement host", detail: "Same shape as the infrastructure", at: ["measure@cc"] });
+    }
+    if (party === infra) {
+      assets.push({ id: "infra", name: "Infrastructure", detail: { cc: "Kubernetes on TEE hosts", eos: "TEE hosts running containers" }, at: ["prepare"], tee: "deploy" });
+    }
+    if (party.roles.includes("user")) assets.push({ id: "clients", name: "Clients", detail: "chat.northwind.example", at: ["clients"] });
+    return { party, roles: party.roles, accounts, assets };
+  });
 
   const build = (rt: Runtime): Step[] =>
     STEPS.filter((d) => (!d.when || d.when(context)) && (!d.runtimes || d.runtimes.includes(rt))).map((d) => {
@@ -436,15 +441,12 @@ export function deployment(scenarioId: string): Deployment {
 
   const accounts: string[] = [];
   if (open) {
-    accounts.push(`${cap(consumer.phrase)} has one CCM account. It registers the workload there, and its infrastructure is enrolled there too.`);
-    accounts.push("The weights are public, so no DSM account is needed for the model. Add one if the workload needs keys for other data.");
+    accounts.push(`${cap(consumer.phrase)} has one CCM account. It registers the workload there, and its infrastructure is enrolled there too. The weights are public, so no DSM account is needed for the model.`);
   } else if (isSeparate) {
-    accounts.push(`${cap(owner.phrase)} has a DSM account, which holds the model key, and a CCM account, where it registers and approves the application.`);
-    accounts.push(`${cap(consumer.phrase)} has its own CCM account. ${infra === consumer ? "Its infrastructure" : `The infrastructure of ${infra.phrase}`} is enrolled there.`);
-    accounts.push("A shared workflow links the two CCM accounts. The owner approves it first.");
+    accounts.push(`${cap(owner.phrase)} has a DSM account for the model key and a CCM account for the application. ${cap(consumer.phrase)} has its own CCM account, where ${infra === consumer ? "its" : `the ${infra.name}'s`} infrastructure is enrolled. A shared workflow links the two CCM accounts.`);
   } else {
-    accounts.push(`${cap(owner.phrase)} has a DSM account for the model key and one CCM account for the application. ${infra === owner ? "Its infrastructure" : `The infrastructure of ${infra.phrase}`} is enrolled in that CCM account. No shared workflow is needed.`);
+    accounts.push(`${cap(owner.phrase)} has a DSM account for the model key and one CCM account for the application${infra === owner ? " and its infrastructure" : `, where the infrastructure of ${infra.phrase} is enrolled`}. No shared workflow is needed.`);
   }
 
-  return { scenario, context, lanes, ccm, dsm, steps: { cc: build("cc"), eos: build("eos") }, accounts };
+  return { scenario, context, territories, steps: { cc: build("cc"), eos: build("eos") }, accounts };
 }

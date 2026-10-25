@@ -13,22 +13,22 @@ export const ROLES: Record<RoleId, { name: string; short: string; cares: string 
   owner: {
     name: "Model owner",
     short: "Owner",
-    cares: "The model weights are not copied or leaked.",
+    cares: "Wants the model weights never copied or leaked.",
   },
   consumer: {
     name: "Model consumer",
     short: "Consumer",
-    cares: "Their prompts and data stay protected when the model runs on servers or GPUs they do not own.",
+    cares: "Wants its prompts and data private, even on infrastructure it does not own.",
   },
   infra: {
     name: "Infrastructure provider",
     short: "Infra",
-    cares: "Running the workload without having access to what is inside it.",
+    cares: "Runs the workload without seeing what is inside it.",
   },
   user: {
     name: "End user",
     short: "End user",
-    cares: "Their requests to the AI application stay private.",
+    cares: "Wants its requests to stay private.",
   },
 };
 

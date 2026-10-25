@@ -1,49 +1,35 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "@docusaurus/Link";
 import SiteStorage from "@generated/site-storage";
 import "./styles.css";
-import { deployment, OPERATIONS, PHASES, RUNTIMES, type Account, type Box, type OperationId, type PhaseId, type Runtime, type Step } from "./deployment";
+import {
+  deployment, OPERATIONS, PHASES, pick, reached, RUNTIMES,
+  type Account, type Asset, type AssetKind, type Deployment, type OperationId, type PhaseId, type Runtime, type Step, type Territory,
+} from "./deployment";
 import { ROLES, SCENARIOS, type RoleId } from "./scenarios";
 
-// A deployment, step by step. Each party is a lane, Fortanix's services are a
-// column, and the picture fills in as the steps go: a box, an account or an
-// item shows up at the step that brings it in. Arrows show what moves.
+// A deployment as a scene, step by step. Each party is a territory holding what
+// it owns: its Fortanix accounts along the top row, its own machines along the
+// bottom row. The parties are there from the start, since they are the
+// scenario; their accounts, machines and the items in them appear at the step
+// that brings them in. Each step's arrow curves through the space between or
+// below the rows, so it never runs through anything.
 //
-// The runtime is the first step of day 0. The choice changes the steps and the
-// boxes, and it is the same choice as the page's runtime tabs (Docusaurus keeps
-// it under docusaurus.tab.runtime), so picking it in one place picks it in all.
+// The scene is an SVG with a fixed shape that scales with the page, one shape
+// for wide screens and one for narrow ones, so nothing around it ever moves.
+//
+// The runtime is chosen in day 0's first step. The choice is the page's
+// runtime tab choice too (Docusaurus keeps it under docusaurus.tab.runtime).
 //
 // Props
 //   scenario:  one scenario id (end-to-end guides)
-//   scenarios: scenario ids to pick from, or true for all of them
-//   role:      highlight one role's lane and steps (role guides)
-
-const AUTOPLAY_MS = 4500;
-// The gap between lanes, as in styles.css (.cai-deploy-stage gap).
-const GUTTER = 24;
-// Shorter than this, a straight arrow is hard to see, so it goes round the side instead.
-const MIN_ARROW = 40;
-
-function reducedMotion() {
-  try {
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  } catch {
-    return false;
-  }
-}
+//   scenarios: scenario ids to pick from, or true for all of them (role guides)
+//   role:      highlight one role's territory and steps
 
 // ---------- The runtime choice, shared with <Tabs groupId="runtime"> ----------
 
 const TAB_KEY = `docusaurus.tab.runtime${SiteStorage.namespace}`;
 const fromTab = (v: string | null): Runtime | null => RUNTIMES.find((r) => r.tab === v)?.id ?? null;
-
-function readRuntime(): Runtime | null {
-  try {
-    return fromTab(window.localStorage.getItem(TAB_KEY));
-  } catch {
-    return null;
-  }
-}
 
 function writeRuntime(rt: Runtime) {
   try {
@@ -62,8 +48,12 @@ function writeRuntime(rt: Runtime) {
 function useRuntime(): [Runtime, (rt: Runtime) => void] {
   const [rt, setRt] = useState<Runtime>("cc");
   useEffect(() => {
-    const stored = readRuntime();
-    if (stored) setRt(stored);
+    try {
+      const stored = fromTab(window.localStorage.getItem(TAB_KEY));
+      if (stored) setRt(stored);
+    } catch {
+      // No storage: start from the default.
+    }
     const listen = (e: StorageEvent) => {
       if (e.key === TAB_KEY) setRt(fromTab(e.newValue) ?? "cc");
     };
@@ -73,104 +63,140 @@ function useRuntime(): [Runtime, (rt: Runtime) => void] {
   return [rt, (next) => { setRt(next); writeRuntime(next); }];
 }
 
-// ---------- Arrows ----------
+// ---------- Layout ----------
 
-type Rect = { left: number; right: number; top: number; bottom: number };
-const midY = (r: Rect) => (r.top + r.bottom) / 2;
-const midX = (r: Rect) => (r.left + r.right) / 2;
-
-function crosses(r: Rect, x1: number, y1: number, x2: number, y2: number) {
-  for (let t = 0.05; t < 1; t += 0.05) {
-    const x = x1 + (x2 - x1) * t;
-    const y = y1 + (y2 - y1) * t;
-    if (x > r.left && x < r.right && y > r.top && y < r.bottom) return true;
-  }
-  return false;
-}
-
-type Pt = [number, number];
-const svgPath = (pts: Pt[]) => pts.map(([x, y], i) => `${i ? "L" : "M"}${Math.round(x)},${Math.round(y)}`).join(" ");
-
-/** One end of an arrow: the element, its box, and its lane (none for Fortanix's band). */
-interface End {
-  r: Rect;
-  box: Rect;
-  lane?: Rect;
-  topLevel: boolean; // a box, not an account inside one
-}
+type R = { x: number; y: number; w: number; h: number };
 
 interface Layout {
-  lanes: Rect[];
-  boxes: Rect[];
-  channel: number; // y of the channel between the band and the lanes
-  bus: number; // y of the bus under the accounts in the band
+  w: number;
+  h: number;
+  territories: Map<Territory, R>;
+  items: Map<string, R>; // accounts and assets by id
+  row: Map<string, "top" | "bottom">;
 }
 
-/** The gutter beside a lane, on the side facing x (or the other side at the stage's edge). */
-function gutter(lane: Rect, x: number, l: Layout): number {
-  const first = lane.left === Math.min(...l.lanes.map((r) => r.left));
-  const last = lane.right === Math.max(...l.lanes.map((r) => r.right));
-  const left = x < midX(lane) ? !first : last;
-  return left ? lane.left - GUTTER / 2 : lane.right + GUTTER / 2;
+const LINE = 17; // an account item's line
+const ACCOUNT_HEAD = 32;
+const ASSET_H = 96;
+const HEAD = 56; // a territory's name and roles, on up to two lines
+const CHAR = 6.4; // about how wide a character of 12px text is
+
+const userOnly = (t: Territory) => t.roles.length === 1 && t.roles[0] === "user";
+const assetsFor = (t: Territory, rt: Runtime) => t.assets.filter((a) => a.id !== "mhost" || rt === "cc");
+const accountHeight = (d: Deployment) => ACCOUNT_HEAD + Math.max(...d.territories.flatMap((t) => t.accounts.map((a) => a.items.length))) * LINE + 8;
+
+/** Wide: territories side by side, accounts on the top row, machines on the bottom row. */
+function wideLayout(d: Deployment, rt: Runtime): Layout {
+  const W = 760, M = 4, GAP = 12, PAD = 8, ROW_GAP = 60, BELOW = 40;
+  const HA = accountHeight(d);
+  const units = d.territories.map((t) => (userOnly(t) ? 0.95 : Math.max(t.accounts.length, assetsFor(t, rt).length, 1.6)));
+  const unit = (W - 2 * M - GAP * (units.length - 1)) / units.reduce((a, b) => a + b, 0);
+  const yA = M + HEAD;
+  const yB = yA + HA + ROW_GAP;
+  const th = yB + ASSET_H + 12 - M;
+  const layout: Layout = { w: W, h: M + th + BELOW, territories: new Map(), items: new Map(), row: new Map() };
+  let x = M;
+  d.territories.forEach((t, n) => {
+    const tw = units[n] * unit;
+    layout.territories.set(t, { x, y: M, w: tw, h: th });
+    const place = (ids: string[], y: number, h: number, max: number, row: "top" | "bottom") => {
+      if (!ids.length) return;
+      const iw = tw - 2 * PAD;
+      const w = Math.min(max, (iw - 10 * (ids.length - 1)) / ids.length);
+      const start = x + PAD + (iw - (w * ids.length + 10 * (ids.length - 1))) / 2;
+      ids.forEach((id, k) => {
+        layout.items.set(id, { x: start + k * (w + 10), y, w, h });
+        layout.row.set(id, row);
+      });
+    };
+    place(t.accounts.map((a) => a.id), yA, HA, 240, "top");
+    place(assetsFor(t, rt).map((a) => a.id), yB, ASSET_H, 170, "bottom");
+    x += tw + GAP;
+  });
+  return layout;
 }
 
-/** From a lane box out to the channel: side, gutter, up. */
-function toChannel(e: End, towardX: number, l: Layout): Pt[] {
-  const gx = gutter(e.lane!, towardX, l);
-  const side = gx < e.r.left ? e.r.left : e.r.right;
-  return [[side, midY(e.r)], [gx, midY(e.r)], [gx, l.channel]];
-}
-
-/**
- * An arrow from a to b that never crosses a box and is never too short to see.
- * Fortanix's band sits above the lanes. Between accounts in the band, the arrow
- * runs along the bus under them. Between the band and a lane, along the channel
- * between band and lanes, then down the lane's gutter. Between lanes, through
- * the gutter when they are side by side, else along the channel. In one lane,
- * straight when clear and long enough, else a bracket along the lane's edge.
- */
-function route(a: End, b: End, l: Layout): Pt[] {
-  if (!a.lane && !b.lane) {
-    return [[midX(a.r), a.r.bottom], [midX(a.r), l.bus], [midX(b.r), l.bus], [midX(b.r), b.r.bottom]];
-  }
-  if (!a.lane) return [[midX(a.r), a.r.bottom], [midX(a.r), l.channel], ...toChannel(b, midX(a.r), l).reverse()];
-  if (!b.lane) return [...toChannel(a, midX(b.r), l), [midX(b.r), l.channel], [midX(b.r), b.r.bottom]];
-  if (a.lane.left === b.lane.left) {
-    if (a.topLevel && b.topLevel && a.box !== b.box) {
-      const down = b.r.top >= a.r.bottom;
-      const [x1, y1, x2, y2] = [midX(a.r), down ? a.r.bottom : a.r.top, midX(b.r), down ? b.r.top : b.r.bottom];
-      if (Math.abs(y2 - y1) >= MIN_ARROW && !l.boxes.some((r) => r !== a.box && r !== b.box && crosses(r, x1, y1, x2, y2))) return [[x1, y1], [x2, y2]];
+/** Narrow: territories stacked, each with its accounts then its machines two to a row. */
+function narrowLayout(d: Deployment, rt: Runtime): Layout {
+  const W = 340, M = 4, GAP = 12, PAD = 10, AH = 84;
+  const HA = accountHeight(d);
+  const layout: Layout = { w: W, h: 0, territories: new Map(), items: new Map(), row: new Map() };
+  let y = M;
+  for (const t of d.territories) {
+    const top = y;
+    const iw = W - 2 * M - 2 * PAD;
+    y += HEAD - 6;
+    if (t.accounts.length) {
+      const w = (iw - 10 * (t.accounts.length - 1)) / t.accounts.length;
+      t.accounts.forEach((a, k) => layout.items.set(a.id, { x: M + PAD + k * (w + 10), y, w, h: HA }));
+      y += HA + 10;
     }
-    const gx = Math.max(a.box.right, b.box.right) + 6;
-    return [[a.r.right, midY(a.r)], [gx, midY(a.r)], [gx, midY(b.r)], [b.r.right, midY(b.r)]];
+    const assets = assetsFor(t, rt);
+    const w = (iw - 10) / 2;
+    assets.forEach((a, k) => layout.items.set(a.id, { x: M + PAD + (k % 2) * (w + 10), y: y + Math.floor(k / 2) * (AH + 10), w, h: AH }));
+    y += Math.ceil(assets.length / 2) * (AH + 10) + 4;
+    layout.territories.set(t, { x: M, y: top, w: W - 2 * M, h: y - top });
+    y += GAP;
   }
-  const right = b.lane.left >= a.lane.right;
-  const [lo, hi] = right ? [a.lane, b.lane] : [b.lane, a.lane];
-  if (!l.lanes.some((c) => c.left >= lo.right && c.right <= hi.left)) {
-    const gx = (lo.right + hi.left) / 2;
-    const ax = right ? a.r.right : a.r.left;
-    const bx = right ? b.r.left : b.r.right;
-    return [[ax, midY(a.r)], [gx, midY(a.r)], [gx, midY(b.r)], [bx, midY(b.r)]];
-  }
-  return [...toChannel(a, midX(b.lane), l), ...toChannel(b, midX(a.lane), l).reverse()];
+  layout.h = y;
+  return layout;
 }
 
-// ---------- The diagram ----------
+// ---------- Arrows ----------
 
-const Tick = () => (
-  <svg viewBox="0 0 16 16" aria-hidden="true" className="cai-tick-icon"><path d="m3.5 8.5 3 3 6-7" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-);
+type P = [number, number];
 
-/** Both runtimes' text in one cell, so switching never changes the size. */
-function Variants({ v, rt }: { v: string | { cc: string; eos: string }; rt: Runtime }) {
-  if (typeof v === "string") return <>{v}</>;
-  if (v.cc === v.eos) return <>{v.cc}</>;
-  return (
-    <span className="cai-variants">
-      {RUNTIMES.map((r) => <span key={r.id} data-on={r.id === rt} aria-hidden={r.id !== rt}>{v[r.id]}</span>)}
-    </span>
-  );
+/** The arrow for a step: a curve through the gap between the rows, or below the bottom row. */
+function arrowFor(l: Layout, from: string, to: string): { path: string; mid: P } | null {
+  const a = l.items.get(from);
+  const b = l.items.get(to);
+  if (!a || !b) return null;
+  const ra = l.row.get(from);
+  const rb = l.row.get(to);
+  const cx = (r: R) => r.x + r.w / 2;
+  let p: [P, P, P, P];
+  if (ra === "top" && rb === "top") {
+    const y = a.y + a.h;
+    p = [[cx(a), y], [cx(a), y + 40], [cx(b), y + 40], [cx(b), y]];
+  } else if (ra === "bottom" && rb === "bottom") {
+    const y = a.y + a.h;
+    p = [[cx(a), y], [cx(a), y + 42], [cx(b), y + 42], [cx(b), y]];
+  } else {
+    const [y1, y2] = ra === "top" ? [a.y + a.h, b.y] : [a.y, b.y + b.h];
+    const m = (y1 + y2) / 2;
+    p = [[cx(a), y1], [cx(a), m], [cx(b), m], [cx(b), y2]];
+  }
+  const mid: P = [0, 1].map((k) => 0.125 * p[0][k] + 0.375 * p[1][k] + 0.375 * p[2][k] + 0.125 * p[3][k]) as P;
+  const f = (q: P) => `${Math.round(q[0])},${Math.round(q[1])}`;
+  return { path: `M${f(p[0])} C${f(p[1])} ${f(p[2])} ${f(p[3])}`, mid };
 }
+
+// ---------- Drawing ----------
+
+/** Splits text into lines of about n characters. */
+function wrap(text: string, n: number): string[] {
+  const lines: string[] = [];
+  let line = "";
+  for (const word of text.split(" ")) {
+    if (line && (line + " " + word).length > n) {
+      lines.push(line);
+      line = word;
+    } else line = line ? `${line} ${word}` : word;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+const ICONS: Record<AssetKind | "ccm" | "dsm", React.ReactNode> = {
+  build: <><rect x="4" y="5" width="24" height="16" rx="2" /><path d="M1 25h30l-2 3H3z" /></>,
+  registry: <><rect x="5" y="4" width="22" height="6" rx="2" /><rect x="5" y="12" width="22" height="6" rx="2" /><rect x="5" y="20" width="22" height="6" rx="2" /></>,
+  mhost: <><rect x="4" y="5" width="24" height="9" rx="2" /><rect x="4" y="17" width="24" height="9" rx="2" /><circle cx="9" cy="9.5" r="1.3" /><circle cx="9" cy="21.5" r="1.3" /><path d="M20 23l2 2 4-5" /></>,
+  infra: <><rect x="3" y="3" width="26" height="7" rx="2" /><rect x="3" y="12.5" width="26" height="7" rx="2" /><rect x="3" y="22" width="26" height="7" rx="2" /><circle cx="8" cy="6.5" r="1.2" /><circle cx="8" cy="16" r="1.2" /><circle cx="8" cy="25.5" r="1.2" /></>,
+  clients: <><circle cx="11" cy="10" r="4.5" /><path d="M3 27c0-5 3.5-8 8-8s8 3 8 8" /><circle cx="23" cy="12" r="3.5" /><path d="M21 19.5c4.5-.5 8 2 8 7" /></>,
+  hub: <path d="M9 25h15a6 6 0 0 0 .5-12 8 8 0 0 0-15.5 2A5 5 0 0 0 9 25z" />,
+  ccm: <><path d="M8 1.5 2.5 3.5v4c0 3.4 2.3 5.9 5.5 7 3.2-1.1 5.5-3.6 5.5-7v-4z" /><path d="m5.5 8 1.8 1.8L10.8 6" /></>,
+  dsm: <><circle cx="5" cy="8" r="3" /><path d="M8 8h6.5M12 8v2.5M14 8v2" /></>,
+};
 
 export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: string; scenarios?: string[] | true; role?: RoleId }) {
   const ids = useMemo(() => {
@@ -184,307 +210,241 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
   const [phase, setPhase] = useState<PhaseId>("day0");
   const [op, setOp] = useState<OperationId>(OPERATIONS[0].id);
   const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [arrow, setArrow] = useState<string | null>(null);
 
   const d = useMemo(() => deployment(scenarioId), [scenarioId]);
   const all = d.steps[runtime];
-  const day0 = all.filter((s) => s.phase === "day0");
-  const day1 = all.filter((s) => s.phase === "day1");
-  const steps = phase === "day0" ? day0 : phase === "day1" ? day1 : all.filter((s) => s.op === op);
+  const byPhase = (p: PhaseId) => all.filter((s) => s.phase === p && (p !== "day2" || s.op === op));
+  const steps = byPhase(phase);
   const i = Math.min(index, steps.length - 1);
   const step = steps[i];
 
-  // Everything up to this step has happened: that is what the picture shows.
-  const past = [...(phase === "day0" ? [] : day0), ...(phase === "day2" ? day1 : []), ...steps.slice(0, i + 1)];
+  // Everything up to this step has happened: that is what the scene shows.
+  const past = [...(phase === "day0" ? [] : byPhase("day0")), ...(phase === "day2" ? byPhase("day1") : []), ...steps.slice(0, i + 1)];
   const seen = new Set(past.map((s) => s.id));
-  const acted = new Set(past.map((s) => s.party));
-  const shown = (at: string, runtimes?: Runtime[]) => seen.has(at) && (!runtimes || runtimes.includes(runtime));
-
+  const has = (at: string[]) => reached(at, seen, runtime);
   const highlight = role ? d.scenario.parties.find((p) => p.roles.includes(role)) : undefined;
-  const stage = useRef<HTMLDivElement>(null);
 
-  const measure = useCallback(() => {
-    const root = stage.current;
-    if (!root || !step?.from || !step.to || step.from === step.to) return setArrow(null);
-    // Stacked (narrow): no arrows, the ends are marked instead.
-    const lanesEl = root.querySelector<HTMLElement>(".cai-lanes");
-    if (!lanesEl || getComputedStyle(lanesEl).gridTemplateColumns.trim().split(/\s+/).length < 2) return setArrow(null);
-    const o = root.getBoundingClientRect();
-    const rel = (e: Element): Rect => {
-      const r = e.getBoundingClientRect();
-      return { left: r.left - o.left, right: r.right - o.left, top: r.top - o.top, bottom: r.bottom - o.top };
-    };
-    const ea = root.querySelector<HTMLElement>(`[data-el="${step.from}"]`);
-    const eb = root.querySelector<HTMLElement>(`[data-el="${step.to}"]`);
-    if (!ea || !eb) return setArrow(null);
-    const boxEls = [...root.querySelectorAll(".cai-box")];
-    const boxes = boxEls.map(rel);
-    const end = (e: HTMLElement): End => {
-      const boxEl = e.closest(".cai-box")!;
-      const laneEl = e.closest(".cai-lane");
-      return { r: rel(e), box: boxes[boxEls.indexOf(boxEl)], lane: laneEl ? rel(laneEl) : undefined, topLevel: e === boxEl };
-    };
-    const lanes = [...root.querySelectorAll(".cai-lane")].map(rel);
-    const band = root.querySelector(".cai-band");
-    const accounts = [...root.querySelectorAll(".cai-band .cai-account")].map(rel);
-    const layout: Layout = {
-      lanes,
-      boxes,
-      channel: band ? (rel(band).bottom + rel(lanesEl).top) / 2 : rel(lanesEl).top - 12,
-      bus: Math.max(0, ...accounts.map((r) => r.bottom)) + 7,
-    };
-    setArrow(svgPath(route(end(ea), end(eb), layout)));
-  }, [step]);
-
-  useLayoutEffect(measure, [measure, runtime]);
-  useEffect(() => {
-    const root = stage.current;
-    if (!root || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(() => measure());
-    ro.observe(root);
-    return () => ro.disconnect();
-  }, [measure]);
-
-  useEffect(() => {
-    if (!playing) return;
-    if (i >= steps.length - 1) return setPlaying(false);
-    const t = setTimeout(() => setIndex(i + 1), AUTOPLAY_MS);
-    return () => clearTimeout(t);
-  }, [playing, i, steps.length]);
-
-  const restart = () => { setIndex(0); setPlaying(false); };
-  const tabKeys = <T,>(list: T[], current: T, choose: (v: T) => void) => (e: React.KeyboardEvent) => {
-    const n = list.indexOf(current);
-    if (e.key === "ArrowRight") choose(list[(n + 1) % list.length]);
-    if (e.key === "ArrowLeft") choose(list[(n - 1 + list.length) % list.length]);
+  const go = (p: PhaseId, n: number) => { setPhase(p); setIndex(n); };
+  const order: PhaseId[] = ["day0", "day1", "day2"];
+  const next = () => {
+    if (i < steps.length - 1) return setIndex(i + 1);
+    const p = order[order.indexOf(phase) + 1];
+    if (p) go(p, 0);
   };
-  const choosePhase = (p: PhaseId) => { setPhase(p); restart(); };
-  const chooseScenario = (id: string) => { setScenarioId(id); restart(); };
-  const chooseRuntime = (rt: Runtime) => { setRuntime(rt); setIndex((n) => (phase === "day0" && steps[n]?.id === "runtime" ? n : 0)); };
+  const prev = () => {
+    if (i > 0) return setIndex(i - 1);
+    const p = order[order.indexOf(phase) - 1];
+    if (p) go(p, byPhase(p).length - 1);
+  };
+  const atEnd = phase === "day2" && i === steps.length - 1;
+  const atStart = phase === "day0" && i === 0;
 
-  const state = (id: string) => (step?.from === id ? " is-from" : step?.to === id ? " is-to" : "");
-  const animate = !reducedMotion();
+  const wide = useMemo(() => wideLayout(d, runtime), [d, runtime]);
+  const narrow = useMemo(() => narrowLayout(d, runtime), [d, runtime]);
+  const key = `${scenarioId}-${runtime}-${phase}-${op}-${step?.id}`;
 
-  // The real picture shows only what has joined. A hidden copy with everything in
-  // it sits in the same cell, so the stage is always as tall as it will get.
-  const renderBox = (b: Box, ghost: boolean) => {
-    if (!ghost && !shown(b.at, b.runtimes)) return null;
+  const state = (id: string) => (step?.from === id && step.to !== id ? "from" : step?.to === id ? "to" : undefined);
+
+  const renderAccount = (a: Account, r: R) => {
+    if (!has(a.at)) return null;
+    const label = a.service === "ccm" ? "CCM account" : "DSM account";
     return (
-      <div key={b.id} data-el={ghost ? undefined : b.id} className={`cai-box${ghost ? "" : state(b.id)}`}>
-        <strong>{b.name}</strong>
-        <span><Variants v={b.detail} rt={runtime} /></span>
-        {b.tee && (ghost || seen.has(b.tee)) && <span className="cai-box-tee">Workload in a TEE</span>}
-        {!ghost && step?.to === b.id && step.carries && step.from !== b.id && <span className="cai-box-carry">{step.carries}</span>}
-      </div>
+      <g key={a.id} className="cai-s-account" data-state={state(a.id)}>
+        <rect className="cai-s-halo" x={r.x - 4} y={r.y - 4} width={r.w + 8} height={r.h + 8} rx="12" />
+        <rect className="cai-s-card" x={r.x} y={r.y} width={r.w} height={r.h} rx="9" />
+        <svg x={r.x + 10} y={r.y + 9} width="15" height="15" viewBox="0 0 16 16" className={`cai-s-icon is-${a.service}`}>{ICONS[a.service]}</svg>
+        <text x={r.x + 31} y={r.y + 21} className="cai-s-title">{label}</text>
+        {a.items.map((it, k) => {
+          if (!has(it.at)) return null;
+          const text = pick(it.label, runtime);
+          const y = r.y + ACCOUNT_HEAD + 12 + k * LINE;
+          // The status goes right after the label: in words when it fits, else a tick or a dot.
+          const sx = r.x + 12 + text.length * CHAR * 0.95 + 6;
+          const room = r.x + r.w - 8 - sx;
+          const approved = it.done && has(it.done);
+          return (
+            <g key={it.id}>
+              <text x={r.x + 12} y={y} className="cai-s-item">{text}</text>
+              {it.done && (
+                <text x={sx} y={y} className={approved ? "cai-s-done" : "cai-s-pending"}>
+                  {approved ? (room > 62 ? "✓ approved" : "✓") : room > 50 ? "pending" : "…"}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </g>
     );
   };
 
-  const renderAccount = (a: Account, ghost: boolean) => {
-    if (!ghost && !shown(a.at)) return null;
+  const renderAsset = (a: Asset, r: R) => {
+    if (!has(a.at)) return null;
+    const per = Math.floor((r.w - 10) / (CHAR * 0.95));
+    const title = wrap(a.name, Math.floor((r.w - 10) / CHAR)).slice(0, 2);
+    const lines = wrap(pick(a.detail, runtime), per).slice(0, 3 - title.length);
+    const teeOn = a.tee && seen.has(a.tee);
     return (
-      <div key={a.id} data-el={ghost ? undefined : a.id} className={`cai-account${ghost ? "" : state(a.id)}`}>
-        <span className="cai-account-name">{a.party.name}</span>
-        <ul>
-          {a.items.map((it) => {
-            if (!ghost && !shown(it.at, it.runtimes)) return null;
-            return (
-              <li key={it.id}>
-                <Variants v={it.label} rt={runtime} />
-                {it.done && (ghost || seen.has(it.done) ? <span className="cai-done"><Tick /> approved</span> : <span className="cai-pending">pending</span>)}
-              </li>
-            );
-          })}
-        </ul>
-        {!ghost && step?.to === a.id && step.carries && step.from !== a.id && <span className="cai-box-carry">{step.carries}</span>}
-      </div>
+      <g key={a.id} className={`cai-s-asset${a.id === "infra" ? " is-infra" : ""}`} data-state={state(a.id)}>
+        <rect className="cai-s-halo" x={r.x - 4} y={r.y - 4} width={r.w + 8} height={r.h + 8} rx="13" />
+        <rect className="cai-s-card" x={r.x} y={r.y} width={r.w} height={r.h} rx="10" />
+        <svg x={r.x + r.w / 2 - 15} y={r.y + 9} width="30" height="30" viewBox="0 0 32 32" className="cai-s-icon">{ICONS[a.id]}</svg>
+        {title.map((t, k) => <text key={`t${k}`} x={r.x + r.w / 2} y={r.y + 56 + k * 14} textAnchor="middle" className="cai-s-title">{t}</text>)}
+        {lines.map((t, k) => <text key={k} x={r.x + r.w / 2} y={r.y + 57 + title.length * 14 + k * 13} textAnchor="middle" className="cai-s-muted">{t}</text>)}
+        {teeOn && (
+          <g className="cai-s-tee">
+            <rect x={r.x + r.w / 2 - 58} y={r.y + r.h - 11} width="116" height="22" rx="11" />
+            <text x={r.x + r.w / 2} y={r.y + r.h + 4} textAnchor="middle">TEE · llama-chat</text>
+          </g>
+        )}
+      </g>
     );
   };
 
-  const ccmOn = d.ccm.some((a) => shown(a.at));
-  const dsmOn = d.dsm.some((a) => shown(a.at));
-  const columns = d.lanes.map((l) => (l.roles.length === 1 && l.roles[0] === "user" ? "minmax(0, 0.8fr)" : "minmax(0, 1fr)")).join(" ");
-
-  // Fortanix's services across the top, an account in them for each party that has one.
-  const renderBand = (ghost: boolean) => (
-    <section className="cai-band" data-shown={ghost || ccmOn || dsmOn} aria-label={ghost ? undefined : "Fortanix"}>
-      <header className="cai-lane-head"><strong>Fortanix</strong><span>Services, with an account for each party that uses them</span></header>
-      <div className="cai-band-boxes" data-dsm={d.dsm.length > 0}>
-        {(ghost || ccmOn) && (
-          <div className="cai-box is-service">
-            <strong>Fortanix CCM</strong>
-            <span>Attestation and certificates</span>
-            <div className="cai-accounts">{d.ccm.map((a) => renderAccount(a, ghost))}</div>
-          </div>
+  const renderScene = (l: Layout, arrows: boolean, cls: string) => {
+    const arrow = arrows && step?.from && step.to && step.from !== step.to ? arrowFor(l, step.from, step.to) : null;
+    const target = !arrow && step?.carries && step.to ? l.items.get(step.to) : undefined;
+    const pill = (x: number, y: number, text: string) => {
+      const w = text.length * CHAR + 20;
+      return (
+        <g className="cai-s-carry" key={`${key}-pill`}>
+          <rect x={x - w / 2} y={y - 11} width={w} height="22" rx="11" />
+          <text x={x} y={y + 4} textAnchor="middle">{text}</text>
+        </g>
+      );
+    };
+    return (
+      <svg className={`cai-scene ${cls}`} viewBox={`0 0 ${l.w} ${l.h}`} role="img" aria-label={`${d.scenario.label}, ${step?.title ?? ""}`}>
+        <defs>
+          <marker id={`cai-head-${cls}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" className="cai-s-head" />
+          </marker>
+        </defs>
+        {d.territories.map((t) => {
+          const r = l.territories.get(t)!;
+          return (
+            <g key={t.party.name} className="cai-s-territory" data-acting={step?.party === t.party} data-you={highlight === t.party}>
+              <rect x={r.x} y={r.y} width={r.w} height={r.h} rx="14" />
+              <text x={r.x + 12} y={r.y + 22} className="cai-s-party">{t.party.name}{highlight === t.party ? " · you" : ""}</text>
+              {wrap(t.roles.map((x) => ROLES[x].name).join(" and "), Math.floor((r.w - 20) / (CHAR * 0.95))).slice(0, 2).map((line, k) => (
+                <text key={k} x={r.x + 12} y={r.y + 38 + k * 13} className="cai-s-muted">{line}</text>
+              ))}
+              {/* Nothing of theirs yet: what this party cares about, in their own space. */}
+              {!t.accounts.some((a) => has(a.at)) && !assetsFor(t, runtime).some((a) => has(a.at)) && (
+                wrap(t.roles.map((x) => ROLES[x].cares).join(" "), Math.floor((r.w - 28) / (CHAR * 0.95))).slice(0, 6).map((line, k) => (
+                  <text key={`c${k}`} x={r.x + 14} y={r.y + HEAD + 22 + k * 15} className="cai-s-cares">{line}</text>
+                ))
+              )}
+              {t.accounts.map((a) => renderAccount(a, l.items.get(a.id)!))}
+              {assetsFor(t, runtime).map((a) => renderAsset(a, l.items.get(a.id)!))}
+            </g>
+          );
+        })}
+        {arrow && (
+          <g key={key} className="cai-s-arrow">
+            <path d={arrow.path} pathLength={1} markerEnd={`url(#cai-head-${cls})`} />
+            {step.carries && pill(arrow.mid[0], arrow.mid[1], step.carries)}
+          </g>
         )}
-        {d.dsm.length > 0 && (ghost || dsmOn) && (
-          <div className="cai-box is-service">
-            <strong>Fortanix DSM</strong>
-            <span>Keys, released after attestation</span>
-            <div className="cai-accounts">{d.dsm.map((a) => renderAccount(a, ghost))}</div>
-          </div>
-        )}
-      </div>
-    </section>
-  );
+        {target && step.carries && pill(target.x + target.w / 2, target.y - 2, step.carries)}
+      </svg>
+    );
+  };
 
-  const renderLanes = (ghost: boolean) => (
-    <div className="cai-lanes" style={{ "--cols": columns } as React.CSSProperties}>
-      {d.lanes.map((lane) => {
-        const party = lane.party;
-        const on = ghost || acted.has(party) || lane.boxes.some((b) => shown(b.at, b.runtimes));
-        return (
-          <section
-            key={party.name}
-            data-shown={on}
-            className={`cai-lane${!ghost && step?.party === party ? " is-acting" : ""}${highlight === party ? " is-you" : ""}`}
-            aria-label={ghost ? undefined : party.name}
-          >
-            <header className="cai-lane-head">
-              <strong>{party.name}</strong>
-              <span>{lane.roles.map((r) => ROLES[r].name).join(" and ")}</span>
-              {party.note && <span>{party.note}</span>}
-            </header>
-            <div className="cai-lane-boxes">{lane.boxes.map((b) => renderBox(b, ghost))}</div>
-          </section>
-        );
-      })}
-    </div>
-  );
+  const runtimeLabel = RUNTIMES.find((r) => r.id === runtime)!.label;
 
   return (
     <figure className="cai cai-deploy" aria-label="Deployment, step by step">
       {ids.length > 1 && (
-        <div className="cai-picker" role="tablist" aria-label="Deployment" onKeyDown={tabKeys(ids, scenarioId, chooseScenario)}>
-          {ids.map((id) => {
-            const s = SCENARIOS.find((x) => x.id === id)!;
-            return (
-              <button key={id} type="button" role="tab" aria-selected={id === scenarioId} tabIndex={id === scenarioId ? 0 : -1} onClick={() => chooseScenario(id)}>
-                {s.label}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="cai-toolbar">
-        <div className="cai-phases" role="tablist" aria-label="Phase" onKeyDown={tabKeys(PHASES.map((p) => p.id), phase, choosePhase)}>
-          {PHASES.map((p) => (
-            <button key={p.id} type="button" role="tab" aria-selected={p.id === phase} tabIndex={p.id === phase ? 0 : -1} onClick={() => choosePhase(p.id)}>
-              {p.label}
-            </button>
-          ))}
-        </div>
-        <div className="cai-runtime" role="radiogroup" aria-label="Runtime">
-          {RUNTIMES.map((r) => (
-            <button key={r.id} type="button" role="radio" aria-checked={r.id === runtime} onClick={() => chooseRuntime(r.id)}>
-              {r.label}
-            </button>
-          ))}
-        </div>
-      </div>
-      {phase === "day2" && (
-        <label className="cai-operation">
-          <span>Operation</span>
-          <select value={op} onChange={(e) => { setOp(e.target.value as OperationId); restart(); }}>
-            {OPERATIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+        <label className="cai-select">
+          <span>Deployment</span>
+          <select value={scenarioId} onChange={(e) => { setScenarioId(e.target.value); go("day0", 0); }}>
+            {ids.map((id) => <option key={id} value={id}>{SCENARIOS.find((s) => s.id === id)!.label}</option>)}
           </select>
         </label>
       )}
 
-      <div className="cai-deploy-frame">
-      <div className="cai-deploy-stage is-ghost" aria-hidden="true">
-        {renderBand(true)}
-        {renderLanes(true)}
+      <div className="cai-scene-wrap">
+        {renderScene(wide, true, "is-wide")}
+        {renderScene(narrow, false, "is-narrow")}
       </div>
-      <div className="cai-deploy-stage" ref={stage}>
-        {renderBand(false)}
-        {renderLanes(false)}
 
-        {step?.id === "runtime" && (
-          <div className="cai-choose">
-            <p className="cai-choose-title">Which runtime runs the model?</p>
-            <div className="cai-runtime-cards" role="radiogroup" aria-label="Runtime">
-              {RUNTIMES.map((x) => (
-                <button key={x.id} type="button" role="radio" aria-checked={x.id === runtime} onClick={() => chooseRuntime(x.id)}>
-                  <strong>{x.label}</strong>
-                  <span>{x.summary}</span>
-                </button>
-              ))}
+      <nav className="cai-timeline" aria-label="Steps">
+        {PHASES.map((p) => {
+          const list = byPhase(p.id);
+          return (
+            <div key={p.id} className="cai-day" data-current={p.id === phase}>
+              <span className="cai-day-label">{p.label}</span>
+              {p.id === "day2" && (
+                <select aria-label="Day 2 operation" value={op} onChange={(e) => { setOp(e.target.value as OperationId); go("day2", 0); }}>
+                  {OPERATIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+                </select>
+              )}
+              <ol>
+                {list.map((s, n) => (
+                  <li key={s.id}>
+                    <button
+                      type="button"
+                      aria-label={`${p.label}, step ${n + 1}, ${s.title}`}
+                      aria-current={p.id === phase && n === i ? "step" : undefined}
+                      data-done={order.indexOf(p.id) < order.indexOf(phase) || (p.id === phase && n < i)}
+                      className={role && s.actor === role ? "is-yours" : undefined}
+                      onClick={() => go(p.id, n)}
+                    >
+                      {n + 1}
+                    </button>
+                  </li>
+                ))}
+              </ol>
             </div>
-            <p className="cai-choose-note">You can change it at any step with the switch above. It also switches the runtime tabs on this page.</p>
-          </div>
-        )}
-
-        {arrow && (
-          <svg className="cai-deploy-arrow" aria-hidden="true">
-            <defs>
-              <marker id={`cai-head-${scenarioId}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
-              </marker>
-            </defs>
-            <path d={arrow} stroke="currentColor" strokeWidth="2" fill="none" markerEnd={`url(#cai-head-${scenarioId})`} />
-            {animate && (
-              <circle key={`${runtime}-${phase}-${op}-${step.id}`} r="5" fill="currentColor">
-                <animateMotion dur="1.1s" repeatCount="1" fill="freeze" path={arrow} />
-              </circle>
-            )}
-          </svg>
-        )}
-      </div>
-      </div>
-
-      <div className="cai-deploy-nav">
-        <ol className="cai-deploy-dots">
-          {steps.map((s, n) => (
-            <li key={s.id}>
-              <button
-                type="button"
-                aria-label={`Step ${n + 1}, ${s.title}`}
-                aria-current={n === i ? "step" : undefined}
-                className={role && s.actor === role ? "is-yours" : undefined}
-                onClick={() => { setIndex(n); setPlaying(false); }}
-              >
-                {n + 1}
-              </button>
-            </li>
-          ))}
-        </ol>
-        <div className="cai-deploy-controls">
-          <button type="button" onClick={() => setIndex(Math.max(0, i - 1))} disabled={i === 0}>Previous</button>
-          <button type="button" onClick={() => setIndex(Math.min(steps.length - 1, i + 1))} disabled={i >= steps.length - 1}>Next</button>
-          <button type="button" onClick={() => { if (i >= steps.length - 1) setIndex(0); setPlaying((p) => !p); }}>{playing ? "Pause" : "Play"}</button>
-        </div>
-      </div>
+          );
+        })}
+      </nav>
 
       {/* Every step's text, for both runtimes, in one cell: the panel is as tall as the longest and the page doesn't move. */}
       <div className="cai-deploy-panels" aria-live="polite">
         {RUNTIMES.flatMap((r) => d.steps[r.id].map((s) => ({ s, r: r.id }))).map(({ s, r }) => {
           const active = r === runtime && s === step;
-          const list = r === runtime ? steps : [];
-          const n = list.indexOf(s) + 1;
           return (
             <div key={`${r}-${s.phase}-${s.op ?? ""}-${s.id}`} className="cai-deploy-panel" data-active={active} aria-hidden={!active}>
               <p className="cai-deploy-who">
-                {n > 0 ? `Step ${n} of ${list.length} · ` : ""}
-                {s.party ? `${s.party.name} · ${ROLES[s.actor as RoleId].name}` : "All parties"}
+                {PHASES.find((p) => p.id === s.phase)!.label}
+                {s.op ? ` · ${OPERATIONS.find((o) => o.id === s.op)!.label}` : ""}
+                {" · "}
+                {s.party ? `${s.party.name}, ${ROLES[s.actor as RoleId].name.toLowerCase()}` : "All parties"}
                 {role && s.actor === role && <span className="cai-deploy-you">Your step</span>}
               </p>
               <p className="cai-deploy-title">{s.title}</p>
               <p>{s.text}</p>
-              <Link className="cai-deploy-guide" to={s.task} tabIndex={active ? 0 : -1}>
-                Open the how-to for this step
-                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              </Link>
+              {s.id === "runtime" && (
+                <div className="cai-runtime-choice" role="radiogroup" aria-label="Runtime">
+                  {RUNTIMES.map((x) => (
+                    <button key={x.id} type="button" role="radio" aria-checked={x.id === runtime} tabIndex={active ? 0 : -1} onClick={() => setRuntime(x.id)} title={x.summary}>
+                      {x.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="cai-deploy-actions">
+                <Link className="cai-deploy-guide" to={s.task} tabIndex={active ? 0 : -1}>
+                  Open the how-to for this step
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </Link>
+                <span className="cai-deploy-step-nav">
+                  <button type="button" onClick={prev} disabled={atStart} tabIndex={active ? 0 : -1}>Previous</button>
+                  <button type="button" onClick={next} disabled={atEnd} tabIndex={active ? 0 : -1}>Next</button>
+                </span>
+              </div>
             </div>
           );
         })}
       </div>
 
-      <div className="cai-deploy-accounts">
-        <strong>Accounts</strong>
-        {d.accounts.map((a) => <p key={a}>{a}</p>)}
-      </div>
+      <p className="cai-deploy-accounts">
+        {d.accounts.join(" ")}{" "}
+        {step?.id !== "runtime" && (
+          <>The runtime is {runtimeLabel}. <button type="button" className="cai-link" onClick={() => go("day0", 0)}>Change</button></>
+        )}
+      </p>
     </figure>
   );
 }
@@ -495,8 +455,8 @@ export function DeploymentSteps({ scenario }: { scenario: string }) {
   const rows: { s: Step; only?: Runtime }[] = [];
   for (const s of d.steps.cc) rows.push({ s, only: d.steps.eos.some((e) => e.id === s.id) ? undefined : "cc" });
   for (const s of d.steps.eos) if (!d.steps.cc.some((c) => c.id === s.id)) rows.push({ s, only: "eos" });
-  const order = (s: Step) => PHASES.findIndex((p) => p.id === s.phase) * 100 + (s.op ? OPERATIONS.findIndex((o) => o.id === s.op) * 20 : 0);
-  rows.sort((a, b) => order(a.s) - order(b.s));
+  const rank = (s: Step) => PHASES.findIndex((p) => p.id === s.phase) * 100 + (s.op ? OPERATIONS.findIndex((o) => o.id === s.op) * 20 : 0);
+  rows.sort((a, b) => rank(a.s) - rank(b.s));
   return (
     <table className="cai-steps-table">
       <thead>
