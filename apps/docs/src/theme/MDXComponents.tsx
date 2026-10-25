@@ -5,6 +5,7 @@ import TabItem from '@theme/TabItem';
 import DocusaurusTabs from '@theme/Tabs';
 import AttestationFlow from '@site/src/components/ConfidentialAI/AttestationFlow';
 import RolesExplorer from '@site/src/components/ConfidentialAI/RolesExplorer';
+import {CurrentVersions, SupportMatrix, Version} from '@site/src/components/Versions';
 
 // Components MDX pages in content/ use without importing them (content/ holds
 // no code). The diagrams are imported, not lazy: loaded lazily, React drops
@@ -61,6 +62,9 @@ export default {
   ...MDXComponents,
   AttestationFlow,
   RolesExplorer,
+  Version,
+  SupportMatrix,
+  CurrentVersions,
   Tabs,
   Tab,
   Callout,

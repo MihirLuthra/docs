@@ -1,0 +1,77 @@
+/* Support matrix: one card per tested combination. */
+.matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--fx-space-3);
+  margin-bottom: var(--fx-space-6);
+}
+
+.card {
+  padding: var(--fx-space-3) var(--fx-space-4);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-card);
+  background-color: var(--fx-bg);
+}
+
+.status {
+  display: inline-block;
+  margin: 0 0 var(--fx-space-2);
+  padding: 0 var(--fx-space-2);
+  border: var(--fx-border-width) solid var(--fx-border-strong);
+  border-radius: var(--fx-radius-pill);
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-xs);
+  font-weight: 600;
+}
+
+.status[data-status='verified'] {
+  border-color: var(--fx-diagram-secure);
+  background-color: var(--fx-diagram-secure-soft);
+  color: var(--fx-diagram-secure);
+}
+
+/* Compact key/value rows, without the doc tables' borders and stripes. */
+.table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: var(--fx-text-sm);
+}
+
+.table tr {
+  border: 0;
+  background: none;
+}
+
+.table th,
+.table td {
+  padding: var(--fx-space-1) 0;
+  border: 0;
+  border-bottom: var(--fx-border-width) solid var(--fx-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  width: 45%;
+  padding-right: var(--fx-space-3);
+  color: var(--fx-text-muted);
+  font-weight: 500;
+}
+
+.unknown {
+  color: var(--fx-text-muted);
+  font-style: italic;
+}
+
+.meta {
+  margin: var(--fx-space-2) 0 0;
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-xs-plus);
+}
+
+.empty {
+  color: var(--fx-text-muted);
+  font-style: italic;
+}

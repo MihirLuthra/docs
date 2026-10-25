@@ -1,8 +1,10 @@
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import stubNotice from './src/remark/stub-notice';
+import versionReferences from './src/remark/versions';
 import docsTree from './plugins/docs-tree';
 import contributors from './plugins/contributors';
+import versions from './plugins/versions';
 import prismTheme from './src/lib/prism-theme';
 import {recentsHeadScript} from './src/lib/recents';
 import {FONT_URL, fontFaceCss} from './src/lib/fonts';
@@ -71,7 +73,7 @@ const config: Config = {
               (item) => item.type !== 'doc',
             ),
           editUrl: ({docPath}) => `${EDIT_BASE}/content/${docPath}`,
-          beforeDefaultRemarkPlugins: [stubNotice],
+          beforeDefaultRemarkPlugins: [stubNotice, versionReferences],
         },
         blog: false,
         theme: {customCss: './src/css/custom.css'},
@@ -79,7 +81,7 @@ const config: Config = {
     ],
   ],
 
-  plugins: [docsTree, [contributors, {repo: GITHUB_REPO, branch: 'main'}]],
+  plugins: [docsTree, versions, [contributors, {repo: GITHUB_REPO, branch: 'main'}]],
   clientModules: ['./src/clientModules/recents.ts', './src/clientModules/nav-history.ts'],
 
   themeConfig: {

@@ -1,0 +1,44 @@
+---
+title: Confidential AI support matrix
+description: The component versions Confidential AI uses today, and the combinations of hardware, platform and versions that have been tested.
+doc_type: reference
+keywords: [support matrix, versions, supported platforms, compatibility, tested]
+sidebar_label: Support matrix
+sidebar_position: 4.5
+---
+
+This page is generated from the versions data (`versions/` in the docs repository), which release and QA keep up to date. The commands in the how-to guides use the same data.
+
+## Current versions
+
+<Tabs groupId="runtime">
+<Tab label="Confidential Containers">
+
+<CurrentVersions ids={["coco-chart", "fortanix-kata-deploy", "coco-keyprovider", "nvidia-gpu-operator", "node-agent-tdx"]} />
+
+</Tab>
+<Tab label="Enclave OS">
+
+<CurrentVersions ids={["tdx-converter", "node-agent-tdx"]} />
+
+</Tab>
+</Tabs>
+
+## Tested combinations
+
+<Tabs groupId="runtime">
+<Tab label="Confidential Containers">
+
+<SupportMatrix solution="confidential-ai" runtime="confidential-containers" />
+
+</Tab>
+<Tab label="Enclave OS">
+
+<SupportMatrix solution="confidential-ai" runtime="enclave-os" />
+
+</Tab>
+</Tabs>
+
+**Verified** combinations were run by QA. **Documented** ones come from existing Fortanix documentation and haven't been checked by QA yet.
+
+{/* TODO(verify): versions of the TDX converter and the node agent, and a QA-verified combination for each runtime. */}

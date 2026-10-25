@@ -1,0 +1,76 @@
+{
+  "components": [
+    {
+      "id": "coco-chart",
+      "name": "Confidential Containers Helm chart",
+      "owner": "Confidential Containers project",
+      "artifact": "oci://ghcr.io/confidential-containers/charts/confidential-containers",
+      "versions": [
+        {
+          "version": "0.21.0",
+          "status": "current",
+          "date": null,
+          "notes": "Beta.",
+          "source": "https://support.fortanix.com/docs/deploy-confidential-container-coco-workloads-on-intel-tdx-platform.md"
+        }
+      ]
+    },
+    {
+      "id": "fortanix-kata-deploy",
+      "name": "Fortanix Kata runtime for Confidential Containers",
+      "owner": "Fortanix",
+      "artifact": "fortanix/kata-deploy",
+      "versions": [
+        {
+          "version": "0.21.0-fortanix-ccm-0.2.12",
+          "status": "current",
+          "date": null,
+          "requires": {"kubernetes": ">=1.24", "containerd": ">=1.7", "helm": ">=3.8"},
+          "source": "https://support.fortanix.com/docs/deploy-confidential-container-coco-workloads-on-intel-tdx-platform.md"
+        }
+      ]
+    },
+    {
+      "id": "coco-keyprovider",
+      "name": "Fortanix image encryption tool",
+      "owner": "Fortanix",
+      "artifact": "fortanix/coco-keyprovider",
+      "versions": [
+        {
+          "version": "0.2.12",
+          "status": "current",
+          "date": null,
+          "source": "https://support.fortanix.com/docs/deploy-confidential-container-coco-workloads-on-intel-tdx-platform.md"
+        }
+      ]
+    },
+    {
+      "id": "nvidia-gpu-operator",
+      "name": "NVIDIA GPU Operator",
+      "owner": "NVIDIA",
+      "artifact": "nvidia/gpu-operator",
+      "versions": [
+        {
+          "version": "v26.3.1",
+          "status": "current",
+          "date": null,
+          "source": "https://support.fortanix.com/docs/deploy-confidential-container-coco-workloads-on-intel-tdx-platform.md"
+        }
+      ]
+    },
+    {
+      "id": "tdx-converter",
+      "name": "Fortanix TDX Converter",
+      "owner": "Fortanix",
+      "artifact": "cr.download.fortanix.com/tdx-converter",
+      "versions": []
+    },
+    {
+      "id": "node-agent-tdx",
+      "name": "Fortanix node agent for Intel TDX",
+      "owner": "Fortanix",
+      "artifact": "TDX-Node-Agent-installer.tar.gz",
+      "versions": []
+    }
+  ]
+}

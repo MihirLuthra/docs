@@ -1,0 +1,25 @@
+{
+  "combinations": [
+    {
+      "id": "coco-tdx-gpu-2026-10",
+      "status": "documented",
+      "runtime": "confidential-containers",
+      "solutions": ["confidential-ai"],
+      "components": {
+        "coco-chart": "0.21.0",
+        "fortanix-kata-deploy": "0.21.0-fortanix-ccm-0.2.12",
+        "coco-keyprovider": "0.2.12",
+        "nvidia-gpu-operator": "v26.3.1"
+      },
+      "platform": {
+        "tee": "Intel TDX",
+        "gpu": "NVIDIA Hopper, Blackwell, RTX PRO 6000",
+        "host_os": null,
+        "kubernetes": ">=1.24"
+      },
+      "tested_by": null,
+      "date": null,
+      "source": "https://support.fortanix.com/docs/deploy-confidential-container-coco-workloads-on-intel-tdx-platform.md"
+    }
+  ]
+}
