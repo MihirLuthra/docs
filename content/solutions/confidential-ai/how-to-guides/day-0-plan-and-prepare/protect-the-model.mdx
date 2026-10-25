@@ -1,0 +1,120 @@
+---
+title: Protect the model
+description: Encrypt the model with a key in DSM, build the confidential image and measure it, and register and approve it in CCM.
+doc_type: how-to
+keywords: [encrypt model, sq-dsm, coco-keyprovider, measurements, converter, register build, approve, coprocessors, model owner]
+sidebar_position: 4
+---
+
+The model owner does this. Afterwards the weights are readable only by the approved workload, inside a TEE. With an open model, skip the encryption: the consumer builds, measures and registers the workload.
+
+## Before you begin
+
+- The two DSM apps from [Set up DSM](set-up-dsm.mdx).
+- A CCM account, and a group for the model.
+- A Linux build machine with Docker. For Confidential Containers, Ubuntu 24.04 LTS with 16 or more cores, 128 GB RAM, 100 GB free disk, `jq` and `python3`, and HTTPS access to DSM.
+- The runtime you [chose](plan-a-deployment.mdx#choose-the-runtime). Every tab set on this page follows your choice.
+
+## Encrypt the model
+
+<Tabs groupId="runtime">
+<Tab label="Confidential Containers">
+
+With Confidential Containers you encrypt the whole application image, with the model inside it.
+
+1. Build and push your application image, with the model and the server that serves it.
+2. [Encrypt the image](/products/fortanix-armor/confidential-computing/workload-runtimes/confidential-containers/encrypt-an-image) with the API key of the encryption app.
+
+</Tab>
+<Tab label="Enclave OS">
+
+With Enclave OS you encrypt the model files with a PGP key in DSM, using `sq-dsm`. The workload decrypts them when it starts.
+
+1. Install `sq-dsm`, then point it at DSM:
+
+   ```bash
+   export FORTANIX_API_ENDPOINT=<DSM_URL>
+   export FORTANIX_API_KEY=<DSM_API_KEY>
+   export FORTANIX_APP_UUID=<TRUSTED_CA_APP_UUID>
+   ```
+
+   - `<DSM_URL>`: your DSM endpoint, for example `https://amer.smartkey.io`.
+   - `<DSM_API_KEY>`: the API key of the encryption app.
+   - `<TRUSTED_CA_APP_UUID>`: the UUID of the Trusted CA app.
+
+2. Create the key in DSM:
+
+   ```bash
+   sq-dsm key generate \
+     --dsm-key "llama-chat-model" \
+     --cipher-suite "rsa4k" \
+     --userid "alex.morgan@northwind.example"
+   ```
+
+   This creates a primary key and two subkeys in DSM. Other `--cipher-suite` values: `rsa2k`, `rsa3k`, `rsa8k`, `cv25519` (the default), `nistp256`, `nistp384`, `nistp521`.
+
+3. Export its public certificate, and encrypt the model with it:
+
+   ```bash
+   sq-dsm key extract-cert --dsm-key "llama-chat-model" --output model.cert.pgp
+   sq-dsm encrypt --recipient-cert model.cert.pgp --compression none \
+     <MODEL_FILE> -o <ENCRYPTED_MODEL_FILE>
+   ```
+
+4. Put the encrypted model in your application image, with a start-up step that decrypts it. Inside the TEE, the workload authenticates with its CCM certificate, not the API key:
+
+   ```bash
+   openssl pkcs12 -export -out identity.pfx \
+     -inkey /opt/fortanix/enclave-os/default_cert/app_private.pem \
+     -in /opt/fortanix/enclave-os/default_cert/app_public.pem
+   export FORTANIX_PKCS12_ID=identity.pfx
+   sq-dsm decrypt --dsm-key "llama-chat-model" <ENCRYPTED_MODEL_FILE> -o <MODEL_FILE>
+   ```
+
+   Set `FORTANIX_API_ENDPOINT` and `FORTANIX_APP_UUID` in the image too, and never `FORTANIX_API_KEY`.
+
+{/* TODO(verify): the source builds the PKCS#12 identity from /opt/fortanix/attestation-client/{key,cert}.pem (confidential VM path); for Enclave OS containers it lists /opt/fortanix/enclave-os/default_cert/. Confirm which applies. */}
+
+</Tab>
+</Tabs>
+
+## Build the confidential image and measure it
+
+The measurements identify your workload. CCM certifies only a workload whose measurements match a build you registered.
+
+<Tabs groupId="runtime">
+<Tab label="Confidential Containers">
+
+[Measure the workload](/products/fortanix-armor/confidential-computing/workload-runtimes/confidential-containers/measure-a-workload) on a node with the runtime installed:
+
+- In the InitData, set `dsm_app_id` to the UUID of the Trusted CA app.
+- Start the measurement pod with the runtime class `kata-qemu-nvidia-gpu-tdx`, and the GPUs and memory the model needs.
+
+Give the encoded InitData to the model consumer: the workload must run with exactly the same value.
+
+{/* TODO(verify): who measures in a vendor deployment, where the vendor may have no TDX node. */}
+
+</Tab>
+<Tab label="Enclave OS">
+
+[Convert the image](/products/fortanix-armor/confidential-computing/workload-runtimes/enclave-os/convert-an-image) with `enable_gpu_passthrough` set to `true`, and `cpu_count` and `mem_size` set to what the model needs. Save the measurements from the response.
+
+</Tab>
+</Tabs>
+
+## Register and approve in CCM
+
+1. [Register the application and its build](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application), with the certificate domain you gave the Trusted CA app:
+   - For Confidential Containers, set **Coprocessors** to **Required**, so CCM also checks the GPU's evidence through NVIDIA NRAS.
+   - For Enclave OS, set **NVIDIA GPU Attestation** to **Required**.
+2. [Approve the build and the domain](/products/fortanix-armor/confidential-computing/ccm/applications/approve-builds-and-domains) on the **Tasks** page.
+
+Until the build and its domain are approved, CCM refuses the workload's certificate, and DSM releases no key.
+
+## Verify
+
+- The build is listed on the application's **Builds** tab, and its approval is under **Tasks** > **Approved**.
+
+## Next steps
+
+- [Share the model with the consumer](../day-1-deploy/share-the-model.mdx), or, when you run it yourself, [deploy and verify](../day-1-deploy/deploy-and-verify.mdx).

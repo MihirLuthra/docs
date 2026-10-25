@@ -1,0 +1,31 @@
+---
+title: Audit and revoke access
+description: See which workloads got certificates and keys, and stop a consumer, a build or a node from getting them.
+doc_type: how-to
+keywords: [audit, activity log, request_app_certificate, revoke, collaboration, decline, label policy, model owner, model consumer]
+sidebar_position: 2
+---
+
+## Audit
+
+| Where | What it shows |
+|---|---|
+| CCM, the application's audit log | Every certificate request, as `REQUEST_APP_CERTIFICATE` events |
+| CCM, the application's **Builds** tab | Which builds are **Deployed** |
+| CCM, **Tasks** | Requests that are **Pending**, **Approved**, **Declined** or **Failed** |
+| CCM, **Infrastructure** > **COMPUTE NODES** | Each node's status, such as **Provisioned** or **Offline**, and when it last attested |
+| DSM, the Trusted CA app's activity log | Each use of the model's key |
+
+Check these after every deployment and update, and whenever a workload restarts unexpectedly.
+
+## Revoke access
+
+| To stop | Who | How |
+|---|---|---|
+| A consumer running your model | Model owner or consumer | In CCM, **COLLABORATION GROUPS**, **REVOKE**. The shared workflow stops. |
+| A build or domain that isn't approved yet | Approver | On **Tasks**, **DECLINE** the request. |
+| The model's key being released | Model owner | In DSM, on the Trusted CA app |
+
+Changing CCM's label policy doesn't revoke certificates already issued: it applies only when a certificate is next requested.
+
+{/* TODO(verify): how to withdraw an approved build; certificate lifetime and revocation; how to remove an enrolled node; the DSM action that stops key release (disable or delete the Trusted CA app) and how to rotate the encryption app's API key and the model key. */}

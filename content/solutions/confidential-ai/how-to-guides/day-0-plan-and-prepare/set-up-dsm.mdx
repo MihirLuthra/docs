@@ -1,0 +1,42 @@
+---
+title: Set up DSM for the model key
+description: Create the two DSM apps the model owner needs, one that encrypts the model and one that the attested workload authenticates as, trusting the consumer's zone CA.
+doc_type: how-to
+keywords: [dsm, trusted ca, api key, app, zone ca, model key, model owner]
+sidebar_label: Set up DSM
+sidebar_position: 3
+---
+
+The model owner does this. The key that protects the model stays in DSM, and DSM releases it only to a workload with a certificate from the consumer's CCM.
+
+You need two DSM apps in one group: one that encrypts the model, and one that the workload authenticates as.
+
+## Before you begin
+
+- A Fortanix DSM account.
+- The model consumer's zone CA certificate, from [Set up CCM](prepare-gpu-nodes.mdx#set-up-ccm).
+- The certificate domain the workload will have in CCM, for example `chat.northwind.example`.
+
+## Create the apps
+
+1. In DSM, create a group for the model, such as `llama-chat-keys`, or use an existing one.
+2. Create the app the workload authenticates as. In the group, go to **APPS** and click **ADD APP**:
+   - **Interface**: REST API
+   - **Authentication Method**: Trusted CA
+   - **DNS Name**: the certificate domain of the workload
+   - **Upload Trusted CA Cert**: the consumer's zone CA certificate
+3. Click **SAVE**. Note the app's UUID.
+4. Create the app you encrypt with. Click **ADD APP** again:
+   - **Interface**: REST API
+   - **Authentication Method**: API Key
+5. Click **SAVE**, and copy its API key. Keep it with the people who encrypt models, and out of every image.
+
+{/* TODO(verify): the source examples use the DNS name "my-server" for the DSM app and a different domain in CCM; confirm the two must match. */}
+
+## Verify
+
+- The group lists both apps, one with Trusted CA authentication and one with an API key.
+
+## Next steps
+
+- [Protect the model](protect-the-model.mdx)

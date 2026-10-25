@@ -15,27 +15,29 @@ A model vendor deploys its model on a customer's own GPUs. The customer is both 
 
 ## Before you begin
 
-- Choose the runtime, Confidential Containers or Enclave OS. Each linked step has both.
+- [Plan the deployment](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/plan-a-deployment), and choose the runtime, Confidential Containers or Enclave OS. Each linked step has both.
 - The model owner and the consumer use separate CCM accounts, linked by a shared workflow. The owner approves it first.
 
 ## Steps
 
-Each step links to the task in the role guide; do them in this order.
+Each step links to its task in the how-to guides; do them in this order.
 
-| | Who | Task |
-|---|---|---|
-| 1 | Customer | [Set up CCM: create a group, a join token and the zone CA](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#set-up-ccm) |
-| 2 | Customer | [Prepare the host](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#prepare-the-host) |
-| 3 | Customer | [Enrol the node with the join token](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#enrol-the-node) |
-| 4 | Customer | [Install the runtime](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#install-the-runtime) |
-| 5 | Model vendor | [Set up DSM with the zone CA](/solutions/confidential-ai/how-to-guides/by-role/model-owner#set-up-dsm) |
-| 6 | Model vendor | [Encrypt the model](/solutions/confidential-ai/how-to-guides/by-role/model-owner#encrypt-the-model) |
-| 7 | Model vendor | [Build the confidential image and measure it](/solutions/confidential-ai/how-to-guides/by-role/model-owner#build-the-confidential-image-and-measure-it) |
-| 8 | Model vendor | [Register and approve it in CCM](/solutions/confidential-ai/how-to-guides/by-role/model-owner#register-and-approve-in-ccm) |
-| 9 | Model vendor and customer | [Share it through a shared workflow](/solutions/confidential-ai/how-to-guides/by-role/model-owner#share-with-the-model-consumer) |
-| 10 | Customer | [Deploy the workload](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#deploy-the-workload) |
-| 11 | Customer | [Verify attestation](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#verify-attestation) |
-| 12 | Customer | [Connect clients](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#connect-clients) |
+| | Day | Who | Task |
+|---|---|---|---|
+| 1 | 0 | Customer | [Set up CCM: create a group, a join token and the zone CA](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#set-up-ccm) |
+| 2 | 0 | Customer | [Prepare the host](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#prepare-the-host) |
+| 3 | 0 | Customer | [Enrol the node with the join token](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#enrol-the-node) |
+| 4 | 0 | Customer | [Install the runtime](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#install-the-runtime) |
+| 5 | 0 | Model vendor | [Set up DSM with the zone CA](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/set-up-dsm) |
+| 6 | 0 | Model vendor | [Encrypt the model](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/protect-the-model#encrypt-the-model) |
+| 7 | 0 | Model vendor | [Build the confidential image and measure it](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/protect-the-model#build-the-confidential-image-and-measure-it) |
+| 8 | 0 | Model vendor | [Register and approve it in CCM](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/protect-the-model#register-and-approve-in-ccm) |
+| 9 | 1 | Model vendor and customer | [Share it through a shared workflow](/solutions/confidential-ai/how-to-guides/day-1-deploy/share-the-model) |
+| 10 | 1 | Customer | [Deploy the workload](/solutions/confidential-ai/how-to-guides/day-1-deploy/deploy-and-verify#deploy-the-workload) |
+| 11 | 1 | Customer | [Verify attestation](/solutions/confidential-ai/how-to-guides/day-1-deploy/deploy-and-verify#verify-attestation) |
+| 12 | 1 | Customer | [Connect clients](/solutions/confidential-ai/how-to-guides/day-1-deploy/deploy-and-verify#connect-clients) |
+
+On day 2, the same parties [update the model or the runtime](/solutions/confidential-ai/how-to-guides/day-2-operate/update-the-model-or-runtime) and [audit and revoke access](/solutions/confidential-ai/how-to-guides/day-2-operate/audit-and-revoke-access).
 
 ## Verify
 

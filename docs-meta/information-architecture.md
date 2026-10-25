@@ -31,14 +31,18 @@ One tree; every page has exactly one home in it. Accuracy over marketing. The si
 Overview
 Use cases: Proprietary model · In-house model · Open-source model
 How-to guides
-  By role           Model owner · Infrastructure provider · Model consumer
-  End to end        one per deployment, composed from the role tasks
+  Day 0: plan and prepare   Plan a deployment · Prepare the GPU nodes · Set up DSM · Protect the model
+  Day 1: deploy             Share the model · Deploy and verify
+  Day 2: operate            Update the model or the runtime · Audit and revoke access
+  By role                   Model owner · Infrastructure provider · Model consumer (each role's tasks)
+  End to end                one per deployment, ordering the day 0–2 tasks
 Support matrix    generated from versions/
 Integrations: Rafay · NVIDIA GPU Operator
 Examples
 ```
 
-- **End-to-end guides are compositions** of the role tasks; each step is written once and reused.
+- **End-to-end guides are compositions** of the day 0–2 tasks; each step is written once and reused (D15).
+- **Product steps live in product docs** (CCM, Enclave OS, Confidential Containers); a solution task links to them and adds only what is specific to the solution.
 - **Runtime choice is tabs, not pages** (Confidential Containers or Enclave OS inside each how-to).
 
 ## RATS mapping (Concepts → Attestation)

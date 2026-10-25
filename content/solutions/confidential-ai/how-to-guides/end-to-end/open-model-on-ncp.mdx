@@ -15,7 +15,7 @@ The weights are public, so there is no model to encrypt. The enterprise builds a
 
 ## Before you begin
 
-- Choose the runtime, Confidential Containers or Enclave OS. Each linked step has both.
+- [Plan the deployment](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/plan-a-deployment), and choose the runtime, Confidential Containers or Enclave OS. Each linked step has both.
 - Skip the model owner's DSM and encryption steps. If the workload needs keys for other data, for example encrypted documents for retrieval, set up DSM the same way and keep those keys there.
 - Register the workload in the same CCM account the nodes are enrolled in. You don't need a shared workflow. If you use DSM, upload your own zone CA to it.
 
@@ -23,19 +23,21 @@ The weights are public, so there is no model to encrypt. The enterprise builds a
 
 ## Steps
 
-Each step links to the task in the role guide; do them in this order.
+Each step links to its task in the how-to guides; do them in this order.
 
-| | Who | Task |
-|---|---|---|
-| 1 | Enterprise | [Set up CCM: create a group, a join token and the zone CA](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#set-up-ccm) |
-| 2 | NCP | [Prepare the host](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#prepare-the-host) |
-| 3 | NCP | [Enrol the node with the join token](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#enrol-the-node) |
-| 4 | NCP | [Install the runtime](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#install-the-runtime) |
-| 5 | Enterprise | [Build the confidential image and measure it](/solutions/confidential-ai/how-to-guides/by-role/model-owner#build-the-confidential-image-and-measure-it) |
-| 6 | Enterprise | [Register and approve it in CCM](/solutions/confidential-ai/how-to-guides/by-role/model-owner#register-and-approve-in-ccm) |
-| 7 | Enterprise | [Deploy the workload](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#deploy-the-workload) |
-| 8 | Enterprise | [Verify attestation](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#verify-attestation) |
-| 9 | Enterprise | [Connect clients](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#connect-clients) |
+| | Day | Who | Task |
+|---|---|---|---|
+| 1 | 0 | Enterprise | [Set up CCM: create a group, a join token and the zone CA](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#set-up-ccm) |
+| 2 | 0 | NCP | [Prepare the host](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#prepare-the-host) |
+| 3 | 0 | NCP | [Enrol the node with the join token](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#enrol-the-node) |
+| 4 | 0 | NCP | [Install the runtime](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/prepare-gpu-nodes#install-the-runtime) |
+| 5 | 0 | Enterprise | [Build the confidential image and measure it](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/protect-the-model#build-the-confidential-image-and-measure-it) |
+| 6 | 0 | Enterprise | [Register and approve it in CCM](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/protect-the-model#register-and-approve-in-ccm) |
+| 7 | 1 | Enterprise | [Deploy the workload](/solutions/confidential-ai/how-to-guides/day-1-deploy/deploy-and-verify#deploy-the-workload) |
+| 8 | 1 | Enterprise | [Verify attestation](/solutions/confidential-ai/how-to-guides/day-1-deploy/deploy-and-verify#verify-attestation) |
+| 9 | 1 | Enterprise | [Connect clients](/solutions/confidential-ai/how-to-guides/day-1-deploy/deploy-and-verify#connect-clients) |
+
+On day 2, the same parties [update the model or the runtime](/solutions/confidential-ai/how-to-guides/day-2-operate/update-the-model-or-runtime) and [audit and revoke access](/solutions/confidential-ai/how-to-guides/day-2-operate/audit-and-revoke-access).
 
 ## Verify
 
