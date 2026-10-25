@@ -1,98 +1,52 @@
 # Information architecture
 
-One tree. Every page has exactly one home in it. Accuracy over marketing.
+One tree; every page has exactly one home in it. Accuracy over marketing. The sidebar shows what exists: pages with content, stubs that something links to, and folders for planned sections ("No pages yet").
 
-**What exists now (2026-10-24):** `content/` only has pages with content, and the stub pages something links to (the header pages, the home banner and Explore cards, links in the Confidential AI pages). Undecided stubs were removed. Get familiar, Products and Learn keep their folder tree (empty folders show "No pages yet"); Solutions has Confidential AI (Overview and Use cases), and File system encryption, Tokenization and PQC readiness with an Overview only. The tree below is the plan.
+## Three layers (D13)
+
+1. **Products** (CCM, Enclave OS, Confidential Containers, EDP, DSM, Key Insight) own their concepts, how-tos, reference and support matrix, versioned with the product. They mention solutions only in a "Used in" link.
+2. **Solutions** (Confidential AI, File system encryption, Tokenization, PQC readiness, …) are end-to-end doc sets built on products. They link to or pull in product detail; they never copy it.
+3. **Versions** are data in `versions/` (components and tested combinations), owned by release and QA (D14). Pages read versions and support matrices from it, never writing them out.
 
 ## Rules
 
-- **One home per page.** Solutions link to canonical product pages; they don't copy them.
-- **Solutions** are end-to-end doc sets (overview, architecture, get started, deploy, integrations, examples). They are not products.
-- **DSM sits under Armor** in the docs, with a "standalone today" badge and a one-line note on its overview page.
-- **CCM is Armor's verifier.** Node Agent belongs to CCM (Compute nodes). The attestation client is a workload-side component, so it lives under Workload runtimes.
-- **No ccm.fortanix.com tree.** The new docs cover Armor CCM only.
-- **EDP docs live on this site** (Confidential Computing → SDKs).
-- **Don't centre the docs on TEE hardware.** The TEE pages are background concepts.
+- **One home per page.** Exact fields, config references and limits live in the product docs.
+- **DSM sits under Armor**, with a "standalone today" badge.
+- **CCM is Armor's verifier.** The node agent belongs to CCM (Compute nodes); the attestation client is workload-side (Workload runtimes).
+- **EDP docs live here** (Confidential Computing → SDKs). No ccm.fortanix.com tree.
+- **Don't centre the docs on TEE hardware.** TEE pages are background concepts.
+- **Folders have no page of their own**; a folder that needs an introduction gets an Overview page.
+- Release notes, Advisories and Downloads are header links, not part of the tree.
 
-## RATS mapping (for Concepts → Attestation)
+## Sections
+
+- **Get familiar**: what Fortanix does, the Armor platform, concepts (confidential computing, attestation, key management, TEE technologies), glossary.
+- **Solutions**, each shaped like Confidential AI below where it applies.
+- **Products**: Fortanix Armor (Platform, Confidential Computing: CCM, workload runtimes, SDKs; Key Insight; Data Security Manager).
+- **Learn**: tutorials and examples that span products.
+
+### Confidential AI
+
+```
+Overview
+Use cases: Proprietary model · In-house model · Open-source model
+How-to guides
+  By role           Model owner · Infrastructure provider · Model consumer
+  End to end        one per deployment, composed from the role tasks
+Support matrix    generated from versions/
+Integrations: Rafay · NVIDIA GPU Operator
+Examples
+```
+
+- **End-to-end guides are compositions** of the role tasks; each step is written once and reused.
+- **Runtime choice is tabs, not pages** (Confidential Containers or Enclave OS inside each how-to).
+
+## RATS mapping (Concepts → Attestation)
 
 | RATS role | Fortanix |
 |---|---|
-| Attester | A workload in a TEE plus the attestation client (Enclave OS, Confidential Containers, a custom CVM) |
+| Attester | A workload in a TEE plus the attestation client |
 | Verifier | CCM |
-| Relying party | DSM, or any service that trusts CCM-issued certificates |
+| Relying party | DSM, or any service that trusts CCM certificates |
 | Endorser | Intel, AMD, NVIDIA |
 | Reference values | Approved builds in CCM |
-
-## Tree
-
-Top-level sections are separated by a divider in the sidebar. `(kw: …)` lists search keywords, which go in the page's front matter.
-
-```
-Get familiar
-  What Fortanix does
-  The Armor platform
-  Concepts
-    Confidential computing basics
-    Attestation, the RATS model
-    Key management basics
-    TEE technologies
-      Intel SGX · Intel TDX · AMD SEV-SNP · AWS Nitro Enclaves · NVIDIA Confidential Computing
-    Glossary
-
-Solutions
-  Confidential AI            (kw: ai, gpu, model, llm, inference)
-    Overview
-    Use cases: Proprietary model · In-house model · Open-source model
-    Architecture · Get started
-    Deploy: Kubernetes with CoCo · Confidential VMs
-    Integrations: Rafay · NVIDIA GPU Operator
-    Examples · Troubleshooting
-  File system encryption     (kw: fse, gocryptfs)
-    Overview · Linux quickstart · Windows quickstart · Key rotation · Troubleshooting
-  Database encryption        (kw: tde)
-    Overview · Oracle TDE · SQL Server TDE · MongoDB · MySQL
-  Tokenization               (kw: fpe, masking)
-    Overview · Quickstart · Examples · Best practices
-  Cloud key control          (kw: byok)
-    Overview · AWS KMS · Azure Key Vault · Google Cloud KMS · Oracle Cloud
-  PQC readiness              (kw: pqc, post-quantum)
-    Overview · Get started · PQC Central
-
-Products
-  Fortanix Armor
-    Platform
-      Architecture · Deploy (SaaS, Customer-managed) · Administration · API
-    Confidential Computing
-      Overview
-      CCM                    (kw: verifier, attestation)
-        Concepts · Quickstart · Applications & builds · Approvals
-        Compute nodes: Node Agent · Enroll an SGX / TDX / SEV-SNP / Nitro node
-        Workflows & datasets · Policy · API · Troubleshooting
-      Workload runtimes
-        Enclave OS           (kw: salmiac)
-          Overview · Convert an image · Configuration · Tutorials
-        Confidential Containers (kw: coco, kata)
-          Overview · Install · Encrypt an image · Deploy on Intel TDX · Deploy on AMD SEV-SNP · Troubleshooting
-        Build your custom CVM
-          Attestation client
-      SDKs
-        Enclave Development Platform (kw: edp, rust, rust-sgx)
-          Install the toolchain · Build and run · Attesting with CCM · Reference
-    Key Insight              (kw: ki, posture, pqc)
-      Concepts · Get started
-      Connections: AWS · Azure · Google Cloud · Oracle Cloud · On-premises
-      Policy center · PQC Central · API
-    Data Security Manager    [badge: standalone]  (kw: dsm, kms, hsm)
-      Service: Concepts · Deploy · Administration · Key management · Cloud Data Control · Tokenization · Plugins · API
-      Client libraries & tools: PKCS#11 library · CNG provider · JCE provider · CLI · Terraform provider
-      Client-side components: DSM Accelerator · File System Encryption agents
-      Integrations: Databases · Storage & backup · Cloud KMS & BYOK · Secrets managers · PKI & certificates
-
-Learn
-  Tutorials: Deploy Confidential AI with Fortanix and Rafay · Tokenization quickstart · Run HashiCorp Vault in Enclave OS
-  Examples: Nginx in Enclave OS · PostgreSQL in Enclave OS · Rust server with EDP
-  Videos
-```
-
-Release notes, Advisories and Downloads are header links, not part of the tree.

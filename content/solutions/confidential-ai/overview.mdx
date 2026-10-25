@@ -18,7 +18,7 @@ Before the model workload gets any secret, attestation proves exactly what is ru
 1. **Run inside a TEE.** The model workload runs in a TEE, with the GPU in confidential computing mode. Its memory is encrypted and isolated from the host.
 2. **Attest to CCM.** The attestation client inside the workload sends signed evidence from the CPU and GPU to CCM. The evidence includes the workload's measurement.
 3. **Get a certificate.** CCM checks that the hardware is genuine, that its firmware and security settings meet policy, and that the measurement matches an approved model. Settings it checks include the firmware and TDX module versions and whether SMT is disabled. If every check passes, CCM issues the workload a certificate.
-4. **Use the certificate.** The workload authenticates to DSM over mutual TLS, using the certificate as its client certificate. DSM releases the model encryption key directly into the TEE, and only for the approved model. Any other service can also authenticate the workload with its CCM certificate, the same way a server authenticates a client over mutual TLS.
+4. **Use the certificate.** The workload authenticates to DSM over mutual TLS, using the certificate as its client certificate. DSM releases the model encryption key directly into the TEE, and only for the approved model. Any other service can authenticate the workload the same way.
 
 ## Building blocks
 
