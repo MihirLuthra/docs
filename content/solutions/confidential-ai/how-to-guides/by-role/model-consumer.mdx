@@ -1,0 +1,128 @@
+---
+title: "Model consumer: run and verify the workload"
+description: Set up CCM for the nodes, run the model owner's workload through a shared workflow, deploy it in a TEE, and check that it attested and got its key.
+doc_type: how-to
+keywords: [model consumer, enterprise, shared workflow, collaborating groups, deploy, verify attestation, zone ca]
+sidebar_label: Model consumer
+sidebar_position: 3
+---
+
+As the model consumer, you run the model and send it your data. You own the CCM account the nodes belong to, run the workload, and check that it really runs in a TEE before you trust it with anything.
+
+## Before you begin
+
+- A Fortanix CCM account (sign in at `https://ccm.fortanix.com`) and a group for this workload.
+- Access to the cluster or host the infrastructure provider prepared.
+- Choose the runtime. Every tab set on this page follows your choice.
+
+## Set up CCM
+
+1. In CCM, go to **Groups** and click **+ ADD GROUP** (or use an existing group). Enter a **Name** and click **SAVE**.
+2. Go to **Infrastructure** > **Compute Nodes** > **Intel TDX** and click **+ ADD NODE**.
+3. In **ENROLL COMPUTE NODE**, copy the join token and give it to the infrastructure provider. They use it to [enrol the node](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#enrol-the-node).
+4. In the same window, click **DOWNLOAD ZONE CA**, and give the certificate to the model owner. Their DSM app uses it to trust your workload's certificate.
+
+Send the token and the certificate over a channel you trust. Anyone with the join token can enrol a node in your account.
+
+## Collaborate with the model owner
+
+Skip this when you own the model yourself. Otherwise you run the owner's application through a shared workflow between your two CCM accounts.
+
+1. Get a collaboration token from the model owner.
+2. Open your group, click **ACCEPT TOKEN**, paste it and click **PROCEED**. The request shows as **Pending** under **Groups** > **COLLABORATION GROUPS** > **CONSUMER** until the owner accepts it, then **Accepted**.
+3. Go to **Workflows** and click **+ ADD WORKFLOW**. Enter a **Name**, select your group, and click **SAVE**.
+4. Add an application placeholder, assign it to the owner's group, and click **SAVE AS DRAFT**. The owner fills it with their application.
+5. When they have, open the draft, click **SAVE AND REQUEST APPROVAL**, and confirm with **REQUEST APPROVAL**.
+6. After the owner approves, approve the workflow too. It moves to **Approved**.
+
+An approved workflow can't be edited. **EDIT WORKFLOW** creates a new version, which replaces the old one once both of you approve it. Either of you can end the collaboration from **COLLABORATION GROUPS** with **REVOKE**; the workflow then stops.
+
+## Deploy the workload
+
+<Tabs groupId="runtime">
+<Tab label="Confidential Containers">
+
+1. Create `workload.yaml`. Use the same InitData and resources the model owner measured with:
+
+   ```yaml
+   apiVersion: v1
+   kind: Pod
+   metadata:
+     name: <WORKLOAD_NAME>
+     annotations:
+       io.katacontainers.config.hypervisor.kernel_params: "agent.guest_components_rest_api=all"
+       io.katacontainers.config.hypervisor.cc_init_data: "<INITDATA>"
+       io.containerd.cri.runtime-handler: kata-qemu-nvidia-gpu-tdx
+   spec:
+     runtimeClassName: kata-qemu-nvidia-gpu-tdx
+     restartPolicy: Never
+     containers:
+       - name: <CONTAINER_NAME>
+         image: <ENCRYPTED_IMAGE>:<TAG>
+         resources:
+           limits:
+             nvidia.com/pgpu: "1"
+             memory: 16Gi
+         securityContext:
+           privileged: true
+         ports:
+           - containerPort: <PORT>
+   ```
+
+   - `<INITDATA>`: the base64-encoded InitData the model owner measured.
+   - `<ENCRYPTED_IMAGE>:<TAG>`: the model owner's encrypted image.
+   - `<PORT>`: the port the model serves on.
+
+   Without a GPU, use `kata-qemu-tdx` in both places and remove `nvidia.com/pgpu`. Give the pod at least twice the uncompressed image size in memory.
+
+2. Deploy it:
+
+   ```bash
+   kubectl apply -f workload.yaml
+   kubectl get pods
+   ```
+
+{/* TODO(verify): why the example runs the workload privileged, and whether it's required. */}
+
+</Tab>
+<Tab label="Enclave OS">
+
+1. In CCM, open the workflow's application and copy its **Runtime configuration hash**.
+2. Start the converted image on the host, with the GPUs to pass through:
+
+   ```bash
+   docker run --privileged --runtime=runc \
+     -e APPCONFIG_ID=<RUNTIME_CONFIG_HASH> \
+     -e GPU_COUNT=<GPU_COUNT> \
+     <CONVERTED_IMAGE>:<TAG>
+   ```
+
+   - `<RUNTIME_CONFIG_HASH>`: the hash from step 1.
+   - `<GPU_COUNT>`: how many GPUs to give the workload. To pick specific GPUs instead, set `TDX_GPU_BDF` to a comma-separated list of their PCI addresses.
+   - `<CONVERTED_IMAGE>:<TAG>`: the model owner's converted image.
+
+   Without a GPU, leave out `GPU_COUNT`.
+
+{/* TODO(verify): the complete docker run command (published ports, volumes); the source lists only the flags and variables. */}
+
+</Tab>
+</Tabs>
+
+## Verify attestation
+
+Check this before you send the workload any data.
+
+1. In CCM, open the application. The audit log shows a successful `REQUEST_APP_CERTIFICATE` event, and on **Tasks** the certificate request is approved.
+2. For Confidential Containers, the application's **Certificate** tab shows the issued certificate, and on **Builds** the build is **Deployed**.
+3. If the workload uses a key, the model owner sees it used in the DSM Trusted CA app's activity log.
+
+## Connect clients
+
+The workload's CCM certificate is a TLS certificate for its approved domain, signed by your zone CA. A client that trusts your zone CA, and connects to that domain, knows it reached the attested workload.
+
+{/* TODO(verify): whether inference servers serve the CCM certificate directly, and how to configure a typical one (for example vLLM or Triton) to do so. */}
+
+
+## Next steps
+
+- [Model owner: protect and publish a model](/solutions/confidential-ai/how-to-guides/by-role/model-owner)

@@ -17,8 +17,9 @@ Set `doc_type` in front matter to one of:
 2. **Before you begin:** access, versions, and anything installed first.
 3. **Steps:** numbered, one action per step.
 4. **Verify:** how to tell it worked, with the real expected output.
-5. **Troubleshoot:** common failures and their fixes.
-6. **Next steps:** two or three links.
+5. **Next steps:** two or three links.
+
+No troubleshooting sections in how-tos.
 
 ## Writing rules
 
@@ -27,7 +28,7 @@ Set `doc_type` in front matter to one of:
 - Make link text describe the target. Never "click here".
 - No section numbers in headings, and no boilerplate intros.
 - Commands must be copy-pasteable. Write placeholders as `<PLACEHOLDER>` and define each one right after the block.
-- Pin versions, and show real expected output.
+- Never write a version out: use the versions data (`{{component.version}}` in code, `<Version of="…" />` in text; see `versions/README.md`). Show real expected output.
 - Put platform differences (SGX, TDX, SEV-SNP, Nitro, OS) in tabs or admonitions, not in separate near-identical pages.
 - Every screenshot has alt text. Prefer text over a screenshot when either works.
 - Security pages state their trust assumptions: what is trusted, and by whom.

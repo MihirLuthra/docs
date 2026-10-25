@@ -1,0 +1,173 @@
+---
+title: "Infrastructure provider: prepare and enrol GPU nodes"
+description: Prepare an Intel TDX host with NVIDIA GPUs, enrol it in CCM with the node agent, and install the runtime the workload needs.
+doc_type: how-to
+keywords: [infrastructure provider, ncp, gpu node, intel tdx, node agent, enroll, kubernetes, gpu operator]
+sidebar_label: Infrastructure provider
+sidebar_position: 2
+---
+
+As the infrastructure provider, you run the hardware the workload's TEE lives on. You prepare the host, enrol it in CCM so it can attest, and install the runtime. You never see the model or the data; you only need the host to be genuine and correctly configured.
+
+## Before you begin
+
+- A bare-metal host with an Intel TDX CPU, and NVIDIA GPUs that support confidential computing. Check the GPU, VBIOS and driver combination in the [NVIDIA Secure AI compatibility matrix](https://www.nvidia.com/en-us/data-center/solutions/confidential-computing/secure-ai-compatibility-matrix/).
+- A **join token** from the CCM account the node will belong to. The model consumer [creates it](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#set-up-ccm).
+- Outbound access from the host to `download.01.org` and `api.trustedservices.intel.com`, and to CCM.
+- Choose the runtime. Every tab set on this page follows your choice.
+
+{/* TODO(verify): supported host OS and kernel. The sources disagree (Ubuntu 26.04 in titles, 25.10 in one section, the 24.04 "noble" Intel repository, and kernel 6.17.0 for Confidential Containers). */}
+{/* TODO(verify): the node agent's network requirements; the only documented port is 9092, without direction or protocol. */}
+
+## Prepare the host
+
+1. Follow NVIDIA's deployment guide for confidential computing on TDX for the hardware, BIOS, host software and host validation sections.
+2. In the BIOS, enable Intel TDX and disable simultaneous multithreading (SMT). With SMT on, the TEE fails to start with `fw_error=7 'Policy is not allowed'`.
+3. Install the Intel SGX registration agent:
+
+   ```bash
+   wget -q https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key -O /tmp/intel-sgx.key
+   sudo gpg --dearmor -o /usr/share/keyrings/intel-sgx-keyring.gpg /tmp/intel-sgx.key
+   echo "deb [signed-by=/usr/share/keyrings/intel-sgx-keyring.gpg] https://download.01.org/intel-sgx/sgx_repo/ubuntu noble main" \
+     | sudo tee /etc/apt/sources.list.d/intel-sgx.list
+   sudo apt-get update
+   sudo apt-get install -y sgx-ra-service
+   ```
+
+4. Register the platform with Intel. Either enable **SGX Auto MP Registration** in the BIOS and reboot, or register manually:
+
+   ```bash
+   /opt/intel/sgx-ra-service/mpa_manage -get_platform_manifest platform_manifest
+   curl -H "Content-Type: application/octet-stream" --data-binary @platform_manifest \
+     -X POST "https://api.trustedservices.intel.com/sgx/registration/v1/platform"
+   ```
+
+   A manual registration returns `201 Created`.
+
+5. Check the registration:
+
+   ```bash
+   cat /var/log/mpa_registration.log
+   ```
+
+   It shows `Registration Flow - PLATFORM_ESTABLISHMENT passed successfully` or `Registration Flow - TCB_RECOVERY passed successfully`.
+
+## Enrol the node
+
+The node agent attests the host to CCM and passes attestation requests and certificates between workloads and CCM.
+
+1. Download `TDX-Node-Agent-installer.tar.gz` from Fortanix, and extract it:
+
+   ```bash
+   tar -zxvf TDX-Node-Agent-installer.tar.gz
+   cd em-agent-installer-tdx
+   ```
+
+2. Run the installer with the join token:
+
+   ```bash
+   sudo bash installer.sh <JOIN_TOKEN>
+   ```
+
+   - `<JOIN_TOKEN>`: the join token from the model consumer.
+
+3. Check that the agent runs:
+
+   ```bash
+   systemctl status em-agent
+   journalctl -xe | grep em-agent
+   ```
+
+The node appears in CCM under **Infrastructure** > **Compute Nodes** > **Intel TDX**.
+
+## Install the runtime
+
+<Tabs groupId="runtime">
+<Tab label="Confidential Containers">
+
+Confidential Containers run each pod in its own TEE through Kata Containers on Kubernetes.
+
+**Requirements**: Kubernetes <Version of="fortanix-kata-deploy" field="requires.kubernetes" /> (kubeadm; Kind and Minikube don't work with the QEMU runtime), containerd <Version of="fortanix-kata-deploy" field="requires.containerd" />, Helm <Version of="fortanix-kata-deploy" field="requires.helm" />, SELinux disabled, and at least one node labelled `node.kubernetes.io/worker`. Don't install or load the NVIDIA driver on the host.
+
+1. Install the NVIDIA GPU Operator in VM passthrough mode:
+
+   ```bash
+   kubectl label node <NODE_NAME> nvidia.com/gpu.workload.config=vm-passthrough
+   helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+   helm repo update
+   helm install --generate-name -n gpu-operator --create-namespace nvidia/gpu-operator \
+     --set sandboxWorkloads.enabled=true \
+     --set sandboxWorkloads.mode=kata \
+     --set nfd.enabled=true \
+     --set nfd.nodefeaturerules=true \
+     --version={{nvidia-gpu-operator.version}}
+   ```
+
+   - `<NODE_NAME>`: the GPU node.
+
+2. Add these settings to `/var/lib/kubelet/config.yaml`, then run `sudo systemctl restart kubelet`:
+
+   ```yaml
+   volumeStatsAggPeriod: 0s
+   featureGates:
+     KubeletPodResourcesGet: true
+     RuntimeClassInImageCriApi: true
+   ```
+
+3. Install the Confidential Containers runtime with Fortanix's attestation and key-broker modules:
+
+   ```bash
+   helm install coco {{coco-chart.artifact}} \
+     --version {{coco-chart.version}} --namespace coco-system --create-namespace \
+     --set kata-as-coco-runtime.image.reference={{fortanix-kata-deploy.artifact}} \
+     --set kata-as-coco-runtime.image.tag={{fortanix-kata-deploy.version}}
+   ```
+
+4. Wait for it to roll out:
+
+   ```bash
+   kubectl -n coco-system rollout status ds/kata-as-coco-runtime
+   ```
+
+   The logs (`kubectl -n coco-system logs -l name=kata-as-coco-runtime`) list the runtimes it configured, including `qemu-tdx` and `qemu-nvidia-gpu-tdx-runtime-rs`.
+
+The versions in these commands come from the [support matrix](/solutions/confidential-ai/support-matrix).
+
+</Tab>
+<Tab label="Enclave OS">
+
+An Enclave OS workload runs as a container that starts its own TEE, and the GPUs are passed through to it.
+
+1. Find the NVIDIA GPUs and check their driver:
+
+   ```bash
+   lspci -D -d 10de:
+   lspci -nnk -d 10de:
+   ```
+
+   Each GPU must show `Kernel driver in use: vfio-pci`.
+
+2. If not, bind them to `vfio-pci`, as root:
+
+   ```bash
+   sudo modprobe vfio-pci
+   echo <VENDOR_ID> <DEVICE_ID> | sudo tee /sys/bus/pci/drivers/vfio-pci/new_id
+   ```
+
+   - `<VENDOR_ID> <DEVICE_ID>`: from the `lspci -nnk` output, for example `10de 2330`.
+
+A GPU can be passed through to only one TEE at a time.
+
+</Tab>
+</Tabs>
+
+## Verify
+
+- The node is listed in CCM under **Infrastructure** > **Compute Nodes**.
+- `systemctl status em-agent` shows the agent running.
+- For Confidential Containers, the `gpu-operator` pods and the `kata-as-coco-runtime` daemon set are running.
+
+
+## Next steps
+
+- [Model consumer: run and verify the workload](/solutions/confidential-ai/how-to-guides/by-role/model-consumer)

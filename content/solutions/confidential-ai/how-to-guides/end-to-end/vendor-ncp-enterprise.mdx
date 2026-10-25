@@ -1,0 +1,47 @@
+---
+title: "Deploy a proprietary model through an NCP"
+description: "A model vendor's model runs on an NCP's GPUs and is used by an enterprise, end to end."
+doc_type: how-to
+keywords: [proprietary model, ncp, neocloud, model vendor, enterprise, end to end]
+sidebar_label: Vendor, NCP, enterprise
+sidebar_position: 2
+---
+
+A model vendor's model runs on an NCP's GPUs, and an enterprise uses it. Three companies each do their part.
+
+## Who is involved
+
+<RolesExplorer scenarios={["vendor-ncp-enterprise"]} />
+
+## Before you begin
+
+- Choose the runtime, Confidential Containers or Enclave OS. Each linked step has both.
+- The model owner and the consumer use separate CCM accounts, linked by a shared workflow. The owner approves it first.
+
+{/* TODO(verify): which CCM account the NCP's nodes are enrolled in. This guide assumes the enterprise's, as with the Rafay integration, where the NCP onboards the node with the enterprise's join token. */}
+
+## Steps
+
+Each step links to the task in the role guide; do them in this order.
+
+| | Who | Task |
+|---|---|---|
+| 1 | Enterprise | [Set up CCM: create a group, a join token and the zone CA](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#set-up-ccm) |
+| 2 | NCP | [Prepare the host](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#prepare-the-host) |
+| 3 | NCP | [Enrol the node with the join token](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#enrol-the-node) |
+| 4 | NCP | [Install the runtime](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#install-the-runtime) |
+| 5 | Model vendor | [Set up DSM with the zone CA](/solutions/confidential-ai/how-to-guides/by-role/model-owner#set-up-dsm) |
+| 6 | Model vendor | [Encrypt the model](/solutions/confidential-ai/how-to-guides/by-role/model-owner#encrypt-the-model) |
+| 7 | Model vendor | [Build the confidential image and measure it](/solutions/confidential-ai/how-to-guides/by-role/model-owner#build-the-confidential-image-and-measure-it) |
+| 8 | Model vendor | [Register and approve it in CCM](/solutions/confidential-ai/how-to-guides/by-role/model-owner#register-and-approve-in-ccm) |
+| 9 | Model vendor and enterprise | [Share it through a shared workflow](/solutions/confidential-ai/how-to-guides/by-role/model-owner#share-with-the-model-consumer) |
+| 10 | Enterprise | [Deploy the workload](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#deploy-the-workload) |
+| 11 | Enterprise | [Verify attestation](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#verify-attestation) |
+| 12 | Enterprise | [Connect clients](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#connect-clients) |
+
+## Verify
+
+The consumer's last checks confirm the whole chain: CCM's audit log shows a successful `REQUEST_APP_CERTIFICATE`, the build is deployed, and the DSM Trusted CA app shows the key being used.
+
+## Next steps
+

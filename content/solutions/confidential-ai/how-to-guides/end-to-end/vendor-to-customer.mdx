@@ -1,0 +1,45 @@
+---
+title: "Deploy a proprietary model on a customer's infrastructure"
+description: "A model vendor deploys its proprietary model on a customer's own GPUs, end to end."
+doc_type: how-to
+keywords: [proprietary model, model vendor, customer, on-premises, end to end]
+sidebar_label: Vendor to customer
+sidebar_position: 1
+---
+
+A model vendor deploys its model on a customer's own GPUs. The customer is both the infrastructure provider and the model consumer, so it does both of those parts.
+
+## Who is involved
+
+<RolesExplorer scenarios={["vendor-direct"]} />
+
+## Before you begin
+
+- Choose the runtime, Confidential Containers or Enclave OS. Each linked step has both.
+- The model owner and the consumer use separate CCM accounts, linked by a shared workflow. The owner approves it first.
+
+## Steps
+
+Each step links to the task in the role guide; do them in this order.
+
+| | Who | Task |
+|---|---|---|
+| 1 | Customer | [Set up CCM: create a group, a join token and the zone CA](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#set-up-ccm) |
+| 2 | Customer | [Prepare the host](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#prepare-the-host) |
+| 3 | Customer | [Enrol the node with the join token](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#enrol-the-node) |
+| 4 | Customer | [Install the runtime](/solutions/confidential-ai/how-to-guides/by-role/infrastructure-provider#install-the-runtime) |
+| 5 | Model vendor | [Set up DSM with the zone CA](/solutions/confidential-ai/how-to-guides/by-role/model-owner#set-up-dsm) |
+| 6 | Model vendor | [Encrypt the model](/solutions/confidential-ai/how-to-guides/by-role/model-owner#encrypt-the-model) |
+| 7 | Model vendor | [Build the confidential image and measure it](/solutions/confidential-ai/how-to-guides/by-role/model-owner#build-the-confidential-image-and-measure-it) |
+| 8 | Model vendor | [Register and approve it in CCM](/solutions/confidential-ai/how-to-guides/by-role/model-owner#register-and-approve-in-ccm) |
+| 9 | Model vendor and customer | [Share it through a shared workflow](/solutions/confidential-ai/how-to-guides/by-role/model-owner#share-with-the-model-consumer) |
+| 10 | Customer | [Deploy the workload](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#deploy-the-workload) |
+| 11 | Customer | [Verify attestation](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#verify-attestation) |
+| 12 | Customer | [Connect clients](/solutions/confidential-ai/how-to-guides/by-role/model-consumer#connect-clients) |
+
+## Verify
+
+The consumer's last checks confirm the whole chain: CCM's audit log shows a successful `REQUEST_APP_CERTIFICATE`, the build is deployed, and the DSM Trusted CA app shows the key being used.
+
+## Next steps
+
