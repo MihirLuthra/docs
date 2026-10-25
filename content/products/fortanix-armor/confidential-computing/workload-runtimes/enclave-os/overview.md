@@ -7,7 +7,7 @@ sidebar_label: Overview
 sidebar_position: 1
 ---
 
-Enclave OS is a container converter. It turns an existing container image into an Enclave OS container, without changes to the application, and the converted container is what runs. It is a normal container, so it runs anywhere containers run, on a server with Intel TDX. When it starts, it starts its own TEE from within.
+Enclave OS is a container converter. It turns an existing container image into an Enclave OS container, without changes to the application, and the converted container is what runs. It is a normal container, so it runs anywhere containers run, on a host with a supported TEE. When it starts, it starts its own TEE from within.
 
 ## How it works
 

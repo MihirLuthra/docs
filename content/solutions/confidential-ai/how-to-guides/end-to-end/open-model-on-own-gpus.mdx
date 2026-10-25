@@ -1,13 +1,13 @@
 ---
-title: "Run an open-source model on your own servers"
-description: "Your organization runs a public open-source model on its own servers, keeping prompts and data private, end to end."
+title: "Run an open-source model on your own infrastructure"
+description: "Your organization runs a public open-source model on its own infrastructure, keeping prompts and data private, end to end."
 doc_type: how-to
 keywords: [open-source model, own infrastructure, data privacy, end to end]
-sidebar_label: Open model on own servers
+sidebar_label: Open model on own infrastructure
 sidebar_position: 6
 ---
 
-The weights are public, so there is no model to encrypt. Your teams build, register and run the workload on your own servers.
+The weights are public, so there is no model to encrypt. Your teams build, register and run the workload on your own infrastructure.
 
 ## The deployment, step by step
 
@@ -17,7 +17,7 @@ The weights are public, so there is no model to encrypt. Your teams build, regis
 
 - [Plan the deployment](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/plan-a-deployment), and choose the runtime, Confidential Containers or Enclave OS. Each linked task has both.
 - Skip the model owner's DSM and encryption steps. If the workload needs keys for other data, for example encrypted documents for retrieval, set up DSM the same way and keep those keys there.
-- Register the workload in the same CCM account the servers are enrolled in. If you use DSM, upload your own zone CA to it.
+- Register the workload in the same CCM account the infrastructure is enrolled in. If you use DSM, upload your own zone CA to it.
 
 {/* TODO(verify): whether a Confidential Containers workload with an unencrypted image still needs the key broker settings in InitData. */}
 

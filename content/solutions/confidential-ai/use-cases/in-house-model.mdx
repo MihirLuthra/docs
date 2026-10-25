@@ -1,12 +1,12 @@
 ---
 title: In-house model
-description: Run a model you own on your own or rented servers, protected from infrastructure administrators and compromised host software.
+description: Run a model you own on your own or rented infrastructure, protected from infrastructure administrators and compromised host software.
 doc_type: concept
 keywords: [in-house model, private model, fine-tuned, own infrastructure, cloud gpu, model as a service]
 sidebar_position: 2
 ---
 
-An organization runs a model it owns, one it built, fine-tuned or sells. The organization is both the model owner and the model consumer. Confidential AI keeps the model and the data protected from the host software and administrators of whoever runs the servers, even when that is the organization's own platform team.
+An organization runs a model it owns, one it built, fine-tuned or sells. The organization is both the model owner and the model consumer. Confidential AI keeps the model and the data protected from the host software and administrators of whoever runs the infrastructure, even when that is the organization's own platform team.
 
 A model vendor that serves its own model to users fits this case too. It owns the model and runs it, and a cloud or an NCP may provide the servers.
 
@@ -21,11 +21,11 @@ A model vendor that serves its own model to users fits this case too. It owns th
 - **The model weights.** The model is the organization's intellectual property. Inside the TEE, the host cannot read it.
 - **The data and prompts.** Training data, customer records and internal documents stay private while the model uses them.
 
-On its own infrastructure, the organization is protected from administrators and compromised host software. On rented servers, it is also protected from the cloud or NCP's hosts and administrators.
+On its own infrastructure, the organization is protected from administrators and compromised host software. On rented infrastructure, it is also protected from the cloud or NCP's hosts and administrators.
 
 ## Key release
 
-Key release is required on cloud or NCP servers, and recommended on the organization's own infrastructure. The organization encrypts the model weights and keeps the model encryption key in DSM. DSM releases the key directly into the TEE, and only for the approved model. The weights are then only ever readable by the approved code around the model. Storage, backups and every other host hold only ciphertext. This applies least privilege to the model itself.
+Key release is required on cloud or NCP infrastructure, and recommended on the organization's own infrastructure. The organization encrypts the model weights and keeps the model encryption key in DSM. DSM releases the key directly into the TEE, and only for the approved model. The weights are then only ever readable by the approved code around the model. Storage, backups and every other host hold only ciphertext. This applies least privilege to the model itself.
 
 <AttestationFlow keyRelease="toggle" />
 

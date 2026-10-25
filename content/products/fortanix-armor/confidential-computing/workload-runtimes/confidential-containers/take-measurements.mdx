@@ -6,7 +6,7 @@ keywords: [measurements, reference values, initdata, mrtd, rtmr, mrconfigid, acp
 sidebar_position: 4
 ---
 
-CCM certifies a pod only when its measurements match an approved build. The measurements come from the runtime release installed on the servers, the shape of the confidential VM, and the pod's InitData. The container image is not part of them.
+CCM certifies a pod only when its measurements match an approved build. The measurements come from the runtime release installed on the infrastructure, the shape of the confidential VM, and the pod's InitData. The container image is not part of them.
 
 <Callout type="note" title="No supported tool yet">
 
@@ -18,7 +18,7 @@ Fortanix doesn't currently provide a supported way to take measurements for Conf
 
 - A new Confidential Containers release, for example with a kernel patch. It changes the measurements of every pod.
 - A change to the pod's InitData.
-- On Intel TDX, a change to the shape of the server or the pod, such as the number or model of GPUs, the CPU generation, or the memory.
+- On Intel TDX, a change to the shape of the host or the pod, such as the number or model of GPUs, the CPU generation, or the memory.
 
 ## Write the InitData
 
@@ -58,7 +58,7 @@ The InitData holds the pod's attestation and key broker settings, and its hash i
 <Tabs groupId="tee">
 <Tab label="Intel TDX">
 
-On Intel TDX, the measurements include the ACPI tables of the confidential VM, and those depend on its shape. Measure on a server that is nearly the same as the one the model will run on, with the same GPU count and models and the same CPU generation, and with the same runtime release.
+On Intel TDX, the measurements include the ACPI tables of the confidential VM, and those depend on its shape. Measure on a host that is nearly the same as the one the model will run on, with the same GPU count and models and the same CPU generation, and with the same runtime release.
 
 1. Start a measurement pod with the runtime class the workload uses, the annotation `io.katacontainers.config.hypervisor.cc_init_data` set to `$initdata`, and the same resources as the workload.
 2. In the pod, fetch the TDX evidence from `http://127.0.0.1:8006/aa/evidence`, and read the measurements from the quote.
@@ -78,7 +78,7 @@ On Intel TDX, the measurements include the ACPI tables of the confidential VM, a
 </Tab>
 <Tab label="AMD SEV-SNP">
 
-On AMD SEV-SNP, the ACPI tables are not part of the measurement. Depending on the release, you can calculate it with [sev-snp-measure](https://github.com/virtee/sev-snp-measure) from the runtime's firmware, kernel and command line, or run a measurement pod on an SEV-SNP server and read it from the evidence.
+On AMD SEV-SNP, the ACPI tables are not part of the measurement. Depending on the release, you can calculate it with [sev-snp-measure](https://github.com/virtee/sev-snp-measure) from the runtime's firmware, kernel and command line, or run a measurement pod on an SEV-SNP host and read it from the evidence.
 
 {/* TODO(verify): the sev-snp-measure arguments for the Fortanix runtime release, and the report offsets for a measurement pod on SEV-SNP. */}
 

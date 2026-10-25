@@ -1,13 +1,13 @@
 ---
 title: "Deploy a proprietary model for a customer on an NCP"
-description: "A model vendor's customer runs the vendor's model on servers rented from an NCP, end to end."
+description: "A model vendor's customer runs the vendor's model on infrastructure rented from an NCP, end to end."
 doc_type: how-to
 keywords: [proprietary model, ncp, neocloud, model vendor, customer, end to end]
 sidebar_label: Vendor to its customer, on an NCP
 sidebar_position: 2
 ---
 
-A model vendor's customer runs the vendor's model on servers it rents from an NCP, a GPU cloud provider. Three companies each do their part, and none of them sees what it shouldn't.
+A model vendor's customer runs the vendor's model on infrastructure it rents from an NCP, a GPU cloud provider. Three companies each do their part, and none of them sees what it shouldn't.
 
 ## The deployment, step by step
 
@@ -18,7 +18,7 @@ A model vendor's customer runs the vendor's model on servers it rents from an NC
 - [Plan the deployment](/solutions/confidential-ai/how-to-guides/day-0-plan-and-prepare/plan-a-deployment), and choose the runtime, Confidential Containers or Enclave OS. Each linked task has both.
 - The model vendor and its customer use separate CCM accounts, linked by a shared workflow. The vendor approves it first.
 
-{/* TODO(verify): which CCM account the NCP's servers are enrolled in. This guide assumes the customer's, as with the Rafay integration, where the NCP onboards the server with the customer's join token. */}
+{/* TODO(verify): which CCM account the NCP's hosts are enrolled in. This guide assumes the customer's, as with the Rafay integration, where the NCP onboards the host with the customer's join token. */}
 
 ## Steps
 

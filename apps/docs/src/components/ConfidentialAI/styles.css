@@ -204,21 +204,62 @@
 
 /* ---------- Deployment flow ---------- */
 
-.cai-phases { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid var(--fx-border-strong); }
+.cai-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 16px; margin-bottom: 14px; border-bottom: 1px solid var(--fx-border-strong); }
+.cai-phases { display: flex; flex-wrap: wrap; gap: 4px; }
 .cai-phases button {
   padding: 6px 10px; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px;
   background: none; color: var(--fx-text-muted); font-weight: 500;
 }
 .cai-phases button[aria-selected="true"] { color: var(--fx-text); border-bottom-color: var(--fx-diagram-accent); }
 
-.cai-deploy-stage {
-  position: relative;
+/* Runtime: a two-way switch, the same choice as the page's runtime tabs. */
+.cai-runtime { display: inline-flex; margin-bottom: 6px; padding: 2px; border: 1px solid var(--fx-border-strong); border-radius: 999px; background: var(--fx-bg); }
+.cai-runtime button { padding: 3px 10px; border: 0; border-radius: 999px; background: none; color: var(--fx-text-muted); font-size: 12.5px; font-weight: 500; }
+.cai-runtime button[aria-checked="true"] { background: var(--fx-selected-bg); color: var(--fx-selected-text); font-weight: 600; }
+
+.cai-operation { display: flex; align-items: center; gap: 8px; margin: -4px 0 14px; color: var(--fx-text-muted); font-size: 13px; }
+.cai-operation select { padding: 4px 8px; border: 1px solid var(--fx-border-strong); border-radius: 8px; background: var(--fx-bg); color: var(--fx-text); font: inherit; font-size: 13px; }
+
+/* The real stage and a hidden copy with everything in it share one cell, so the
+   stage is always as tall as it will get and nothing below it moves. */
+.cai-deploy-frame { display: grid; }
+.cai-deploy-frame > .cai-deploy-stage { grid-area: 1 / 1; align-self: start; }
+.cai-deploy-stage.is-ghost { visibility: hidden; pointer-events: none; }
+
+.cai-deploy-stage { position: relative; }
+
+/* Fortanix's services across the top; the parties' lanes below, with a channel between for arrows. */
+.cai-band { padding: 8px; border: 1.5px solid var(--fx-diagram-secure); border-radius: 12px; background: var(--fx-diagram-secure-soft); }
+.cai-band[data-shown="false"] { visibility: hidden; }
+.cai-band-boxes { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.cai-band-boxes[data-dsm="true"] { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); }
+.cai-box.is-service { padding-bottom: 14px; /* room for the bus under the accounts */ }
+.cai-accounts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 0 10px; align-items: start; }
+
+.cai-lanes {
   display: grid;
-  grid-template-columns: repeat(var(--lanes), minmax(0, 1fr));
-  gap: 28px; /* GUTTER in DeploymentFlow.tsx */
+  grid-template-columns: var(--cols);
+  gap: 24px; /* GUTTER in DeploymentFlow.tsx */
   align-items: start;
-  padding-top: 18px; /* the channel arrows take between lanes that aren't side by side */
+  margin-top: 26px; /* the channel */
 }
+
+/* Elements join the picture at their step, with a short fade. A lane keeps its column before its party joins. */
+.cai-lane[data-shown="false"] { visibility: hidden; }
+@keyframes cai-join { from { opacity: 0; transform: translateY(6px); } }
+.cai-deploy-stage:not(.is-ghost) :is(.cai-band, .cai-lane, .cai-box, .cai-account, .cai-account li, .cai-box-tee) { animation: cai-join 350ms ease-out; }
+@media (prefers-reduced-motion: reduce) { .cai-deploy-stage :is(.cai-band, .cai-lane, .cai-box, .cai-account, .cai-account li, .cai-box-tee) { animation: none !important; } }
+
+/* The first step: choosing the runtime, in the middle of the empty stage. */
+.cai-choose {
+  position: absolute; inset: 0 0 auto; z-index: 1;
+  max-width: 560px; margin: 40px auto 0; padding: 18px;
+  border: 1px solid var(--fx-border-strong); border-radius: 12px; background: var(--fx-bg);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+.cai-choose-title { margin: 0 0 10px; font-size: 16px; font-weight: 700; }
+.cai-choose-note { margin: 0; font-size: 12.5px; color: var(--fx-text-muted); }
+
 .cai-lane {
   min-width: 0;
   padding: 8px;
@@ -232,33 +273,45 @@
 .cai-lane-head { display: flex; flex-direction: column; margin-bottom: 12px; }
 .cai-lane-head strong { font-size: 14px; }
 .cai-lane-head span { font-size: 11.5px; color: var(--fx-text-muted); line-height: 1.35; }
-.cai-lane-boxes { display: grid; gap: 12px; }
+.cai-lane-boxes { display: grid; gap: 14px; }
 .cai-box {
   position: relative;
   display: flex; flex-direction: column; min-width: 0;
-  padding: 7px 9px;
+  padding: 7px 8px;
   border: 1.5px solid var(--fx-border-strong);
   border-radius: 8px;
   background: var(--fx-bg);
-  transition: border-color 250ms, box-shadow 250ms;
 }
-.cai-box strong { font-size: 13px; }
-.cai-box span { font-size: 11.5px; color: var(--fx-text-muted); line-height: 1.35; overflow-wrap: anywhere; }
-.cai-box.is-tee { border-color: var(--fx-diagram-secure); }
-.cai-box-tee { margin-top: 4px; align-self: flex-start; padding: 0 6px; border-radius: 999px; background: var(--fx-diagram-secure-soft); color: var(--fx-diagram-secure) !important; font-weight: 600; }
+.cai-box > strong { font-size: 12.5px; overflow-wrap: normal; word-break: normal; }
+.cai-box > span { font-size: 11.5px; color: var(--fx-text-muted); line-height: 1.35; overflow-wrap: anywhere; }
 .cai-box.is-from, .cai-box.is-to { border-color: var(--fx-text-muted); box-shadow: 0 0 0 3px var(--fx-chip); }
-.cai-box.is-tee.is-from, .cai-box.is-tee.is-to { border-color: var(--fx-diagram-secure); box-shadow: 0 0 0 3px var(--fx-diagram-secure-soft); }
+.cai-box-tee { margin-top: 5px; align-self: flex-start; padding: 0 6px; border-radius: 999px; background: var(--fx-diagram-secure-soft); color: var(--fx-diagram-secure) !important; font-weight: 600; }
+
+/* Accounts inside CCM and DSM, with their items. */
+.cai-account { position: relative; margin-top: 12px; padding: 6px 8px; border: 1px solid var(--fx-border-strong); border-radius: 6px; background: var(--fx-surface); }
+.cai-account.is-from, .cai-account.is-to { border-color: var(--fx-text-muted); box-shadow: 0 0 0 3px var(--fx-chip); }
+.cai-account-name { display: block; font-size: 11.5px; font-weight: 700; }
+.cai-account ul { margin: 2px 0 0; padding: 0; list-style: none; }
+.cai-account li { display: flex; flex-wrap: wrap; align-items: center; gap: 0 6px; margin: 0; font-size: 11.5px; line-height: 1.5; color: var(--fx-text-secondary); }
+.cai-done { display: inline-flex; align-items: center; gap: 2px; color: var(--fx-diagram-secure); font-weight: 600; }
+.cai-pending { color: var(--fx-text-muted); font-style: italic; }
+.cai .cai-tick-icon { width: 11px; height: 11px; }
+
+/* Text for both runtimes in one cell: switching never changes the size. */
+.cai-variants { display: inline-grid; }
+.cai-variants > span { grid-area: 1 / 1; }
+.cai-variants > span[data-on="false"] { visibility: hidden; }
 
 .cai-deploy-arrow { position: absolute; inset: 0; width: 100% !important; height: 100% !important; overflow: visible; pointer-events: none; color: var(--fx-diagram-accent); }
-/* What a step moves, on the box that receives it; "Sends" on the box it comes from. */
-.cai-box-carry, .cai-box-send {
-  position: absolute; top: -9px; right: 6px; max-width: calc(100% - 12px);
+
+/* What a step moves, on what receives it. */
+.cai-box-carry {
+  position: absolute; top: -9px; right: 6px; z-index: 1;
   padding: 0 7px; border-radius: 999px;
+  border: 1px solid var(--fx-diagram-accent); background: var(--fx-diagram-accent); color: var(--fx-bg) !important;
   font-size: 11px !important; font-weight: 600; line-height: 16px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.cai-box-carry { border: 1px solid var(--fx-diagram-accent); background: var(--fx-diagram-accent); color: var(--fx-bg) !important; }
-.cai-box-send { border: 1px solid var(--fx-border-strong); background: var(--fx-bg); color: var(--fx-text-muted) !important; }
 
 .cai-deploy-nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 16px 0 10px; }
 .cai-deploy-dots { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
@@ -278,17 +331,41 @@
 .cai-deploy-panel { grid-area: 1 / 1; }
 .cai-deploy-panel[data-active="false"] { visibility: hidden; }
 .cai-deploy-panel .cai-deploy-title { margin: 2px 0 4px; font-size: 15px; font-weight: 700; }
-.cai-deploy-panel p { margin: 0 0 6px; }
+.cai-deploy-panel p { margin: 0 0 8px; }
 .cai-deploy-who { font-size: 12px; color: var(--fx-text-muted); }
 .cai-deploy-you { margin-left: 8px; padding: 0 6px; border-radius: 999px; border: 1px solid var(--fx-diagram-party); color: var(--fx-text); }
+
+/* The step's how-to: a clear button, not a quiet link. */
+.cai-deploy-guide {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 2px;
+  padding: 6px 14px; border-radius: 999px;
+  background: var(--fx-diagram-accent); color: var(--fx-bg) !important;
+  font-weight: 600; text-decoration: none !important;
+}
+.cai-deploy-guide:hover { filter: brightness(1.1); }
+.cai-deploy-guide:focus-visible { outline: 2px solid var(--fx-focus); outline-offset: 2px; }
+.cai .cai-deploy-guide svg { width: 14px; height: 14px; }
+
+/* Choosing the runtime, in its step. */
+.cai-runtime-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 8px; margin: 4px 0 10px; }
+.cai-runtime-cards button {
+  display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; text-align: left;
+  border: 1.5px solid var(--fx-border-strong); border-radius: 10px; background: var(--fx-bg); color: var(--fx-text);
+}
+.cai-runtime-cards button span { font-size: 12.5px; color: var(--fx-text-muted); }
+.cai-runtime-cards button[aria-checked="true"] { border-color: var(--fx-diagram-accent); background: var(--fx-selected-bg); }
 
 .cai-deploy-accounts { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--fx-border-strong); }
 .cai-deploy-accounts p { margin: 4px 0 0; }
 
 .cai-steps-table small { color: var(--fx-text-muted); }
 
-/* Narrow: lanes stack, their boxes side by side. */
+/* Narrow: columns stack, their boxes side by side. */
 @container (max-width: 600px) {
-  .cai-deploy-stage { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .cai-lanes { grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 16px; }
+  .cai-band-boxes[data-dsm="true"] { grid-template-columns: minmax(0, 1fr); }
+  /* Stacked, what hasn't joined takes no room, and the picture grows as it fills in. */
+  .cai-deploy-stage.is-ghost, .cai-lane[data-shown="false"], .cai-band[data-shown="false"] { display: none; }
+  .cai-choose { position: relative; inset: auto; margin: 0 0 12px; }
   .cai-lane-boxes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

@@ -16,25 +16,26 @@ Each deployment has an end-to-end guide, and each role has a guide of its own.
 
 ## See the accounts and the steps
 
-Pick a deployment to see each party's accounts and servers, and every step from day 0 to the day 2 updates. The arrows show what one party sends another, such as the join token or the zone CA certificate.
+Pick a deployment and step through it. Parties, accounts and infrastructure join the picture when they come in, and the arrows show what moves between them, such as the join token or the zone CA certificate. The first step is choosing the runtime. The switch above the diagram changes it at any time, together with every runtime tab on the page.
 
 <DeploymentFlow scenarios />
 
-{/* TODO(verify): which party's CCM account the servers are enrolled in when an NCP runs them. The diagram assumes the model consumer's. */}
+{/* TODO(verify): which party's CCM account the infrastructure is enrolled in when an NCP runs them. The diagram assumes the model consumer's. */}
 
 ## Choose the runtime
 
-The model runs in an Intel TDX TEE in all three. They differ in what you build, where it runs, and what has to happen again on day 2.
+The model runs in a TEE with all three. They differ in what you build, where it runs, and how the model is protected.
 
 | Compared | Confidential Containers | Fortanix Enclave OS | Custom confidential VM |
 |---|---|---|---|
 | What it is | Kubernetes pods in TEEs, based on the CNCF [Confidential Containers](https://confidentialcontainers.org/) project | A converter that turns a container image into an Enclave OS container. The converted container is what runs. | A confidential VM you build yourself |
 | What you build | A normal container image | A normal container image, which you then convert | The whole VM image, with its firmware, kernel and disk |
-| Where it runs | Kubernetes, with the Confidential Containers runtime installed on the servers | Anywhere that runs containers, such as Docker or Kubernetes, on a server with Intel TDX | Wherever you start it, for example with QEMU |
+| Where it runs | Kubernetes, with the Confidential Containers runtime installed on the hosts | Anywhere that runs containers, such as Docker or Kubernetes | Wherever you start it, for example with QEMU |
 | The TEE | One TEE per pod | The container starts its own TEE from within | One TEE per VM |
 | How the model is protected | The image layers are encrypted with ocicrypt, and DSM wraps the layer keys. Inside the TEE, the layers are decrypted as the image is pulled, after attestation and before the container starts. | The model files are encrypted separately, with a key stored in DSM. The workload decrypts them when it starts, after attestation. | Your choice |
-| Guest firmware and kernel | Installed with the runtime on the servers, the same for every pod | Inside each converted container | Yours |
-| On day 2 | A runtime release changes every workload's measurements, so new builds are approved before the servers are upgraded | Every new version is converted again and approved as a new build | Any change to the VM image or how it starts needs a new build |
+| Supported TEEs | <SupportedTees runtime="confidential-containers" /> | <SupportedTees runtime="enclave-os" /> | Your choice |
+
+The supported TEEs come from the [support matrix](../../support-matrix.mdx), which lists the tested versions for each.
 
 {/* TODO(verify): link the security architecture of each runtime here, once those pages are published. */}
 {/* TODO(verify): add the custom confidential VM guides; these guides cover Confidential Containers and Enclave OS only. */}
@@ -43,4 +44,4 @@ The guides in this section have a tab for Confidential Containers and one for En
 
 ## Next steps
 
-- [Prepare the servers](prepare-the-servers.mdx)
+- [Prepare the infrastructure](prepare-the-infrastructure.mdx)

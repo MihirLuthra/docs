@@ -7,7 +7,7 @@ import AttestationFlow from '@site/src/components/ConfidentialAI/AttestationFlow
 import {DeploymentFlow, DeploymentSteps, DeploymentsTable} from '@site/src/components/ConfidentialAI/DeploymentFlow';
 import RolesExplorer from '@site/src/components/ConfidentialAI/RolesExplorer';
 import {Screenshot, Screenshots} from '@site/src/components/Screenshots';
-import {CurrentVersions, SupportMatrix, Version} from '@site/src/components/Versions';
+import {CurrentVersions, SupportedTees, SupportMatrix, Version} from '@site/src/components/Versions';
 
 // Components MDX pages in content/ use without importing them (content/ holds
 // no code). The diagrams are imported, not lazy: loaded lazily, React drops
@@ -69,6 +69,7 @@ export default {
   RolesExplorer,
   Version,
   SupportMatrix,
+  SupportedTees,
   CurrentVersions,
   Tabs,
   Tab,

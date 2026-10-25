@@ -16,7 +16,7 @@ The runtime adds Confidential Containers runtime classes to the cluster, such as
 - SELinux disabled, and at least one node labelled `node.kubernetes.io/worker`.
 - For GPUs, NVIDIA GPUs that support confidential computing, and no NVIDIA driver installed or loaded on the host.
 
-## Prepare GPU servers
+## Prepare GPU hosts
 
 Skip this without GPUs.
 
@@ -34,7 +34,7 @@ Skip this without GPUs.
      --version={{nvidia-gpu-operator.version}}
    ```
 
-   - `<NODE_NAME>` is the Kubernetes node name of the GPU server.
+   - `<NODE_NAME>` is the Kubernetes node name of the GPU host.
 
 2. Add these settings to `/var/lib/kubelet/config.yaml`, then run `sudo systemctl restart kubelet`.
 

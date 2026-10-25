@@ -43,6 +43,16 @@ const PLATFORM_LABEL: Record<string, string> = {
  * and/or a runtime: one card per combination, with its status, platform,
  * component versions, and who tested it when.
  */
+/**
+ * The TEEs a runtime runs on, from the tested combinations in versions/:
+ * <SupportedTees runtime="enclave-os" />. Adding a combination adds its TEE.
+ */
+export function SupportedTees({runtime}: {runtime: string}): ReactNode {
+  const tees = [...new Set(useVersions().combinations.filter((c) => c.runtime === runtime).map((c) => c.platform.tee))].filter(Boolean);
+  if (tees.length === 0) return <>None listed yet</>;
+  return <>{tees.join(", ")}</>;
+}
+
 export function SupportMatrix({solution, runtime}: {solution?: string; runtime?: string}): ReactNode {
   const {components, combinations} = useVersions();
   const rows = combinations.filter(
