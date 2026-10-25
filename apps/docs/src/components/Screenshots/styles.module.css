@@ -1,0 +1,93 @@
+/* Screenshots: steps as tabs above one screenshot at a time. */
+.figure {
+  margin: 0 0 var(--fx-space-6);
+}
+
+.steps {
+  display: flex;
+  gap: var(--fx-space-2);
+  margin-bottom: var(--fx-space-3);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.step {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--fx-space-2);
+  padding: var(--fx-space-1) var(--fx-space-3) var(--fx-space-1) var(--fx-space-1);
+  border: var(--fx-border-width) solid var(--fx-border-strong);
+  border-radius: var(--fx-radius-pill);
+  background-color: var(--fx-bg);
+  color: var(--fx-text-secondary);
+  font: inherit;
+  font-size: var(--fx-text-sm);
+  cursor: pointer;
+}
+
+.step:hover {
+  border-color: var(--fx-accent-border);
+  color: var(--fx-text);
+}
+
+.step:focus-visible {
+  outline: var(--fx-focus-width) solid var(--fx-focus);
+  outline-offset: var(--fx-focus-width);
+}
+
+.step[aria-selected='true'] {
+  border-color: var(--fx-accent-border);
+  background-color: var(--fx-accent-soft);
+  color: var(--fx-text);
+  font-weight: 600;
+}
+
+.number {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--fx-radius-pill);
+  background-color: var(--fx-surface);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-xs);
+  font-weight: 600;
+}
+
+.step[aria-selected='true'] .number {
+  background-color: var(--fx-link);
+  color: var(--fx-bg);
+}
+
+/* Every screenshot in one cell: the tallest sets the height. */
+.stack {
+  display: grid;
+}
+
+.stack > .frame {
+  grid-area: 1 / 1;
+  align-self: start;
+}
+
+.stack > .frame[data-active='false'] {
+  visibility: hidden;
+}
+
+.frame :is(p, img) {
+  margin: 0;
+}
+
+.frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: var(--fx-border-width) solid var(--fx-border-strong);
+  border-radius: var(--fx-radius-lg);
+}
+
+.caption {
+  margin-top: var(--fx-space-2);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-sm);
+}

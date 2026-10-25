@@ -5,6 +5,7 @@ import TabItem from '@theme/TabItem';
 import DocusaurusTabs from '@theme/Tabs';
 import AttestationFlow from '@site/src/components/ConfidentialAI/AttestationFlow';
 import RolesExplorer from '@site/src/components/ConfidentialAI/RolesExplorer';
+import {Screenshot, Screenshots} from '@site/src/components/Screenshots';
 import {CurrentVersions, SupportMatrix, Version} from '@site/src/components/Versions';
 
 // Components MDX pages in content/ use without importing them (content/ holds
@@ -68,4 +69,6 @@ export default {
   Tabs,
   Tab,
   Callout,
+  Screenshots,
+  Screenshot,
 };
