@@ -78,18 +78,24 @@ interface Layout {
 const LINE = 17; // an account item's line
 const ACCOUNT_HEAD = 32;
 const ASSET_H = 96;
-const HEAD = 56; // a territory's name and roles, on up to two lines
-const CHAR = 6.4; // about how wide a character of 12px text is
+const HEAD = 64; // a territory's name and roles, on up to two lines
+
+/** About how wide text is at a font size; Inter averages a little over half an em. */
+const textWidth = (text: string, size: number, bold = false) => text.length * size * (bold ? 0.6 : 0.55);
+const charsFor = (avail: number, size: number) => Math.max(6, Math.floor(avail / (size * 0.55)));
+/** Shrinks a line that would run past avail, so text never spills out of its card. */
+const fit = (text: string, size: number, avail: number, bold = false) =>
+  textWidth(text, size, bold) > avail ? { textLength: Math.max(10, avail), lengthAdjust: "spacingAndGlyphs" as const } : {};
 
 const userOnly = (t: Territory) => t.roles.length === 1 && t.roles[0] === "user";
-const assetsFor = (t: Territory, rt: Runtime) => t.assets.filter((a) => a.id !== "mhost" || rt === "cc");
+const assetsFor = (t: Territory, _rt?: Runtime) => t.assets;
 const accountHeight = (d: Deployment) => ACCOUNT_HEAD + Math.max(...d.territories.flatMap((t) => t.accounts.map((a) => a.items.length))) * LINE + 8;
 
 /** Wide: territories side by side, accounts on the top row, machines on the bottom row. */
 function wideLayout(d: Deployment, rt: Runtime): Layout {
-  const W = 760, M = 4, GAP = 12, PAD = 8, ROW_GAP = 60, BELOW = 40;
+  const W = 760, M = 4, GAP = 12, PAD = 8, ROW_GAP = 60, BELOW = 30;
   const HA = accountHeight(d);
-  const units = d.territories.map((t) => (userOnly(t) ? 0.95 : Math.max(t.accounts.length, assetsFor(t, rt).length, 1.6)));
+  const units = d.territories.map((t) => (userOnly(t) ? 0.95 : Math.max(t.accounts.length * 1.35, assetsFor(t, rt).length, 1.35)));
   const unit = (W - 2 * M - GAP * (units.length - 1)) / units.reduce((a, b) => a + b, 0);
   const yA = M + HEAD;
   const yB = yA + HA + ROW_GAP;
@@ -147,10 +153,14 @@ function narrowLayout(d: Deployment, rt: Runtime): Layout {
 type P = [number, number];
 
 /** The arrow for a step: a curve through the gap between the rows, or below the bottom row. */
-function arrowFor(l: Layout, from: string, to: string): { path: string; mid: P } | null {
-  const a = l.items.get(from);
-  const b = l.items.get(to);
-  if (!a || !b) return null;
+function arrowFor(l: Layout, from: string, to: string, badged: Set<string>): { path: string; mid: P } | null {
+  const a0 = l.items.get(from);
+  const b0 = l.items.get(to);
+  if (!a0 || !b0) return null;
+  // A card with a badge on its top edge: the arrow meets the badge, not the card under it.
+  const lift = (r: R, id: string): R => (badged.has(id) ? { ...r, y: r.y - 11, h: r.h + 11 } : r);
+  const a = lift(a0, from);
+  const b = lift(b0, to);
   const ra = l.row.get(from);
   const rb = l.row.get(to);
   const cx = (r: R) => r.x + r.w / 2;
@@ -160,7 +170,7 @@ function arrowFor(l: Layout, from: string, to: string): { path: string; mid: P }
     p = [[cx(a), y], [cx(a), y + 40], [cx(b), y + 40], [cx(b), y]];
   } else if (ra === "bottom" && rb === "bottom") {
     const y = a.y + a.h;
-    p = [[cx(a), y], [cx(a), y + 42], [cx(b), y + 42], [cx(b), y]];
+    p = [[cx(a), y], [cx(a), y + 34], [cx(b), y + 34], [cx(b), y]];
   } else {
     const [y1, y2] = ra === "top" ? [a.y + a.h, b.y] : [a.y, b.y + b.h];
     const m = (y1 + y2) / 2;
@@ -190,7 +200,6 @@ function wrap(text: string, n: number): string[] {
 const ICONS: Record<AssetKind | "ccm" | "dsm", React.ReactNode> = {
   build: <><rect x="4" y="5" width="24" height="16" rx="2" /><path d="M1 25h30l-2 3H3z" /></>,
   registry: <><rect x="5" y="4" width="22" height="6" rx="2" /><rect x="5" y="12" width="22" height="6" rx="2" /><rect x="5" y="20" width="22" height="6" rx="2" /></>,
-  mhost: <><rect x="4" y="5" width="24" height="9" rx="2" /><rect x="4" y="17" width="24" height="9" rx="2" /><circle cx="9" cy="9.5" r="1.3" /><circle cx="9" cy="21.5" r="1.3" /><path d="M20 23l2 2 4-5" /></>,
   infra: <><rect x="3" y="3" width="26" height="7" rx="2" /><rect x="3" y="12.5" width="26" height="7" rx="2" /><rect x="3" y="22" width="26" height="7" rx="2" /><circle cx="8" cy="6.5" r="1.2" /><circle cx="8" cy="16" r="1.2" /><circle cx="8" cy="25.5" r="1.2" /></>,
   clients: <><circle cx="11" cy="10" r="4.5" /><path d="M3 27c0-5 3.5-8 8-8s8 3 8 8" /><circle cx="23" cy="12" r="3.5" /><path d="M21 19.5c4.5-.5 8 2 8 7" /></>,
   hub: <path d="M9 25h15a6 6 0 0 0 .5-12 8 8 0 0 0-15.5 2A5 5 0 0 0 9 25z" />,
@@ -253,18 +262,19 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
         <rect className="cai-s-halo" x={r.x - 4} y={r.y - 4} width={r.w + 8} height={r.h + 8} rx="12" />
         <rect className="cai-s-card" x={r.x} y={r.y} width={r.w} height={r.h} rx="9" />
         <svg x={r.x + 10} y={r.y + 9} width="15" height="15" viewBox="0 0 16 16" className={`cai-s-icon is-${a.service}`}>{ICONS[a.service]}</svg>
-        <text x={r.x + 31} y={r.y + 21} className="cai-s-title">{label}</text>
+        <text x={r.x + 31} y={r.y + 21} className="cai-s-title" {...fit(label, 13, r.w - 41, true)}>{label}</text>
         {a.items.map((it, k) => {
           if (!has(it.at)) return null;
           const text = pick(it.label, runtime);
           const y = r.y + ACCOUNT_HEAD + 12 + k * LINE;
           // The status goes right after the label: in words when it fits, else a tick or a dot.
-          const sx = r.x + 12 + text.length * CHAR * 0.95 + 6;
+          const avail = r.w - 24;
+          const sx = r.x + 12 + Math.min(textWidth(text, 12), avail) + 6;
           const room = r.x + r.w - 8 - sx;
           const approved = it.done && has(it.done);
           return (
             <g key={it.id}>
-              <text x={r.x + 12} y={y} className="cai-s-item">{text}</text>
+              <text x={r.x + 12} y={y} className="cai-s-item" {...fit(text, 12, avail)}>{text}</text>
               {it.done && (
                 <text x={sx} y={y} className={approved ? "cai-s-done" : "cai-s-pending"}>
                   {approved ? (room > 62 ? "✓ approved" : "✓") : room > 50 ? "pending" : "…"}
@@ -279,32 +289,39 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
 
   const renderAsset = (a: Asset, r: R) => {
     if (!has(a.at)) return null;
-    const per = Math.floor((r.w - 10) / (CHAR * 0.95));
-    const title = wrap(a.name, Math.floor((r.w - 10) / CHAR)).slice(0, 2);
-    const lines = wrap(pick(a.detail, runtime), per).slice(0, 3 - title.length);
+    const avail = r.w - 14;
+    const title = wrap(a.name, charsFor(avail, 14)).slice(0, 2);
+    const lines = wrap(pick(a.detail, runtime), charsFor(avail, 11.5)).slice(0, 3 - title.length);
     const teeOn = a.tee && seen.has(a.tee);
     return (
       <g key={a.id} className={`cai-s-asset${a.id === "infra" ? " is-infra" : ""}`} data-state={state(a.id)}>
         <rect className="cai-s-halo" x={r.x - 4} y={r.y - 4} width={r.w + 8} height={r.h + 8} rx="13" />
         <rect className="cai-s-card" x={r.x} y={r.y} width={r.w} height={r.h} rx="10" />
         <svg x={r.x + r.w / 2 - 15} y={r.y + 9} width="30" height="30" viewBox="0 0 32 32" className="cai-s-icon">{ICONS[a.id]}</svg>
-        {title.map((t, k) => <text key={`t${k}`} x={r.x + r.w / 2} y={r.y + 56 + k * 14} textAnchor="middle" className="cai-s-title">{t}</text>)}
-        {lines.map((t, k) => <text key={k} x={r.x + r.w / 2} y={r.y + 57 + title.length * 14 + k * 13} textAnchor="middle" className="cai-s-muted">{t}</text>)}
-        {teeOn && (
-          <g className="cai-s-tee">
-            <rect x={r.x + r.w / 2 - 58} y={r.y + r.h - 11} width="116" height="22" rx="11" />
-            <text x={r.x + r.w / 2} y={r.y + r.h + 4} textAnchor="middle">TEE · llama-chat</text>
-          </g>
-        )}
+        {title.map((t, k) => <text key={`t${k}`} x={r.x + r.w / 2} y={r.y + 56 + k * 14} textAnchor="middle" className="cai-s-title" {...fit(t, 13, avail, true)}>{t}</text>)}
+        {lines.map((t, k) => <text key={k} x={r.x + r.w / 2} y={r.y + 57 + title.length * 14 + k * 13} textAnchor="middle" className="cai-s-muted" {...fit(t, 11.5, avail)}>{t}</text>)}
+        {/* The workload, once deployed: a badge on the card's top edge, clear of its text. */}
+        {teeOn && (() => {
+          const full = "TEE · llama-chat";
+          const label = textWidth(full, 11.5, true) + 20 <= r.w - 8 ? full : "TEE";
+          const bw = textWidth(label, 11.5, true) + 20;
+          return (
+            <g className="cai-s-tee">
+              <rect x={r.x + r.w / 2 - bw / 2} y={r.y - 11} width={bw} height="22" rx="11" />
+              <text x={r.x + r.w / 2} y={r.y + 4} textAnchor="middle">{label}</text>
+            </g>
+          );
+        })()}
       </g>
     );
   };
 
   const renderScene = (l: Layout, arrows: boolean, cls: string) => {
-    const arrow = arrows && step?.from && step.to && step.from !== step.to ? arrowFor(l, step.from, step.to) : null;
+    const badged = new Set<string>(d.territories.flatMap((t) => t.assets.filter((a) => a.tee && seen.has(a.tee)).map((a) => a.id)));
+    const arrow = arrows && step?.from && step.to && step.from !== step.to ? arrowFor(l, step.from, step.to, badged) : null;
     const target = !arrow && step?.carries && step.to ? l.items.get(step.to) : undefined;
     const pill = (x: number, y: number, text: string) => {
-      const w = text.length * CHAR + 20;
+      const w = textWidth(text, 12, true) + 20;
       return (
         <g className="cai-s-carry" key={`${key}-pill`}>
           <rect x={x - w / 2} y={y - 11} width={w} height="22" rx="11" />
@@ -324,13 +341,15 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
           return (
             <g key={t.party.name} className="cai-s-territory" data-acting={step?.party === t.party} data-you={highlight === t.party}>
               <rect x={r.x} y={r.y} width={r.w} height={r.h} rx="14" />
-              <text x={r.x + 12} y={r.y + 22} className="cai-s-party">{t.party.name}{highlight === t.party ? " · you" : ""}</text>
-              {wrap(t.roles.map((x) => ROLES[x].name).join(" and "), Math.floor((r.w - 20) / (CHAR * 0.95))).slice(0, 2).map((line, k) => (
-                <text key={k} x={r.x + 12} y={r.y + 38 + k * 13} className="cai-s-muted">{line}</text>
+              <text x={r.x + 12} y={r.y + 22} className="cai-s-party" {...fit(`${t.party.name}${highlight === t.party ? " · you" : ""}`, 15, r.w - 24, true)}>
+                {t.party.name}{highlight === t.party ? " · you" : ""}
+              </text>
+              {wrap(t.roles.map((x) => ROLES[x].name).join(" and "), charsFor(r.w - 24, 11.5)).slice(0, 2).map((line, k) => (
+                <text key={k} x={r.x + 12} y={r.y + 38 + k * 14} className="cai-s-muted" {...fit(line, 11.5, r.w - 24)}>{line}</text>
               ))}
               {/* Nothing of theirs yet: what this party cares about, in their own space. */}
               {!t.accounts.some((a) => has(a.at)) && !assetsFor(t, runtime).some((a) => has(a.at)) && (
-                wrap(t.roles.map((x) => ROLES[x].cares).join(" "), Math.floor((r.w - 28) / (CHAR * 0.95))).slice(0, 6).map((line, k) => (
+                wrap(t.roles.map((x) => ROLES[x].cares).join(" "), charsFor(r.w - 28, 12.5)).slice(0, 6).map((line, k) => (
                   <text key={`c${k}`} x={r.x + 14} y={r.y + HEAD + 22 + k * 15} className="cai-s-cares">{line}</text>
                 ))
               )}
@@ -345,7 +364,7 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
             {step.carries && pill(arrow.mid[0], arrow.mid[1], step.carries)}
           </g>
         )}
-        {target && step.carries && pill(target.x + target.w / 2, target.y - 2, step.carries)}
+        {target && step.carries && pill(target.x + target.w / 2, target.y + target.h + 2, step.carries)}
       </svg>
     );
   };
@@ -362,11 +381,6 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
           </select>
         </label>
       )}
-
-      <div className="cai-scene-wrap">
-        {renderScene(wide, true, "is-wide")}
-        {renderScene(narrow, false, "is-narrow")}
-      </div>
 
       <nav className="cai-timeline" aria-label="Steps">
         {PHASES.map((p) => {
@@ -398,7 +412,16 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
             </div>
           );
         })}
+        <span className="cai-deploy-step-nav">
+          <button type="button" onClick={prev} disabled={atStart}>Previous</button>
+          <button type="button" onClick={next} disabled={atEnd}>Next</button>
+        </span>
       </nav>
+
+      <div className="cai-scene-wrap">
+        {renderScene(wide, true, "is-wide")}
+        {renderScene(narrow, false, "is-narrow")}
+      </div>
 
       {/* Every step's text, for both runtimes, in one cell: the panel is as tall as the longest and the page doesn't move. */}
       <div className="cai-deploy-panels" aria-live="polite">
@@ -429,10 +452,6 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
                   Open the how-to for this step
                   <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </Link>
-                <span className="cai-deploy-step-nav">
-                  <button type="button" onClick={prev} disabled={atStart} tabIndex={active ? 0 : -1}>Previous</button>
-                  <button type="button" onClick={next} disabled={atEnd} tabIndex={active ? 0 : -1}>Next</button>
-                </span>
               </div>
             </div>
           );

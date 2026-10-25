@@ -30,7 +30,7 @@ One tree; every page has exactly one home in it. Accuracy over marketing. The si
 ```
 Overview
 Use cases: Proprietary model · In-house model · Open-source model
-How-to guides
+Deploy and operate        Overview, with the step-by-step diagram for every deployment
   Day 0 · Plan and prepare  Plan a deployment · Prepare the infrastructure · Set up DSM · Protect the model
   Day 1 · Deploy            Share the model · Deploy and verify
   Day 2 · Operate           Update the model · Update the workload TCB · Audit and revoke access

@@ -50,7 +50,7 @@ export interface Context {
 }
 
 /** Where an arrow starts or ends. Accounts are "ccm:owner", "ccm:consumer", "dsm:owner". */
-type End = "hub" | "build" | "registry" | "mhost" | "infra" | "clients" | "ccm:owner" | "ccm:consumer" | "dsm:owner";
+type End = "hub" | "build" | "registry" | "infra" | "clients" | "ccm:owner" | "ccm:consumer" | "dsm:owner";
 
 interface StepDef {
   id: string;
@@ -154,11 +154,9 @@ const STEPS: StepDef[] = [
     task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#build-and-push-the-image`,
   },
   {
-    id: "measure", phase: "day0", actor: "builder", title: { cc: "Take measurements", eos: "Register the measurements" },
-    from: { cc: "mhost", eos: "build" }, to: "ccm:owner", carries: "Measurements",
-    text: (c, rt) => cc(rt)
-      ? `On a measurement host of the same shape as the infrastructure, with the same GPUs, CPU generation and runtime release, ${c.name("builder")} starts a pod with the workload's InitData and reads its measurements. It registers them in CCM as build 1 of the application llama-chat.`
-      : `${c.Name("builder")} registers the converter's measurements in CCM as build 1 of the application llama-chat, with its certificate domain.`,
+    id: "measure", phase: "day0", actor: "builder", title: "Register the measurements",
+    from: "build", to: "ccm:owner", carries: "Measurements",
+    text: (c, rt) => `${c.Name("builder")} takes the workload's measurements${cc(rt) ? "" : " from the converter"} and registers them in CCM as build 1 of the application llama-chat, with its certificate domain.`,
     task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#take-measurements`,
   },
   {
@@ -255,9 +253,9 @@ const STEPS: StepDef[] = [
   },
   {
     id: "remeasure", phase: "day2", op: "update-tcb", actor: "builder", title: "Take measurements again",
-    from: { cc: "mhost", eos: "build" }, to: "ccm:owner", carries: "New measurements",
+    from: "build", to: "ccm:owner", carries: "New measurements",
     text: (c, rt) => cc(rt)
-      ? `${c.Name("builder")} upgrades the measurement host to the new release, measures again with the unchanged InitData, and registers build 2.`
+      ? `${c.Name("builder")} takes the measurements again for the new release and registers them as build 2.`
       : `${c.Name("builder")} converts the image with the new converter, pushes it, and registers its measurements as build 2.`,
     task: `${GUIDES}/day-2-operate/update-the-workload-tcb#take-measurements-again`,
   },
@@ -297,7 +295,7 @@ export interface Account {
   items: Item[];
 }
 
-export type AssetKind = "hub" | "build" | "registry" | "mhost" | "infra" | "clients";
+export type AssetKind = "hub" | "build" | "registry" | "infra" | "clients";
 
 /** Something a party runs itself. */
 export interface Asset {
@@ -411,7 +409,6 @@ export function deployment(scenarioId: string): Deployment {
     if (party === builder) {
       assets.push({ id: "build", name: "Build machine", detail: { cc: open ? "Docker" : "coco-keyprovider", eos: open ? "The converter" : "sq-dsm, the converter" }, at: [open ? "weights" : "encrypt"] });
       assets.push({ id: "registry", name: "Registry", detail: { cc: open ? "Image" : "Encrypted image", eos: "Converted image" }, at: ["push"] });
-      assets.push({ id: "mhost", name: "Measurement host", detail: "Same shape as the infrastructure", at: ["measure@cc"] });
     }
     if (party === infra) {
       assets.push({ id: "infra", name: "Infrastructure", detail: { cc: "Kubernetes on TEE hosts", eos: "TEE hosts running containers" }, at: ["prepare"], tee: "deploy" });
