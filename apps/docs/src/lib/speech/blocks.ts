@@ -3,108 +3,205 @@
 // the audio, and in the browser to find each block again, so the two always
 // agree. Plain TypeScript with no imports, so Node can run it as is.
 //
-// - Headings, paragraphs, list items, table rows (link-only cells such as a
-//   "Docs" column are left out) are blocks.
-// - Buttons, menus, navigation, pictures, code and anything marked
-//   aria-hidden or data-speech-skip are never read.
-// - A diagram marked data-speech="steps" is read one step at a time, from its
-//   step panels (data-speech-step, data-speech-variant); while a step is read
-//   the diagram shows it.
+// - Headings, paragraphs, list items and table rows are blocks. Link-only
+//   lines and cells ("Read the … use case", a "Docs" column) are left out.
+// - Buttons, menus, navigation, pictures and anything aria-hidden or
+//   data-speech-skip are never read.
+// - Before a table, a code block (never read out), a tab or a diagram, a
+//   short spoken line says what comes: "narration", said but not shown. A
+//   diagram marked data-speech-intro says what it shows.
+// - A diagram marked data-speech="steps" is read step by step from its step
+//   panels (data-speech-step, data-speech-variant): "Step 1. …", "Next,
+//   step 2. …", then "That was the last step." The diagram shows each step
+//   as it is read.
 // - Hidden tab panels and diagram paths are blocks too (the audio has them);
 //   the player skips what isn't showing.
 
-/** The page's text: Docusaurus's doc content. */
-export const SPEECH_ROOT = '.theme-doc-markdown';
+/** What a block says: shown text (with where it sits in the block's text), or narration only. */
+export type Part = {say: string; from?: number; to?: number};
 
 export type SpeechBlock = {
   el: Element;
+  /** The block's shown text; for narration, what is said. */
   text: string;
+  parts: Part[];
+  /** Said, not shown: a line before a table, a diagram, a tab. */
+  narration?: boolean;
   heading: boolean;
-  /** A diagram step: the diagram, the step's index and the path it belongs to. */
+  /** A diagram step, or a diagram's narration: the diagram, the step, the path it belongs to. */
   figure?: Element;
   step?: number;
   variant?: string;
 };
 
+/** The page's text: Docusaurus's doc content. */
+export const SPEECH_ROOT = '.theme-doc-markdown';
+
 const SKIP =
-  'button, nav, svg, img, picture, video, audio, canvas, select, input, textarea, script, style, pre, ' +
-  '.theme-code-block, [role="tablist"], [aria-hidden="true"], [data-speech-skip], .hash-link';
+  'button, nav, svg, img, picture, video, audio, canvas, select, input, textarea, script, style, ' +
+  '[role="tablist"], [aria-hidden="true"], [data-speech-skip], .hash-link';
+const CODE = '.theme-code-block, pre';
 const LEAF = new Set(['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'LI', 'DT', 'DD']);
 // Inside a block, these end a phrase: a title above its text gets a full stop
 // (a pause), other elements a space.
 const PHRASES = new Set(['P', 'DIV', 'LI', 'TD', 'TH', 'TR', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'DT', 'DD']);
 const SPACES = new Set(['BR', 'SPAN']);
 
-/** Collapses whitespace and tidies spaces before punctuation. */
-export const tidy = (t: string): string =>
-  t
-    .replace(/\s+/g, ' ')
-    .replace(/\s+([.,;:!?)])/g, '$1')
-    .replace(/​/g, '')
-    .trim();
+/** Where each character of a block's text came from in the page (null: added, such as a full stop). */
+export type Origin = [Node, number] | null;
 
-/** The text of `el`, without what is never read and, for a list item, without its nested lists. */
-function textOf(el: Element, nestedLists = false): string {
-  let out = '';
-  const walk = (node: Node) => {
-    if (node.nodeType === 3) {
-      out += node.nodeValue ?? '';
-      return;
+/** The text of `el` as read, and where each of its characters is in the page. */
+export function textMap(el: Element, nestedLists = false): {text: string; origins: Origin[]} {
+  const chars: string[] = [];
+  const from: Origin[] = [];
+  const push = (s: string, node?: Node) => {
+    for (let i = 0; i < s.length; i++) {
+      chars.push(s[i]);
+      from.push(node ? [node, i] : null);
     }
+  };
+  const walk = (node: Node) => {
+    if (node.nodeType === 3) return push(node.nodeValue ?? '', node);
     if (node.nodeType !== 1) return;
     const e = node as Element;
-    if (e !== el && e.matches(SKIP)) return;
+    if (e !== el && (e.matches(SKIP) || e.matches(CODE))) return;
     if (!nestedLists && e !== el && (e.tagName === 'UL' || e.tagName === 'OL')) return;
     for (const child of Array.from(e.childNodes)) walk(child);
-    if (e !== el && PHRASES.has(e.tagName)) out = /[.!?:]\s*$/.test(out) || !out.trim() ? `${out} ` : `${out.trimEnd()}. `;
-    else if (SPACES.has(e.tagName)) out += ' ';
+    if (e !== el && PHRASES.has(e.tagName)) {
+      const sofar = chars.join('');
+      if (/[.!?:]\s*$/.test(sofar) || !sofar.trim()) push(' ');
+      else {
+        while (chars.length && /\s/.test(chars[chars.length - 1])) {
+          chars.pop();
+          from.pop();
+        }
+        push('. ');
+      }
+    } else if (SPACES.has(e.tagName)) push(' ');
   };
   walk(el);
-  return tidy(out);
+  // Tidy: one space between words, none before punctuation, no zero-width spaces.
+  const text: string[] = [];
+  const origins: Origin[] = [];
+  chars.forEach((c, i) => {
+    if (c === '​') return;
+    if (/\s/.test(c)) {
+      if (text.length && text[text.length - 1] !== ' ') {
+        text.push(' ');
+        origins.push(from[i]);
+      }
+      return;
+    }
+    if (/[.,;:!?)]/.test(c) && text[text.length - 1] === ' ') {
+      text.pop();
+      origins.pop();
+    }
+    text.push(c);
+    origins.push(from[i]);
+  });
+  if (text[text.length - 1] === ' ') {
+    text.pop();
+    origins.pop();
+  }
+  return {text: text.join(''), origins};
 }
+
+export const textOf = (el: Element, nestedLists = false): string => textMap(el, nestedLists).text;
 
 /** Whether `el` holds nothing but links ("Read the … use case", a "Docs" cell): not read. */
 function onlyLinks(el: Element): boolean {
   const text = textOf(el);
-  const links = tidy(Array.from(el.querySelectorAll('a')).map((a) => a.textContent ?? '').join(' '));
+  const links = Array.from(el.querySelectorAll('a'))
+    .map((a) => a.textContent ?? '')
+    .join(' ');
   return !text || text.replace(/[,.\s]/g, '') === links.replace(/[,.\s]/g, '');
 }
 
-/** A table row: its cells, without cells that are only links (a "Docs" column). */
-function rowText(tr: Element): string {
-  const cells = Array.from(tr.children).filter((c) => !onlyLinks(c));
-  return cells
-    .map((c) => textOf(c))
-    .map((t) => (/[.!?]$/.test(t) ? t : `${t}.`))
-    .join(' ');
-}
+/** "a", "a and b", "a, b and c". */
+const list = (items: string[]) => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`);
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+const LANGUAGES: Record<string, string> = {
+  bash: 'Bash', sh: 'shell', shell: 'shell', console: 'shell', yaml: 'YAML', yml: 'YAML', json: 'JSON',
+  ts: 'TypeScript', tsx: 'TypeScript', js: 'JavaScript', jsx: 'JavaScript', python: 'Python', py: 'Python',
+  go: 'Go', rust: 'Rust', toml: 'TOML', ini: 'INI', text: 'plain text', powershell: 'PowerShell', dockerfile: 'Dockerfile',
+};
+
+/** The key a block's audio is stored under: everything it says. */
+export const speechKey = (b: {parts: Part[]}): string => b.parts.map((p) => p.say).join(' ');
 
 export function speechBlocks(root: Element): SpeechBlock[] {
   const blocks: SpeechBlock[] = [];
-  const add = (el: Element, text: string, extra: Partial<SpeechBlock> = {}) => {
-    if (text) blocks.push({el, text, heading: /^H\d$/.test(el.tagName), ...extra});
+  const shown = (el: Element, text: string, lead?: string, extra: Partial<SpeechBlock> = {}) => {
+    if (!text) return;
+    const parts: Part[] = [...(lead ? [{say: lead}] : []), {say: text, from: 0, to: text.length}];
+    blocks.push({el, text, parts, heading: /^H\d$/.test(el.tagName), ...extra});
   };
+  const narrate = (el: Element, say: string, extra: Partial<SpeechBlock> = {}) =>
+    blocks.push({el, text: say, parts: [{say}], narration: true, heading: false, ...extra});
+
   const walk = (el: Element) => {
+    if (el.matches(CODE)) {
+      const inner = el.querySelector('[class*="language-"]');
+      const lang = /language-([\w-]+)/.exec(el.className)?.[1] ?? /language-([\w-]+)/.exec(inner?.className ?? '')?.[1];
+      const about = el.closest('[data-speech]')?.getAttribute('data-speech');
+      const name = lang ? (LANGUAGES[lang] ?? lang) : '';
+      narrate(el, about ? `A code block follows. ${about}` : `A code block${name ? ` in ${name}` : ''} follows. It isn't read aloud.`);
+      return;
+    }
     if (el.matches(SKIP)) return;
+
     if (el.matches('[data-speech="steps"]')) {
-      for (const panel of Array.from(el.querySelectorAll('[data-speech-step]'))) {
-        add(panel, textOf(panel), {
-          figure: el,
-          step: Number(panel.getAttribute('data-speech-step')),
-          variant: panel.getAttribute('data-speech-variant') ?? undefined,
-        });
+      const panels = Array.from(el.querySelectorAll('[data-speech-step]'));
+      const variants = [...new Set(panels.map((p) => p.getAttribute('data-speech-variant') ?? ''))];
+      const intro = el.getAttribute('data-speech-intro') ?? 'A diagram follows';
+      for (const variant of variants) {
+        const steps = panels.filter((p) => (p.getAttribute('data-speech-variant') ?? '') === variant);
+        const v = variant || undefined;
+        narrate(el, `${intro}. It has ${plural(steps.length, 'step')}.`, {figure: el, variant: v});
+        for (const panel of steps) {
+          const n = Number(panel.getAttribute('data-speech-step'));
+          shown(panel, textOf(panel), n === 0 ? 'Step 1.' : `Next, step ${n + 1}.`, {figure: el, step: n, variant: v});
+        }
+        narrate(el, 'That was the last step.', {figure: el, variant: v});
       }
       return;
     }
-    // Row by row, header rows left out.
+
+    const intro = el.getAttribute('data-speech-intro');
+    if (intro) narrate(el, `${intro}.`);
+
     if (el.tagName === 'TABLE') {
-      for (const tr of Array.from(el.querySelectorAll('tr'))) if (tr.querySelector('td')) add(tr, rowText(tr));
+      const all = Array.from(el.querySelectorAll('tr'));
+      const head = all.find((tr) => tr.querySelector('th') && !tr.querySelector('td'));
+      const columns = head ? Array.from(head.children).map((c) => textOf(c)).filter(Boolean) : [];
+      const rows = all.filter((tr) => tr.querySelector('td'));
+      const cols = columns.length || Math.max(0, ...rows.map((r) => r.children.length));
+      narrate(el, `A table follows, with ${plural(rows.length, 'row')} and ${plural(cols, 'column')}${columns.length ? `: ${list(columns)}` : ''}.`);
+      rows.forEach((tr, k) => {
+        const cells = Array.from(tr.children).filter((c) => !onlyLinks(c));
+        const text = cells
+          .map((c) => textOf(c))
+          .map((t) => (/[.!?]$/.test(t) ? t : `${t}.`))
+          .join(' ');
+        shown(tr, text, `Row ${k + 1}.`);
+      });
       return;
     }
+
+    // A tab: say which one, as the tab strip above it shows.
+    if (el.getAttribute('role') === 'tabpanel') {
+      const container = el.closest('.tabs-container');
+      const panels = container ? Array.from(container.querySelectorAll('[role="tabpanel"]')) : [];
+      const tabs = container ? Array.from(container.querySelectorAll('[role="tab"]')) : [];
+      const label = tabs[panels.indexOf(el)]?.textContent?.trim();
+      if (label) narrate(el, `The ${label} tab.`);
+    }
+
     if (LEAF.has(el.tagName)) {
-      if (!onlyLinks(el)) add(el, textOf(el));
+      if (!onlyLinks(el)) shown(el, textOf(el));
       // A list item's nested lists are read after it, item by item.
-      if (el.tagName === 'LI') for (const list of Array.from(el.children)) if (list.tagName === 'UL' || list.tagName === 'OL') walk(list);
+      if (el.tagName === 'LI') for (const child of Array.from(el.children)) if (child.tagName === 'UL' || child.tagName === 'OL') walk(child);
       return;
     }
     for (const child of Array.from(el.children)) walk(child);
@@ -117,12 +214,15 @@ export function speechBlocks(root: Element): SpeechBlock[] {
 export const speechDir = (permalink: string, baseUrl: string): string =>
   (permalink.startsWith(baseUrl) ? permalink.slice(baseUrl.length) : permalink).replace(/^\/+|\/+$/g, '');
 
+/** A word's timing: [start, end] in seconds, and [from, to] in its block's text. */
+export type WordTime = [number, number, number, number];
+
 export type Manifest = {
-  version: 1;
+  version: 2;
   voices: {id: string; label: string; file: string; duration: number}[];
   blocks: {
-    text: string;
-    /** Per voice: the block's start and end, and its sentences [start, end, first char, last char + 1]. */
-    times: Record<string, {start: number; end: number; sentences: [number, number, number, number][]}>;
+    key: string;
+    /** Per voice: the block's start and end, and the shown words' times. */
+    times: Record<string, {start: number; end: number; words: WordTime[]}>;
   }[];
 };

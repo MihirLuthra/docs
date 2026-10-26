@@ -89,7 +89,10 @@ export function RolesExplorer({
   const showUseCase = groups.length > 1;
 
   return (
-    <figure className="cai cai-roles" aria-label="Who holds which role">
+    <figure
+      className="cai cai-roles"
+      aria-label="Who holds which role"
+      data-speech-intro="A diagram follows, showing which party holds which role in a deployment. Under it, a summary of that deployment">
       {/* One scenario (e.g. on an end-to-end guide): no picker. */}
       {list.length > 1 && (
         <div className="cai-picker" aria-label="Deployment">

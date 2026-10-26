@@ -33,7 +33,7 @@ function selectionSpot(): {x: number; y: number; range: Range} | null {
   const root = document.querySelector(SPEECH_ROOT);
   if (!root || !root.contains(range.commonAncestorContainer)) return null;
   const start = range.startContainer.nodeType === 1 ? (range.startContainer as Element) : range.startContainer.parentElement;
-  if (!start || !speechBlocks(root).some((b) => b.el.contains(start))) return null;
+  if (!start || !speechBlocks(root).some((b) => !b.narration && b.el.contains(start))) return null;
   // Centred above the selection's first line, clear of the text selected.
   const box = range.getBoundingClientRect();
   const first = range.getClientRects()[0] ?? box;
@@ -67,6 +67,18 @@ export default function Listen(): ReactNode {
     };
   }, []);
 
+  // L (when not typing): listen, or pause and play again.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (e.key !== 'l' || e.ctrlKey || e.metaKey || e.altKey || (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)))) return;
+      e.preventDefault();
+      open({kind: request ? 'toggle' : 'page', nonce: Date.now()});
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, request]);
+
   // A new page: close the player.
   useEffect(() => {
     setRequest(null);
@@ -77,9 +89,13 @@ export default function Listen(): ReactNode {
       <button
         type="button"
         className={styles.listen}
+        aria-keyshortcuts="L"
         onClick={() => open({kind: request ? 'toggle' : 'page', nonce: Date.now()})}>
         <HeadphonesIcon />
         Listen
+        <kbd className={styles.listenKey} aria-hidden="true">
+          L
+        </kbd>
       </button>
       {spot &&
         createPortal(

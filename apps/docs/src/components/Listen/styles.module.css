@@ -1,9 +1,22 @@
-/* 996px is Docusaurus's desktop breakpoint (media queries can't use vars). */
+/* "Listen" (index.tsx) and its player (Player.tsx). 575px matches the site's
+   phone breakpoint (media queries can't use vars). */
 
 .icon {
   flex: none;
   width: var(--fx-listen-icon);
   height: var(--fx-listen-icon);
+}
+
+/* A key, in tooltips and on the Listen button. */
+.kbd,
+.listenKey {
+  padding: 0 var(--fx-space-1);
+  border: var(--fx-border-width) solid var(--fx-tooltip-kbd-border);
+  border-radius: var(--fx-radius-sm);
+  font-family: var(--fx-font-mono);
+  font-size: var(--fx-text-xs);
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 /* "Listen", at the right end of the path above the title. */
@@ -12,7 +25,7 @@
   flex: none;
   align-items: center;
   gap: var(--fx-space-1);
-  padding: var(--fx-border-width) var(--fx-space-2);
+  padding: var(--fx-border-width) var(--fx-space-1) var(--fx-border-width) var(--fx-space-2);
   border: var(--fx-border-width) solid var(--fx-border-strong);
   border-radius: var(--fx-radius-pill);
   background: var(--fx-bg);
@@ -29,10 +42,23 @@
   color: var(--fx-text);
 }
 
+.listenKey {
+  margin-left: var(--fx-space-1);
+  border-color: var(--fx-border-strong);
+  border-radius: var(--fx-radius-pill);
+  color: var(--fx-text-muted);
+}
+
+@media (hover: none) {
+  .listenKey {
+    display: none;
+  }
+}
+
 .listen:focus-visible,
 .selection:focus-visible,
 .control:focus-visible,
-.voice:focus-visible {
+.menuItem:focus-visible {
   outline: var(--fx-focus-width) solid var(--fx-focus);
   outline-offset: 2px;
 }
@@ -59,15 +85,18 @@
   animation: fx-listen-in var(--fx-duration-fast) var(--fx-ease-out);
 }
 
-/* The player: a bar floating over the bottom of the page. */
+/* The player: a bar floating over the bottom of the page. Wide screens: the
+   controls, the progress, the options, in one row. */
 .bar {
   position: fixed;
   bottom: var(--fx-space-4);
   left: 50%;
   z-index: var(--fx-z-listen);
-  display: flex;
+  display: grid;
+  grid-template-areas: 'controls middle options';
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: var(--fx-space-1);
+  gap: var(--fx-space-3);
   box-sizing: border-box;
   width: min(var(--fx-listen-width), calc(100vw - 2 * var(--fx-space-4)));
   padding: var(--fx-space-2) var(--fx-space-3);
@@ -88,18 +117,35 @@
   }
 }
 
+.controls {
+  display: flex;
+  grid-area: controls;
+  align-items: center;
+  gap: var(--fx-border-width);
+}
+
+.options {
+  display: flex;
+  grid-area: options;
+  align-items: center;
+  gap: var(--fx-space-1);
+}
+
 .control {
+  position: relative;
   display: inline-grid;
   flex: none;
   place-items: center;
-  width: var(--fx-space-8);
-  height: var(--fx-space-8);
+  width: var(--fx-listen-control);
+  height: var(--fx-listen-control);
   padding: 0;
   border: 0;
   border-radius: 50%;
   background: none;
   color: var(--fx-text-secondary);
   cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 .control:hover:not(:disabled) {
@@ -113,8 +159,15 @@
 }
 
 .play {
+  width: var(--fx-listen-play);
+  height: var(--fx-listen-play);
   background-color: var(--fx-cta-bg);
   color: var(--fx-cta-text);
+}
+
+.play .icon {
+  width: calc(var(--fx-listen-icon) + var(--fx-space-1));
+  height: calc(var(--fx-listen-icon) + var(--fx-space-1));
 }
 
 .play:hover:not(:disabled) {
@@ -123,22 +176,37 @@
   filter: brightness(1.15);
 }
 
-.speed {
+/* Speed and voice: text buttons that open a menu. */
+.pill {
+  display: inline-flex;
+  gap: var(--fx-space-1);
   width: auto;
-  min-width: var(--fx-space-8);
   padding: 0 var(--fx-space-2);
+  border: var(--fx-border-width) solid var(--fx-border-strong);
   border-radius: var(--fx-radius-pill);
-  font-size: var(--fx-text-sm);
+  font-size: var(--fx-text-xs-plus);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.voiceName {
+  overflow: hidden;
+  max-width: 6rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* On phones the voice button shows this instead of the name (the menu has the names). */
+.voiceIcon {
+  display: none;
 }
 
 .middle {
   display: grid;
-  flex: 1;
+  grid-area: middle;
   grid-template-columns: 1fr auto;
   gap: var(--fx-space-1) var(--fx-space-2);
   min-width: 0;
-  margin: 0 var(--fx-space-2);
 }
 
 .status {
@@ -156,41 +224,177 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* The line under the status: how much has been read. Click to jump. */
+/* How much has been read: drag or click to move. A tall target around a
+   thin line. */
 .progress {
+  position: relative;
   grid-column: 1 / -1;
+  height: var(--fx-space-4);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.progress::before {
+  position: absolute;
+  inset: calc(50% - var(--fx-space-1) / 2) 0 auto;
   height: var(--fx-space-1);
   border-radius: var(--fx-radius-pill);
   background-color: var(--fx-chip);
-  cursor: pointer;
+  content: '';
 }
 
 .progressDone {
-  height: 100%;
-  border-radius: inherit;
+  position: absolute;
+  top: calc(50% - var(--fx-space-1) / 2);
+  left: 0;
+  height: var(--fx-space-1);
+  border-radius: var(--fx-radius-pill);
   background-color: var(--fx-brand-text);
 }
 
-.voice {
-  flex: none;
-  max-width: 10rem;
-  padding: var(--fx-space-1) var(--fx-space-2);
-  border: var(--fx-border-width) solid var(--fx-border-strong);
-  border-radius: var(--fx-radius-md);
-  background: var(--fx-bg);
-  color: var(--fx-text);
-  font: inherit;
-  font-size: var(--fx-text-xs-plus);
+.thumb {
+  position: absolute;
+  top: 50%;
+  width: var(--fx-space-3);
+  height: var(--fx-space-3);
+  border-radius: 50%;
+  background-color: var(--fx-brand-text);
+  box-shadow: 0 0 0 2px var(--fx-bg);
+  transform: translate(-50%, -50%) scale(0.8);
+  transition: transform var(--fx-duration-fast) var(--fx-ease);
 }
 
-/* Phones: no room for the voice list; the last voice chosen is used. */
+.progress:hover .thumb {
+  transform: translate(-50%, -50%);
+}
+
+/* A control's label and key, above it, on hover or keyboard focus. Not on
+   touch screens, which have no keys or hover. */
+.tip {
+  position: absolute;
+  bottom: calc(100% + var(--fx-space-2));
+  left: 50%;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-1);
+  padding: var(--fx-space-1) var(--fx-space-2);
+  border-radius: var(--fx-radius-sm);
+  background-color: var(--fx-tooltip-bg);
+  color: var(--fx-tooltip-text);
+  font-size: var(--fx-text-xs);
+  font-weight: 400;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity var(--fx-duration-fast) var(--fx-ease);
+}
+
+.tip .kbd:first-of-type {
+  margin-left: var(--fx-space-1);
+}
+
+/* The last control's tip ends at its right edge, inside the screen. */
+.options > :last-child .tip {
+  right: 0;
+  left: auto;
+  transform: none;
+}
+
+@media (hover: hover) {
+  .control:hover .tip,
+  .control:focus-visible .tip {
+    opacity: 1;
+    transition-delay: 250ms;
+  }
+}
+
+/* The speed and voice menus, above their buttons. */
+.menuWrap {
+  position: relative;
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--fx-space-2));
+  display: grid;
+  min-width: 9rem;
+  padding: var(--fx-space-1);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-lg);
+  background: var(--fx-bg);
+  box-shadow: var(--fx-shadow-menu);
+  animation: fx-listen-in var(--fx-duration-fast) var(--fx-ease-out);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-2);
+  padding: var(--fx-space-2) var(--fx-space-3) var(--fx-space-2) var(--fx-space-2);
+  border: 0;
+  border-radius: var(--fx-radius-md);
+  background: none;
+  color: var(--fx-text);
+  font: inherit;
+  font-size: var(--fx-text-sm);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.menuItem:hover,
+.menuItem:focus-visible {
+  background-color: var(--fx-hover);
+}
+
+.menuItem[aria-checked='true'] {
+  color: var(--fx-selected-text);
+  font-weight: 600;
+}
+
+.menuCheck {
+  display: inline-grid;
+  width: var(--fx-listen-icon);
+  color: var(--fx-brand-text);
+}
+
+/* Phones: three rows. What's playing and the progress across the top, then
+   the controls, large, with speed, voice and close beside them. */
 @media (max-width: 575px) {
-  .voice {
+  .bar {
+    grid-template-areas:
+      'middle middle'
+      'controls options';
+    grid-template-columns: 1fr auto;
+    gap: var(--fx-space-2);
+    bottom: var(--fx-space-2);
+    width: calc(100vw - 2 * var(--fx-space-2));
+    padding: var(--fx-space-3);
+  }
+
+  .control {
+    width: var(--fx-listen-control-touch);
+    height: var(--fx-listen-control-touch);
+  }
+
+  .play {
+    width: var(--fx-listen-play-touch);
+    height: var(--fx-listen-play-touch);
+  }
+
+  .pill {
+    height: var(--fx-listen-control);
+  }
+
+  .voiceName {
     display: none;
   }
 
-  .middle {
-    margin: 0 var(--fx-space-1);
+  .voiceIcon {
+    display: inline-grid;
   }
 }
 
@@ -209,7 +413,13 @@
 
 @media (prefers-reduced-motion: reduce) {
   .selection,
-  .bar {
+  .bar,
+  .menu {
     animation: none;
+  }
+
+  .thumb,
+  .tip {
+    transition: none;
   }
 }

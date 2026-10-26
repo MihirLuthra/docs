@@ -8,7 +8,7 @@
 // (open-source, runs on the CPU), and writes, next to the page:
 //
 //   build/speech/<page>/<voice>.mp3   the whole page, one file per voice
-//   build/speech/<page>/manifest.json each block's and sentence's times
+//   build/speech/<page>/manifest.json each block's and each word's times
 //
 // Every sentence's audio is cached by voice and text in .cache/speech/clips,
 // so a rebuild only voices what changed. The Kokoro model (~330 MB) is
@@ -22,7 +22,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {JSDOM} from 'jsdom';
 import {Mp3Encoder} from '@breezystack/lamejs';
 import {KokoroTTS} from 'kokoro-js';
-import {SPEECH_ROOT, speechBlocks, speechDir} from '../src/lib/speech/blocks.ts';
+import {SPEECH_ROOT, speechBlocks, speechDir, speechKey} from '../src/lib/speech/blocks.ts';
 
 const APP = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const BUILD = path.join(APP, 'build');
@@ -83,6 +83,95 @@ function sentences(text) {
 
 const silence = (seconds) => new Float32Array(Math.round(seconds * RATE));
 
+/** About how long a word takes to say: its syllables, as it is said ("TEE" is three letters). */
+function weight(word) {
+  const said = spoken(word.replace(/[^\p{L}\p{N}-]+/gu, ' ')).split(/[\s-]+/).filter(Boolean);
+  return 0.3 + said.reduce((n, w) => n + (w.length === 1 ? 1 : Math.max(1, (w.match(/[aeiouy]+/gi) ?? []).length)), 0);
+}
+
+// Pauses in a clip: 10 ms frames quieter than this share of its loudest
+// frame, for at least this many frames.
+const FRAME = 240;
+const QUIET = 0.08;
+const PAUSE_FRAMES = 7;
+
+/**
+ * When each word of a sentence is said, from its clip. Kokoro gives no
+ * timings, so: find the pauses in the audio, give each run of words between
+ * commas and full stops its own stretch of speech, and share each stretch
+ * among its words by their syllables.
+ */
+function wordTimes(samples, text, offset, t0) {
+  const words = [...text.matchAll(/\S+/g)].map((m) => ({
+    from: offset + m.index,
+    to: offset + m.index + m[0].length,
+    w: weight(m[0]),
+    stop: /[,;:.!?)]$/.test(m[0]),
+  }));
+  if (!words.length) return [];
+  const n = Math.ceil(samples.length / FRAME);
+  const rms = new Float32Array(n);
+  for (let f = 0; f < n; f++) {
+    let sum = 0;
+    const end = Math.min(samples.length, (f + 1) * FRAME);
+    for (let i = f * FRAME; i < end; i++) sum += samples[i] * samples[i];
+    rms[f] = Math.sqrt(sum / Math.max(1, end - f * FRAME));
+  }
+  const peak = rms.reduce((a, b) => Math.max(a, b), 0);
+  const loud = (f) => rms[f] > Math.max(0.004, peak * QUIET);
+  let first = 0;
+  while (first < n - 1 && !loud(first)) first++;
+  let last = n - 1;
+  while (last > first && !loud(last)) last--;
+  // Stretches of speech between pauses.
+  const stretches = [];
+  let a = first;
+  for (let f = first; f <= last; f++) {
+    if (loud(f)) continue;
+    let g = f;
+    while (g <= last && !loud(g)) g++;
+    if (g - f >= PAUSE_FRAMES) {
+      stretches.push([a, f]);
+      a = g;
+    }
+    f = g - 1;
+  }
+  stretches.push([a, last + 1]);
+  // Runs of words, split after commas and full stops.
+  const runs = [[]];
+  words.forEach((w, i) => {
+    runs[runs.length - 1].push(w);
+    if (w.stop && i < words.length - 1) runs.push([]);
+  });
+  const sec = (f) => round(t0 + (f * FRAME) / RATE);
+  const out = [];
+  const share = (list, [from, to]) => {
+    const total = list.reduce((x, w) => x + w.w, 0);
+    let at = from;
+    for (const w of list) {
+      const len = ((to - from) * w.w) / total;
+      out.push([sec(at), sec(at + len), w.from, w.to]);
+      at += len;
+    }
+  };
+  // Make them line up: more pauses than commas (a breath) joins the stretches
+  // closest together; fewer (a comma said without a pause) joins the runs
+  // with the fewest syllables.
+  while (stretches.length > runs.length) {
+    let k = 0;
+    for (let j = 1; j < stretches.length - 1; j++) if (stretches[j + 1][0] - stretches[j][1] < stretches[k + 1][0] - stretches[k][1]) k = j;
+    stretches.splice(k, 2, [stretches[k][0], stretches[k + 1][1]]);
+  }
+  const weightOf = (run) => run.reduce((x, w) => x + w.w, 0);
+  while (runs.length > stretches.length) {
+    let k = 0;
+    for (let j = 1; j < runs.length - 1; j++) if (weightOf(runs[j]) + weightOf(runs[j + 1]) < weightOf(runs[k]) + weightOf(runs[k + 1])) k = j;
+    runs.splice(k, 2, [...runs[k], ...runs[k + 1]]);
+  }
+  runs.forEach((run, k) => share(run, stretches[k]));
+  return out;
+}
+
 function mp3(samples) {
   const enc = new Mp3Encoder(1, RATE, KBPS);
   const pcm = new Int16Array(samples.length);
@@ -118,15 +207,18 @@ async function main() {
   let tts;
   const clip = async (voice, text) => {
     const key = createHash('sha256').update(`${MODEL}|${DTYPE}|${voice}|${text}`).digest('hex').slice(0, 32);
-    const file = path.join(CACHE, 'clips', `${key}.f32`);
+    // 16-bit, as it ends up in the MP3 anyway: half the size of the model's floats.
+    const file = path.join(CACHE, 'clips', `${key}.i16`);
     if (fs.existsSync(file)) {
       const b = fs.readFileSync(file);
-      return new Float32Array(b.buffer, b.byteOffset, b.byteLength / 4);
+      const pcm = new Int16Array(b.buffer, b.byteOffset, b.byteLength / 2);
+      return Float32Array.from(pcm, (v) => v / 0x7fff);
     }
     tts ??= await loadTTS();
-    const audio = await tts.generate(text, {voice});
-    fs.writeFileSync(file, Buffer.from(audio.audio.buffer, audio.audio.byteOffset, audio.audio.byteLength));
-    return audio.audio;
+    const {audio} = await tts.generate(text, {voice});
+    const pcm = Int16Array.from(audio, (v) => Math.max(-1, Math.min(1, v)) * 0x7fff);
+    fs.writeFileSync(file, Buffer.from(pcm.buffer));
+    return audio;
   };
 
   for (const permalink of pages) {
@@ -135,8 +227,15 @@ async function main() {
     const {document} = new JSDOM(html).window;
     const root = document.querySelector(SPEECH_ROOT);
     if (!root) throw new Error(`speech: no page content in ${dir}`);
-    const blocks = speechBlocks(root).map((b) => ({text: b.text, heading: b.heading, parts: sentences(b.text)}));
-    const manifest = {version: 1, voices: [], blocks: blocks.map((b) => ({text: b.text, times: {}}))};
+    // Each block's sentences: shown ones with where they are in its text, narration without.
+    const blocks = speechBlocks(root).map((b) => ({
+      key: speechKey(b),
+      heading: b.heading,
+      sentences: b.parts.flatMap((p) =>
+        p.from === undefined ? [{text: p.say}] : sentences(p.say).map((x) => ({...x, from: x.from + p.from, to: x.to + p.from})),
+      ),
+    }));
+    const manifest = {version: 2, voices: [], blocks: blocks.map((b) => ({key: b.key, times: {}}))};
     const outDir = path.join(BUILD, 'speech', dir);
     fs.mkdirSync(outDir, {recursive: true});
 
@@ -146,20 +245,19 @@ async function main() {
       const t0 = Date.now();
       for (const [i, block] of blocks.entries()) {
         const start = t;
-        const times = [];
-        for (const part of block.parts) {
-          const samples = await clip(voice.id, spoken(part.text));
-          const s = t;
+        const words = [];
+        for (const sentence of block.sentences) {
+          const samples = await clip(voice.id, spoken(sentence.text));
+          if (sentence.from !== undefined) words.push(...wordTimes(samples, sentence.text, sentence.from, t));
           pieces.push(samples);
           t += samples.length / RATE;
-          times.push([round(s), round(t), part.from, part.to]);
           pieces.push(silence(PAUSE.sentence));
           t += PAUSE.sentence;
         }
         const extra = (block.heading ? PAUSE.heading : PAUSE.block) - PAUSE.sentence;
         pieces.push(silence(extra));
         t += extra;
-        manifest.blocks[i].times[voice.id] = {start: round(start), end: round(t), sentences: times};
+        manifest.blocks[i].times[voice.id] = {start: round(start), end: round(t), words};
       }
       const all = new Float32Array(pieces.reduce((n, p) => n + p.length, 0));
       let at = 0;

@@ -72,6 +72,10 @@
   --fx-avatar-size: 28px; /* contributors */
   --fx-avatar-overlap: 8px; /* each avatar tucked under the one before */
   --fx-listen-icon: 14px; /* Listen button and player icons */
+  --fx-listen-control: 32px; /* player buttons */
+  --fx-listen-play: 40px; /* its play button */
+  --fx-listen-control-touch: 40px; /* on phones */
+  --fx-listen-play-touch: 48px;
   --fx-listen-width: 640px; /* the player bar */
   --fx-z-listen: 300; /* the player and the selection's Listen, over the page */
   --fx-menu-min: 200px; /* small menus (Back / Forward, path) fit their items */
@@ -146,6 +150,8 @@
   --fx-hover: rgb(19 19 19 / 0.05);
   --fx-selected-bg: #f5edff;
   --fx-selected-text: #4b0a80;
+  --fx-speech-word-bg: #dcc2ff; /* the word being read aloud */
+  --fx-speech-word-text: #2b0650;
   --fx-focus: var(--fx-purple);
   --fx-accent-soft: #f7efff;
   --fx-accent-border: var(--fx-purple-light);
@@ -265,6 +271,8 @@
   --fx-hover: rgb(255 255 255 / 0.06);
   --fx-selected-bg: #2c1640;
   --fx-selected-text: var(--fx-purple-light);
+  --fx-speech-word-bg: #5b2a91;
+  --fx-speech-word-text: #ffffff;
   --fx-focus: var(--fx-purple-light);
   --fx-accent-soft: #1f1230;
   --fx-accent-border: #4b1f75;
@@ -521,7 +529,8 @@ body {
   border: 0;
 }
 
-/* Listen (components/Listen): the block being read aloud. */
+/* Listen (components/Listen): the block being read aloud, a soft tint; the
+   word being read, stronger; the text chosen to read (a selection). */
 .fx-speech-reading {
   border-radius: var(--fx-radius-sm);
   background-color: var(--fx-selected-bg);
@@ -529,4 +538,13 @@ body {
   transition:
     background-color var(--fx-duration-panel) var(--fx-ease),
     box-shadow var(--fx-duration-panel) var(--fx-ease);
+}
+
+::highlight(fx-speech-word) {
+  background-color: var(--fx-speech-word-bg);
+  color: var(--fx-speech-word-text);
+}
+
+::highlight(fx-speech-selection) {
+  background-color: var(--fx-selected-bg);
 }

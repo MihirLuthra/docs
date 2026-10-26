@@ -404,6 +404,7 @@ export function AttestationFlow({
       className="cai cai-deploy cai-attest"
       aria-label="How Confidential AI works, step by step"
       data-speech="steps"
+      data-speech-intro="A diagram follows, showing how Confidential AI works"
       data-speech-variant={needsKey ? "key" : "none"}>
       <nav className="cai-timeline" aria-label="Steps">
         <div className="cai-day" data-current="true">
