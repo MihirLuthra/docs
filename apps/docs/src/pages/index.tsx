@@ -2,19 +2,19 @@ import {useEffect, useRef, useState, type ReactNode} from 'react';
 import Head from '@docusaurus/Head';
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
-import DocsTree from '@site/src/components/DocsTree';
 import {locate, useTree} from '@site/src/components/DocsTree/tree';
+import type {TreeNode} from '@site/src/components/DocsTree/types';
 import {useOverlays} from '@site/src/components/Overlays/context';
 import {featured, type FeaturedIcon} from '@site/src/data/featured';
 import {RECENTS_VISIBLE, readRecents, setRecentsLayout, writeRecents} from '@site/src/lib/recents';
 import {SEARCH_TRIGGER_ATTR} from '@site/src/lib/search-early';
-import {useFooterOverlap} from '@site/src/lib/footer-overlap';
 import styles from './index.module.css';
 
-// The home page (ux-spec.md, Home): a hero with the site's search, then
-// recently viewed pages, then every solution and product as equal cards. All
-// drawn with CSS and inline SVG: no images to load, nothing that moves the
-// page.
+// The home page (ux-spec.md, Home; D17): full-width bands, no docs tree
+// beside them. A dark hero with the site's search, then recently viewed
+// pages and every solution and product as equal cards, then the whole docs
+// tree as a directory. All drawn with CSS and inline SVG: no images to load,
+// nothing that moves the page.
 
 const stroke = {fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round'} as const;
 
@@ -59,7 +59,7 @@ function InfoIcon(): ReactNode {
   );
 }
 
-/** One icon per featured card, on a tinted tile. */
+/** One icon per card, on a tile in the brand gradient. */
 const CARD_ICONS: Record<FeaturedIcon, ReactNode> = {
   ai: (
     <>
@@ -161,9 +161,9 @@ function HeroArt(): ReactNode {
 
 /**
  * The page has one search box showing at a time: the header's is hidden
- * (Navbar styles) while the hero's is in view. `data-hero-search` comes with
- * the page's HTML, so the header's never flashes; `data-hero-search-gone` is
- * set once the hero's box scrolls under the header.
+ * (Navbar styles) while the hero's is in view. `data-home` comes with the
+ * page's HTML, so the header's never flashes; `data-hero-search-gone` is set
+ * once the hero's box scrolls under the header.
  */
 function useHeroSearchWatch() {
   const ref = useRef<HTMLButtonElement>(null);
@@ -192,41 +192,43 @@ function Hero(): ReactNode {
   const searchRef = useHeroSearchWatch();
   return (
     <section className={styles.hero} aria-labelledby="home-title">
-      <p className={styles.notice}>
-        <InfoIcon />
-        <span>
-          <strong>Proof of concept.</strong> Not official Fortanix documentation, and not reviewed or approved by
-          Fortanix. Confirm anything here with Fortanix before you rely on it.
-        </span>
-      </p>
-      <div className={styles.heroBody}>
-        <div className={styles.heroText}>
-          <h1 id="home-title" className={styles.title}>
-            <span className={styles.titleBrand}>Fortanix</span> Documentation
-          </h1>
-          <p className={styles.lead}>
-            Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.
-          </p>
-          <button
-            ref={searchRef}
-            type="button"
-            className={styles.search}
-            onClick={openSearch}
-            onPointerEnter={prefetchSearch}
-            onFocus={prefetchSearch}
-            {...{[SEARCH_TRIGGER_ATTR]: ''}}>
-            <SearchIcon />
-            <span className={styles.searchText}>Search the docs</span>
-            <kbd className={styles.searchKey}>/</kbd>
-          </button>
-          <div className={styles.heroLinks}>
-            <Link to="/get-familiar/what-fortanix-does" className={styles.start}>
-              New to Fortanix? Start here
-              <ArrowIcon />
-            </Link>
+      <div className={styles.inner}>
+        <p className={styles.notice}>
+          <InfoIcon />
+          <span>
+            <strong>Proof of concept.</strong> Not official Fortanix documentation, and not reviewed or approved by
+            Fortanix. Confirm anything here with Fortanix before you rely on it.
+          </span>
+        </p>
+        <div className={styles.heroBody}>
+          <div className={styles.heroText}>
+            <h1 id="home-title" className={styles.title}>
+              <span className={styles.titleBrand}>Fortanix</span> Documentation
+            </h1>
+            <p className={styles.lead}>
+              Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.
+            </p>
+            <button
+              ref={searchRef}
+              type="button"
+              className={styles.search}
+              onClick={openSearch}
+              onPointerEnter={prefetchSearch}
+              onFocus={prefetchSearch}
+              {...{[SEARCH_TRIGGER_ATTR]: ''}}>
+              <SearchIcon />
+              <span className={styles.searchText}>Search the docs</span>
+              <kbd className={styles.searchKey}>/</kbd>
+            </button>
+            <div className={styles.heroLinks}>
+              <Link to="/get-familiar/what-fortanix-does" className={styles.start}>
+                New to Fortanix? Start here
+                <ArrowIcon />
+              </Link>
+            </div>
           </div>
+          <HeroArt />
         </div>
-        <HeroArt />
       </div>
     </section>
   );
@@ -316,26 +318,7 @@ function RecentlyViewed(): ReactNode {
   );
 }
 
-/**
- * The docs tree beside the home page. The column is as tall as the page; the
- * frame fills it without adding height, and the scroller inside sticks under
- * the header and ends above the footer (like the doc pages' sidebar).
- */
-function HomeSidebar(): ReactNode {
-  const ref = useRef<HTMLDivElement>(null);
-  useFooterOverlap(ref);
-  return (
-    <aside className={styles.sidebar}>
-      <div className={styles.sidebarFrame}>
-        <div ref={ref} className={styles.sidebarScroll}>
-          <DocsTree />
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-/** Every solution and product, as equal cards: a coloured band with the icon, the title and one line. */
+/** Every solution and product, as equal cards: the icon, the title, one line and "Explore". */
 function ExploreFortanix(): ReactNode {
   return (
     <section className={styles.section} aria-labelledby="explore-heading">
@@ -345,19 +328,15 @@ function ExploreFortanix(): ReactNode {
       <ul className={styles.exploreGrid}>
         {featured.map((card) => (
           <li key={card.href}>
-            <Link to={card.href} className={styles.exploreCard} data-accent={card.accent}>
-              <span className={styles.cardBand} aria-hidden="true">
-                <span className={styles.cardIcon}>
-                  <svg viewBox="0 0 24 24">{CARD_ICONS[card.icon]}</svg>
-                </span>
+            <Link to={card.href} className={styles.exploreCard}>
+              <span className={styles.cardIcon} aria-hidden="true">
+                <svg viewBox="0 0 24 24">{CARD_ICONS[card.icon]}</svg>
               </span>
-              <span className={styles.cardBody}>
-                <span className={styles.exploreTitle}>{card.title}</span>
-                <span className={styles.exploreLine}>{card.line}</span>
-                <span className={styles.cardMore}>
-                  Explore
-                  <ArrowIcon />
-                </span>
+              <span className={styles.exploreTitle}>{card.title}</span>
+              <span className={styles.exploreLine}>{card.line}</span>
+              <span className={styles.cardMore}>
+                Explore
+                <ArrowIcon />
               </span>
             </Link>
           </li>
@@ -367,22 +346,82 @@ function ExploreFortanix(): ReactNode {
   );
 }
 
+/** The first page in a node: itself, or the first inside a folder (folders have no page, D10). */
+function firstPage(node: TreeNode): string | undefined {
+  if (node.href) return node.href;
+  for (const child of node.items ?? []) {
+    const href = firstPage(child);
+    if (href) return href;
+  }
+  return undefined;
+}
+
+/** A folder whose only page is one page: shown as that page, under the folder's name. */
+const single = (node: TreeNode) => node.items?.length === 1 && !!node.items[0].href;
+
+/**
+ * The whole docs tree as a directory, one column per top-level section: its
+ * pages and folders, and each folder's own (a folder links to its first
+ * page). Folders with no pages yet are left out. Built from the tree, so it
+ * never goes stale.
+ */
+function DocsDirectory(): ReactNode {
+  const columns = useTree().filter(firstPage);
+  const link = (node: TreeNode) => (
+    <Link to={firstPage(node)!} className={styles.dirLink}>
+      {node.label}
+    </Link>
+  );
+  return (
+    <section className={styles.directory} aria-labelledby="directory-heading">
+      <div className={styles.inner}>
+        <h2 id="directory-heading" className={styles.heading}>
+          Browse all docs
+        </h2>
+        <div className={styles.dirGrid}>
+          {columns.map((column) => (
+            <nav key={column.label} className={styles.dirColumn} aria-label={column.label}>
+              <h3 className={styles.dirTitle}>{column.label}</h3>
+              <ul className={styles.dirList}>
+                {(column.items ?? []).filter(firstPage).map((node) =>
+                  node.items && !single(node) ? (
+                    <li key={node.label} className={styles.dirGroup}>
+                      <Link to={firstPage(node)!} className={styles.dirGroupLink}>
+                        {node.label}
+                      </Link>
+                      <ul className={styles.dirSub}>
+                        {node.items.filter(firstPage).map((child) => (
+                          <li key={child.label}>{link(child)}</li>
+                        ))}
+                      </ul>
+                    </li>
+                  ) : (
+                    <li key={node.label}>{link(node)}</li>
+                  ),
+                )}
+              </ul>
+            </nav>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home(): ReactNode {
   return (
     <Layout title="Home" description="Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.">
       <Head>
-        <html data-hero-search="" />
+        <html data-home="" />
       </Head>
-      <div className={styles.layout}>
-        <HomeSidebar />
-        <div className={styles.content}>
-          <Hero />
-          <main className={styles.main}>
-            <RecentlyViewed />
-            <ExploreFortanix />
-          </main>
+      <main className={styles.home}>
+        <Hero />
+        <div className={styles.inner}>
+          <RecentlyViewed />
+          <ExploreFortanix />
         </div>
-      </div>
+        <DocsDirectory />
+      </main>
     </Layout>
   );
 }

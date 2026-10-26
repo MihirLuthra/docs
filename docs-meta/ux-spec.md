@@ -39,18 +39,21 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 ## Home
 
-- **Grid:** sidebar | content. The content (max 1200px) is centred in the space beside the sidebar: the hero, then Recently viewed, then Explore Fortanix. No right column.
-- No one solution or product gets more weight than the others on the home page: they are all equal cards in Explore Fortanix.
-- **One search box at a time.** The header's search is hidden on the home page while the hero's search box is in view, and fades in once it scrolls under the header. Hidden, not removed, so the header never shifts. **/** and **Ctrl K** work as everywhere.
+D17: a landing page without the docs tree beside it. Full-width bands, each with its content centred (max 1200px, 48px gutters, 16px below 997px).
+
+- **Header on Home:** the menu button shows at every width and opens the tree in the drawer (wide screens: without the header links, which the header already shows).
+- **One search box at a time.** The header's search is hidden while the hero's search box is in view, and fades in once it scrolls under the header. Hidden, not removed, so the header never shifts. **/** and **Ctrl K** work as everywhere.
+- **Colours:** the brand's only (dark grey, purple, blue and their gradient). No colour per card or per section.
+- No one solution or product gets more weight than the others: they are all equal cards.
 - Everything is static CSS and inline SVG: no images to load, no layout shift (recents reserve their height before hydration, below).
 
-1. **Hero**: a rounded panel (20px radius) with a soft purple and blue wash over a fine grid that fades out.
-   - A slim **proof-of-concept notice** strip at its top (amber).
-   - A visible title, "Fortanix Documentation", with "Fortanix" in the brand gradient; one lead line under it.
-   - A **large search box** (52px tall, up to ~544px wide) that opens the site's search panel, with its `/` key chip.
-   - Under it, **"New to Fortanix? Start here"** (a dark pill button to *What Fortanix does*).
-   - On the right, a decorative picture (320px): a chip with a lock inside a dashed TEE outline, a slowly turning orbit with a search and a key badge. Hidden below 900px. Nothing moves with reduced motion.
-   - Phones: tighter padding, 28px title.
+1. **Hero**, dark in both themes (#0e0b14 with a purple glow top left, a blue glow right, a fine grid fading out, a hairline of the brand gradient along the bottom).
+   - A slim **proof-of-concept notice** pill at its top (amber on dark).
+   - The title, "Fortanix Documentation", up to 52px, white with "Fortanix" in the brand gradient; one lead line under it.
+   - A **large white search box** (56px tall, up to 576px wide, a soft purple ring) that opens the site's search panel, with its `/` key chip.
+   - Under it, **"New to Fortanix? Start here"**, an outlined pill to *What Fortanix does*.
+   - On the right, a decorative picture (340px): a chip with a lock inside a dashed TEE outline, a slowly turning orbit with a search and a check badge. Hidden below 900px. Nothing moves with reduced motion.
+   - Phones: tighter padding, 32px title.
 2. **Recently viewed** (stored in localStorage, max 12):
    - Cards in a 3-column grid (2 below 768px, 1 below 576px), each with a page icon, a title and its closest parent section (the full path is in the tooltip).
    - Each card has its own **×** to remove it. There is **no "clear all"**.
@@ -58,11 +61,11 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
    - Shows 2 rows (6 cards). A "View more (n)" / "Show less" toggle sits below the cards.
    - Empty state: "Pages you open show up here."
    - Stored pages that no longer exist (moved or removed) are dropped when the home page loads, so the reserved height matches what shows.
-3. **Explore Fortanix**: 6 cards, one per solution or product (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness), all the same shape. The cards come from one data file (`apps/docs/src/data/featured.ts`).
-   - Each card: a 104px band in the card's own colour (a tint, a soft glow and a fading dot grid) with its icon on a white 56px tile, then the title, one line, and "Explore →" in the card's colour.
-   - No tags, no Solution/Product label, no path.
-   - On hover the card lifts, its border takes its colour, the icon tilts slightly and the arrow nudges right.
+3. **Explore Fortanix**: 6 cards, one per solution or product (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness), all the same. The cards come from one data file (`apps/docs/src/data/featured.ts`).
+   - Each card: a 48px icon tile in the brand gradient with a white icon, the title, one line, and "Explore →" in purple.
+   - On hover the card lifts, its border turns purple, the brand gradient shows along its top and the arrow nudges right.
    - At most 3 columns (6 cards = 2 rows); fewer on narrow screens.
+4. **Browse all docs**: a band in a faint grey with the whole docs tree as a directory, built from the tree. One column per top-level section with pages (small capitals title); in it, its pages and folders, each folder with its own pages and folders listed under it. A folder links to its first page; a folder whose only content is one page shows as that page; folders with no pages yet are left out.
 
 ## Search bar
 

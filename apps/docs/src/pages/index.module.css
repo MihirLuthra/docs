@@ -1,90 +1,59 @@
-/* The home page (index.tsx). 996px is Docusaurus's desktop breakpoint
-   (media queries can't use vars). */
+/* The home page (index.tsx; D17): full-width bands with the content centred
+   in them. 996px is Docusaurus's desktop breakpoint (media queries can't use
+   vars). */
 
-.layout {
-  display: flex;
-  /* Fills the page down to the footer, so the sidebar column does too. */
+.home {
   flex: 1 0 auto;
   width: 100%;
 }
 
-.sidebar {
-  position: relative;
-  flex: none;
-  width: var(--fx-sidebar-width);
-  border-right: var(--fx-border-width) solid var(--fx-border);
-}
-
-.sidebarFrame {
-  position: absolute;
-  inset: 0;
-}
-
-.sidebarScroll {
-  position: sticky;
-  top: var(--fx-header-height);
-  max-height: min(100%, calc(100vh - var(--fx-header-height) - var(--fx-footer-overlap, 0px)));
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-/* The hero, then the main column, centred beside the sidebar. */
-.content {
+/* The content of a band, centred. */
+.inner {
   box-sizing: border-box;
-  flex: 1;
-  min-width: 0;
-  max-width: calc(var(--fx-home-max) + 2 * var(--fx-space-12));
+  width: 100%;
+  max-width: calc(var(--fx-home-max) + 2 * var(--fx-home-gutter));
   margin: 0 auto;
-  padding: var(--fx-content-top) var(--fx-space-12) var(--fx-space-12);
+  padding: 0 var(--fx-home-gutter);
 }
 
-.main {
-  flex: 1 1 auto;
-  min-width: 0;
-  font-size: var(--fx-text-md);
-}
+/* ---------- Hero: dark in both themes, like fortanix.com ---------- */
 
-@media (max-width: 996px) {
-  .sidebar {
-    display: none;
-  }
-
-  .content {
-    padding: var(--fx-content-top) var(--fx-space-4) var(--fx-space-8);
-  }
-}
-
-/* ---------- Hero ---------- */
-
-/* A brand wash of purple and blue over a fine grid that fades out, drawn
-   with CSS only (no images to load). */
 .hero {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  margin-bottom: var(--fx-space-8);
-  padding: var(--fx-space-5) var(--fx-space-10) var(--fx-space-10);
-  border: var(--fx-border-width) solid var(--fx-hero-border);
-  border-radius: var(--fx-radius-hero);
+  padding: var(--fx-space-6) 0 var(--fx-home-hero-pb);
   background:
-    radial-gradient(60% 90% at 0% 0%, var(--fx-hero-glow-a), transparent 70%),
-    radial-gradient(55% 80% at 100% 30%, var(--fx-hero-glow-b), transparent 70%),
-    var(--fx-hero-bg);
+    radial-gradient(50% 80% at 8% 0%, var(--fx-home-hero-glow-a), transparent 70%),
+    radial-gradient(45% 70% at 92% 40%, var(--fx-home-hero-glow-b), transparent 70%),
+    var(--fx-home-hero-bg);
+  color: var(--fx-home-hero-text);
 }
 
+/* A fine grid that fades out towards the edges. */
 .hero::before {
   position: absolute;
   z-index: -1;
   inset: 0;
   background-image:
-    linear-gradient(var(--fx-hero-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--fx-hero-grid) 1px, transparent 1px);
-  background-size: var(--fx-space-8) var(--fx-space-8);
+    linear-gradient(var(--fx-home-hero-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--fx-home-hero-grid) 1px, transparent 1px);
+  background-size: var(--fx-space-10) var(--fx-space-10);
   content: '';
-  mask-image: radial-gradient(80% 90% at 70% 40%, #000 20%, transparent 75%);
+  mask-image: radial-gradient(70% 90% at 60% 30%, #000 20%, transparent 80%);
 }
 
-/* The proof-of-concept notice: a slim strip at the top of the hero. */
+/* A hairline of the brand gradient along its bottom edge. */
+.hero::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: var(--fx-gradient);
+  content: '';
+  opacity: 0.6;
+}
+
+/* The proof-of-concept notice: a slim strip at the top. */
 .notice {
   display: flex;
   align-items: flex-start;
@@ -92,18 +61,18 @@
   width: fit-content;
   max-width: 100%;
   box-sizing: border-box;
-  margin: 0 0 var(--fx-space-6);
+  margin: 0 0 var(--fx-space-10);
   padding: var(--fx-space-1) var(--fx-space-3);
-  border: var(--fx-border-width) solid var(--fx-notice-border);
-  border-radius: var(--fx-radius-lg);
-  background-color: var(--fx-notice-bg);
-  color: var(--fx-text-secondary);
+  border: var(--fx-border-width) solid var(--fx-home-notice-border);
+  border-radius: var(--fx-radius-pill);
+  background-color: var(--fx-home-notice-bg);
+  color: var(--fx-home-hero-muted);
   font-size: var(--fx-text-xs-plus);
   line-height: 1.45;
 }
 
 .notice strong {
-  color: var(--fx-notice-accent);
+  color: var(--fx-home-notice-accent);
 }
 
 .noticeIcon {
@@ -111,7 +80,7 @@
   width: var(--fx-space-4);
   height: var(--fx-space-4);
   margin-top: 1px;
-  color: var(--fx-notice-accent);
+  color: var(--fx-home-notice-accent);
 }
 
 .heroBody {
@@ -126,11 +95,12 @@
 }
 
 .title {
-  margin: 0 0 var(--fx-space-3);
+  margin: 0 0 var(--fx-space-4);
+  color: var(--fx-home-hero-text);
   font-size: var(--fx-text-hero);
   font-weight: 750;
-  letter-spacing: -0.025em;
-  line-height: 1.08;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
 }
 
 .titleBrand {
@@ -140,11 +110,11 @@
 }
 
 .lead {
-  max-width: 34rem;
-  margin: 0 0 var(--fx-space-6);
-  color: var(--fx-text-secondary);
+  max-width: 36rem;
+  margin: 0 0 var(--fx-space-8);
+  color: var(--fx-home-hero-muted);
   font-size: var(--fx-text-lead);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 /* Search, as a large box: opens the site's search panel. */
@@ -153,36 +123,34 @@
   align-items: center;
   gap: var(--fx-space-3);
   box-sizing: border-box;
-  width: min(100%, 34rem);
+  width: min(100%, 36rem);
   height: var(--fx-hero-search-h);
   padding: 0 var(--fx-space-2) 0 var(--fx-space-4);
-  border: var(--fx-border-width) solid var(--fx-border-strong);
+  border: var(--fx-border-width) solid transparent;
   border-radius: var(--fx-radius-xl);
-  background: var(--fx-bg);
-  box-shadow: var(--fx-shadow-hero-search);
-  color: var(--fx-text-muted);
+  background: var(--fx-home-search-bg);
+  box-shadow: var(--fx-home-search-shadow);
+  color: var(--fx-home-search-text);
   font: inherit;
   font-size: var(--fx-text-md);
   cursor: text;
-  transition:
-    border-color var(--fx-duration-fast) var(--fx-ease),
-    box-shadow var(--fx-duration-fast) var(--fx-ease);
+  transition: box-shadow var(--fx-duration-fast) var(--fx-ease);
 }
 
 .search:hover {
-  border-color: var(--fx-card-hover-border);
+  box-shadow: var(--fx-home-search-shadow-hover);
 }
 
 .search:focus-visible {
-  outline: var(--fx-focus-width) solid var(--fx-focus);
-  outline-offset: 2px;
+  outline: var(--fx-focus-width) solid var(--fx-home-hero-focus);
+  outline-offset: 3px;
 }
 
 .searchIcon {
   flex: none;
   width: var(--fx-space-5);
   height: var(--fx-space-5);
-  color: var(--fx-brand-text);
+  color: var(--fx-purple);
 }
 
 .searchText {
@@ -192,11 +160,11 @@
 
 .searchKey {
   padding: 0 var(--fx-space-2);
-  border: var(--fx-border-width) solid var(--fx-border-strong);
+  border: var(--fx-border-width) solid var(--fx-home-search-key-border);
   border-radius: var(--fx-radius-sm);
-  background: var(--fx-surface);
+  background: transparent;
   box-shadow: none;
-  color: var(--fx-text-muted);
+  color: var(--fx-home-search-text);
   font-family: var(--fx-font-mono);
   font-size: var(--fx-text-xs);
   line-height: 1.7;
@@ -207,7 +175,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--fx-space-3) var(--fx-space-4);
-  margin-top: var(--fx-space-5);
+  margin-top: var(--fx-space-6);
 }
 
 .start {
@@ -215,18 +183,27 @@
   align-items: center;
   gap: var(--fx-space-2);
   padding: var(--fx-space-2) var(--fx-space-4);
+  border: var(--fx-border-width) solid var(--fx-home-hero-line);
   border-radius: var(--fx-radius-pill);
-  background: var(--fx-cta-bg);
-  color: var(--fx-cta-text);
+  background: var(--fx-home-hero-chip);
+  color: var(--fx-home-hero-text);
   font-size: var(--fx-text-sm);
   font-weight: 600;
-  transition: transform var(--fx-duration-fast) var(--fx-ease);
+  transition:
+    background-color var(--fx-duration-fast) var(--fx-ease),
+    border-color var(--fx-duration-fast) var(--fx-ease);
 }
 
 .start:hover {
-  color: var(--fx-cta-text);
+  border-color: var(--fx-home-hero-line-strong);
+  background: var(--fx-home-hero-chip-hover);
+  color: var(--fx-home-hero-text);
   text-decoration: none;
-  transform: translateY(-1px);
+}
+
+.start:focus-visible {
+  outline: var(--fx-focus-width) solid var(--fx-home-hero-focus);
+  outline-offset: 2px;
 }
 
 /* The picture: decorative, slow and quiet (nothing moves with reduced motion). */
@@ -243,7 +220,7 @@
 }
 
 .artBadge {
-  fill: var(--fx-bg);
+  fill: var(--fx-home-hero-card);
   stroke: var(--fx-hero-art-a);
   stroke-width: 1.5;
 }
@@ -261,7 +238,7 @@
 }
 
 .artChip {
-  fill: var(--fx-bg);
+  fill: var(--fx-home-hero-card);
   stroke: var(--fx-hero-art-a);
   stroke-opacity: 0.35;
   stroke-width: 1.5;
@@ -274,7 +251,7 @@
 }
 
 .artKeyhole {
-  fill: var(--fx-bg);
+  fill: var(--fx-home-hero-card);
 }
 
 .artSpark {
@@ -321,36 +298,17 @@
   }
 }
 
-@media (max-width: 575px) {
-  .hero {
-    margin-bottom: var(--fx-space-6);
-    padding: var(--fx-space-3) var(--fx-space-4) var(--fx-space-6);
-    border-radius: var(--fx-radius-xl);
-  }
-
-  .notice {
-    margin-bottom: var(--fx-space-5);
-  }
-
-  .title {
-    font-size: var(--fx-text-hero-sm);
-  }
-
-  .lead {
-    font-size: var(--fx-text-md);
-  }
-}
-
 /* ---------- Sections ---------- */
 
 .section {
-  margin-bottom: var(--fx-section-gap);
+  margin: var(--fx-home-section-gap) 0;
 }
 
 .heading {
-  margin: 0 0 var(--fx-space-3);
-  font-size: var(--fx-text-lg);
+  margin: 0 0 var(--fx-space-4);
+  font-size: var(--fx-text-home-heading);
   font-weight: 700;
+  letter-spacing: -0.01em;
   line-height: 1.3;
 }
 
@@ -532,15 +490,16 @@
   list-style: none;
 }
 
-/* A card: a band in its colour with its icon, then the title, one line and
-   "Explore". Every card has the same shape and weight. */
+/* A card: every one the same, in the brand's colours. On hover it lifts, its
+   border turns purple and the brand gradient runs along its top. */
 .exploreCard {
-  --accent: var(--fx-card-violet);
-  --accent-tint: var(--fx-card-violet-tint);
+  position: relative;
   display: flex;
   flex-direction: column;
+  gap: var(--fx-space-2);
   height: 100%;
   box-sizing: border-box;
+  padding: var(--fx-space-6);
   overflow: hidden;
   border: var(--fx-border-width) solid var(--fx-border);
   border-radius: var(--fx-radius-2xl);
@@ -552,93 +511,43 @@
     transform var(--fx-duration-fast) var(--fx-ease);
 }
 
-.exploreCard[data-accent='blue'] {
-  --accent: var(--fx-card-blue);
-  --accent-tint: var(--fx-card-blue-tint);
-}
-
-.exploreCard[data-accent='teal'] {
-  --accent: var(--fx-card-teal);
-  --accent-tint: var(--fx-card-teal-tint);
-}
-
-.exploreCard[data-accent='green'] {
-  --accent: var(--fx-card-green);
-  --accent-tint: var(--fx-card-green-tint);
-}
-
-.exploreCard[data-accent='amber'] {
-  --accent: var(--fx-card-amber);
-  --accent-tint: var(--fx-card-amber-tint);
-}
-
-.exploreCard[data-accent='rose'] {
-  --accent: var(--fx-card-rose);
-  --accent-tint: var(--fx-card-rose-tint);
+.exploreCard::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--fx-gradient);
+  content: '';
+  opacity: 0;
+  transition: opacity var(--fx-duration-fast) var(--fx-ease);
 }
 
 .exploreCard:hover {
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--fx-border));
+  border-color: var(--fx-card-hover-border);
   box-shadow: var(--fx-shadow-card-lift);
   color: var(--fx-text);
   text-decoration: none;
   transform: translateY(-3px);
 }
 
-/* The band: the colour's tint, a soft glow behind the icon and a fine dot
-   grid that fades out. */
-.cardBand {
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: var(--fx-card-band-h);
-  padding: 0 var(--fx-space-5);
-  overflow: hidden;
-  border-bottom: var(--fx-border-width) solid color-mix(in srgb, var(--accent) 14%, transparent);
-  background:
-    radial-gradient(circle at 20% 50%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 55%),
-    linear-gradient(135deg, var(--accent-tint), color-mix(in srgb, var(--accent-tint) 40%, var(--fx-bg)));
-}
-
-.cardBand::after {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(color-mix(in srgb, var(--accent) 30%, transparent) 1px, transparent 1.4px);
-  background-size: 14px 14px;
-  content: '';
-  mask-image: linear-gradient(90deg, transparent 30%, #000 100%);
+.exploreCard:hover::before {
+  opacity: 1;
 }
 
 .cardIcon {
-  position: relative;
-  z-index: 1;
   display: grid;
   place-items: center;
   width: var(--fx-card-icon-size);
   height: var(--fx-card-icon-size);
-  border: var(--fx-border-width) solid color-mix(in srgb, var(--accent) 20%, transparent);
+  margin-bottom: var(--fx-space-3);
   border-radius: var(--fx-radius-xl);
-  background: var(--fx-bg);
-  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 18%, transparent);
-  color: var(--accent);
-  transition: transform var(--fx-duration-panel) var(--fx-ease-out);
+  background: var(--fx-home-icon-bg);
+  box-shadow: var(--fx-home-icon-shadow);
+  color: var(--fx-white);
 }
 
 .cardIcon svg {
-  width: var(--fx-space-8);
-  height: var(--fx-space-8);
-}
-
-.exploreCard:hover .cardIcon {
-  transform: scale(1.06) rotate(-3deg);
-}
-
-.cardBody {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: var(--fx-space-2);
-  padding: var(--fx-space-4) var(--fx-space-5) var(--fx-space-5);
+  width: var(--fx-space-6);
+  height: var(--fx-space-6);
 }
 
 .exploreTitle {
@@ -651,7 +560,7 @@
 .exploreLine {
   color: var(--fx-text-secondary);
   font-size: var(--fx-text-md);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .cardMore {
@@ -659,8 +568,8 @@
   align-items: center;
   gap: var(--fx-space-1);
   margin-top: auto;
-  padding-top: var(--fx-space-2);
-  color: var(--accent);
+  padding-top: var(--fx-space-3);
+  color: var(--fx-brand-text);
   font-size: var(--fx-text-sm);
   font-weight: 600;
 }
@@ -674,11 +583,115 @@
   transform: translateX(3px);
 }
 
-.start:focus-visible,
+/* ---------- Browse all docs: the tree as a directory ---------- */
+
+.directory {
+  padding: var(--fx-home-section-gap) 0;
+  border-top: var(--fx-border-width) solid var(--fx-border);
+  background: var(--fx-home-band-bg);
+}
+
+.dirGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--fx-space-8) var(--fx-space-10);
+}
+
+.dirColumn {
+  min-width: 0;
+}
+
+.dirTitle {
+  margin: 0 0 var(--fx-space-3);
+  padding-bottom: var(--fx-space-2);
+  border-bottom: var(--fx-border-width) solid var(--fx-border);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dirList,
+.dirSub {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dirList > li + li {
+  margin-top: var(--fx-space-2);
+}
+
+.dirGroup {
+  padding-top: var(--fx-space-1);
+}
+
+.dirGroupLink {
+  color: var(--fx-text);
+  font-size: var(--fx-text-md);
+  font-weight: 600;
+}
+
+.dirSub {
+  margin: var(--fx-space-1) 0 var(--fx-space-2);
+  padding-left: var(--fx-space-3);
+  border-left: var(--fx-border-width) solid var(--fx-border);
+}
+
+.dirSub li + li {
+  margin-top: var(--fx-space-1);
+}
+
+.dirLink {
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-md);
+}
+
+.dirList > li > .dirLink {
+  color: var(--fx-text);
+  font-weight: 600;
+}
+
+.dirLink:hover,
+.dirGroupLink:hover {
+  color: var(--fx-link);
+}
+
+.recentCard:focus-visible,
 .exploreCard:focus-visible,
-.recentCard:focus-visible {
+.dirLink:focus-visible,
+.dirGroupLink:focus-visible {
   outline: var(--fx-focus-width) solid var(--fx-focus);
   outline-offset: 2px;
+}
+
+/* ---------- Narrow screens ---------- */
+
+@media (max-width: 996px) {
+  .inner {
+    padding: 0 var(--fx-space-4);
+  }
+}
+
+@media (max-width: 575px) {
+  .hero {
+    padding: var(--fx-space-4) 0 var(--fx-space-10);
+  }
+
+  .notice {
+    margin-bottom: var(--fx-space-6);
+    border-radius: var(--fx-radius-lg);
+  }
+
+  .title {
+    font-size: var(--fx-text-hero-sm);
+  }
+
+  .lead {
+    margin-bottom: var(--fx-space-6);
+    font-size: var(--fx-text-md);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -689,10 +702,10 @@
     animation: none;
   }
 
+  .search,
   .start,
   .recentCard,
   .exploreCard,
-  .cardIcon,
   .cardMore .arrow {
     transition: none;
   }
