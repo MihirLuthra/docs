@@ -226,6 +226,29 @@
   --fx-notice-accent: var(--fx-kind-concept);
   --fx-diagram-party: var(--fx-blue);
   --fx-diagram-party-soft: #e8f9ff;
+  /* Home page hero and spotlight (pages/index.module.css) */
+  --fx-text-hero: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+  --fx-text-hero-sm: 1.75rem;
+  --fx-text-lead: 1.0625rem;
+  --fx-radius-hero: 20px;
+  --fx-hero-search-h: 52px;
+  --fx-hero-art-w: 260px;
+  --fx-spot-art-w: 300px;
+  --fx-hero-bg: #fbf9ff;
+  --fx-hero-border: #ece3fb;
+  --fx-hero-glow-a: rgb(153 23 255 / 0.12);
+  --fx-hero-glow-b: rgb(0 191 255 / 0.12);
+  --fx-hero-grid: rgb(100 0 179 / 0.06);
+  --fx-hero-chip-bg: rgb(255 255 255 / 0.7);
+  --fx-hero-chip-border: #e4dcf2;
+  --fx-hero-art-a: var(--fx-kind-solution);
+  --fx-hero-art-b: var(--fx-blue);
+  --fx-hero-tee: rgb(153 23 255 / 0.08);
+  --fx-shadow-hero-search: 0 8px 24px rgb(100 0 179 / 0.08), 0 1px 2px rgb(19 19 19 / 0.06);
+  --fx-shadow-card-lift: 0 10px 28px rgb(19 19 19 / 0.08), 0 2px 6px rgb(19 19 19 / 0.04);
+  --fx-spot-bg: var(--fx-bg);
+  --fx-spot-border: var(--fx-accent-border);
+  --fx-spot-glow: rgb(153 23 255 / 0.08);
 
   /* Infima mapping */
   --ifm-font-family-base: var(--fx-font-sans);
@@ -333,6 +356,19 @@
   --fx-notice-accent: var(--fx-kind-concept);
   --fx-diagram-party: #1a9fd1;
   --fx-diagram-party-soft: #0d2630;
+  --fx-hero-bg: #16131c;
+  --fx-hero-border: #2c2438;
+  --fx-hero-glow-a: rgb(153 23 255 / 0.22);
+  --fx-hero-glow-b: rgb(0 191 255 / 0.12);
+  --fx-hero-grid: rgb(255 255 255 / 0.04);
+  --fx-hero-chip-bg: rgb(255 255 255 / 0.04);
+  --fx-hero-chip-border: #34303d;
+  --fx-hero-art-b: #4fd2ff;
+  --fx-hero-tee: rgb(208 166 255 / 0.1);
+  --fx-shadow-hero-search: 0 8px 24px rgb(0 0 0 / 0.4);
+  --fx-shadow-card-lift: 0 10px 28px rgb(0 0 0 / 0.5);
+  --fx-spot-bg: #17141d;
+  --fx-spot-glow: rgb(153 23 255 / 0.16);
 
   --ifm-color-primary-darkest: var(--fx-purple);
   --ifm-color-primary-light: var(--fx-purple-light);

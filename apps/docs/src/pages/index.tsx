@@ -3,24 +3,19 @@ import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
 import DocsTree from '@site/src/components/DocsTree';
 import {locate, useTree} from '@site/src/components/DocsTree/tree';
-import {featured} from '@site/src/data/featured';
+import {useOverlays} from '@site/src/components/Overlays/context';
+import {featured, popularTasks, quickLinks, type FeaturedIcon} from '@site/src/data/featured';
 import {RECENTS_VISIBLE, readRecents, setRecentsLayout, writeRecents} from '@site/src/lib/recents';
+import {SEARCH_TRIGGER_ATTR} from '@site/src/lib/search-early';
 import {useFooterOverlap} from '@site/src/lib/footer-overlap';
 import styles from './index.module.css';
 
-function CompassIcon(): ReactNode {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM15.5 8.5l-2 5-5 2 2-5z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+// The home page (ux-spec.md, Home): a hero with the site's search and the
+// pages most people come for, then recently viewed pages, Confidential AI in
+// a spotlight, the solutions and products, and popular tasks. All drawn
+// with CSS and inline SVG: no images to load, nothing that moves the page.
+
+const stroke = {fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round'} as const;
 
 function CloseIcon(): ReactNode {
   return (
@@ -30,53 +25,188 @@ function CloseIcon(): ReactNode {
   );
 }
 
-function WarningIcon(): ReactNode {
+function PageIcon(): ReactNode {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M12 3.5L2.5 20h19zM12 10v4.5M12 17.2v.3"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg className={styles.pageIcon} viewBox="0 0 24 24" aria-hidden="true">
+      <path {...stroke} d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h4" />
     </svg>
   );
 }
 
-// The site is published before Fortanix has reviewed it; says so first.
-function PocNotice(): ReactNode {
+function ArrowIcon(): ReactNode {
   return (
-    <aside className={styles.notice} aria-label="About this site">
-      <span className={styles.noticeIcon}>
-        <WarningIcon />
-      </span>
-      <p className={styles.noticeText}>
-        <strong>Proof of concept.</strong> This site is not official Fortanix documentation.
-        Fortanix has not reviewed or approved its content, so confirm anything here with Fortanix
-        before you rely on it.
-      </p>
-    </aside>
+    <svg className={styles.arrow} viewBox="0 0 24 24" aria-hidden="true">
+      <path {...stroke} strokeWidth={2.2} d="M5 12h13M13 6l6 6-6 6" />
+    </svg>
   );
 }
 
-function GetFamiliarBanner(): ReactNode {
+function SearchIcon(): ReactNode {
   return (
-    <Link to="/get-familiar/what-fortanix-does" className={styles.banner}>
-      <span className={styles.bannerIcon}>
-        <CompassIcon />
-      </span>
-      {/* Title and description run together, so they share lines where they fit. */}
-      <span className={styles.bannerText}>
-        <span className={styles.bannerTitle}>New to Fortanix? Get familiar first</span>{' '}
-        <span className={styles.bannerLine}>
-          What the Armor platform does, confidential computing, attestation and key
-          management, in a few short reads.
+    <svg className={styles.searchIcon} viewBox="0 0 24 24" aria-hidden="true">
+      <circle {...stroke} strokeWidth={2.2} cx="11" cy="11" r="6.5" />
+      <path {...stroke} strokeWidth={2.2} d="M16 16l4.5 4.5" />
+    </svg>
+  );
+}
+
+function InfoIcon(): ReactNode {
+  return (
+    <svg className={styles.noticeIcon} viewBox="0 0 24 24" aria-hidden="true">
+      <path {...stroke} strokeWidth={2} d="M12 3.5L2.5 20h19zM12 10v4.5M12 17.2v.3" />
+    </svg>
+  );
+}
+
+/** One icon per featured card, on a tinted tile. */
+const CARD_ICONS: Record<FeaturedIcon, ReactNode> = {
+  ai: (
+    <>
+      <rect {...stroke} x="6" y="6" width="12" height="12" rx="2.5" />
+      <path {...stroke} d="M9 2.5v3M15 2.5v3M9 18.5v3M15 18.5v3M2.5 9h3M2.5 15h3M18.5 9h3M18.5 15h3" />
+      <path {...stroke} d="M10 14.5l2-5 2 5M10.7 12.8h2.6" />
+    </>
+  ),
+  key: (
+    <>
+      <circle {...stroke} cx="8" cy="12" r="4" />
+      <path {...stroke} d="M12 12h9M18 12v3M21 12v2" />
+    </>
+  ),
+  token: (
+    <>
+      <rect {...stroke} x="3" y="7" width="18" height="10" rx="2.5" />
+      <path {...stroke} d="M7.5 10.5v3M6.2 11.2l2.6 1.6M6.2 12.8l2.6-1.6M12 10.5v3M10.7 11.2l2.6 1.6M10.7 12.8l2.6-1.6M16.5 10.5v3M15.2 11.2l2.6 1.6M15.2 12.8l2.6-1.6" />
+    </>
+  ),
+  chip: (
+    <>
+      <path {...stroke} d="M12 2.8l7.5 3v6c0 4.6-3.2 8-7.5 9.4C7.7 19.8 4.5 16.4 4.5 11.8v-6z" />
+      <path {...stroke} d="M8.8 12l2.2 2.2 4.2-4.4" />
+    </>
+  ),
+  folder: (
+    <>
+      <path {...stroke} d="M3 7.5a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <rect {...stroke} x="9.5" y="12" width="5" height="4" rx="1" />
+      <path {...stroke} d="M10.5 12v-1a1.5 1.5 0 0 1 3 0v1" />
+    </>
+  ),
+  atom: (
+    <>
+      <circle cx="12" cy="12" r="1.6" fill="currentColor" />
+      <ellipse {...stroke} cx="12" cy="12" rx="9" ry="3.6" />
+      <ellipse {...stroke} cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)" />
+      <ellipse {...stroke} cx="12" cy="12" rx="9" ry="3.6" transform="rotate(-60 12 12)" />
+    </>
+  ),
+};
+
+/**
+ * The hero's picture: a protected core (the TEE) holding a chip and a lock,
+ * with keys, attestation and data orbiting it. Decorative only.
+ */
+function HeroArt(): ReactNode {
+  return (
+    <svg className={styles.heroArt} viewBox="0 0 320 260" aria-hidden="true">
+      <defs>
+        <linearGradient id="fx-hero-line" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="var(--fx-hero-art-a)" />
+          <stop offset="1" stopColor="var(--fx-hero-art-b)" />
+        </linearGradient>
+        <radialGradient id="fx-hero-glow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="var(--fx-hero-art-a)" stopOpacity="0.45" />
+          <stop offset="1" stopColor="var(--fx-hero-art-a)" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx="160" cy="130" r="120" fill="url(#fx-hero-glow)" />
+      {/* Orbit, with what moves around the core. */}
+      <g className={styles.orbit}>
+        <ellipse cx="160" cy="130" rx="138" ry="52" fill="none" stroke="url(#fx-hero-line)" strokeWidth="1.2" strokeDasharray="3 6" opacity="0.7" />
+        <g transform="translate(26 130)">
+          <circle r="15" className={styles.artBadge} />
+          <circle {...stroke} cx="-3" cy="0" r="4" className={styles.artGlyph} />
+          <path {...stroke} d="M1 0h8M6 0v3" className={styles.artGlyph} />
+        </g>
+        <g transform="translate(294 130)">
+          <circle r="15" className={styles.artBadge} />
+          <path {...stroke} d="M-5 0l3.5 3.5L5.5-4" className={styles.artGlyph} />
+        </g>
+      </g>
+      {/* The TEE: a boundary, a chip, a lock. */}
+      <rect x="92" y="62" width="136" height="136" rx="28" className={styles.artTee} />
+      <rect x="92" y="62" width="136" height="136" rx="28" fill="none" stroke="url(#fx-hero-line)" strokeWidth="2" strokeDasharray="8 6" className={styles.artDash} />
+      <g transform="translate(160 130)">
+        <rect x="-38" y="-38" width="76" height="76" rx="14" className={styles.artChip} />
+        <path
+          d="M-24 -48v10M-8 -48v10M8 -48v10M24 -48v10M-24 38v10M-8 38v10M8 38v10M24 38v10M-48 -24h10M-48 -8h10M-48 8h10M-48 24h10M38 -24h10M38 -8h10M38 8h10M38 24h10"
+          stroke="url(#fx-hero-line)"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <g className={styles.artLock}>
+          <rect x="-15" y="-4" width="30" height="24" rx="5" fill="url(#fx-hero-line)" />
+          <path d="M-9 -4v-6a9 9 0 0 1 18 0v6" fill="none" stroke="url(#fx-hero-line)" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="0" cy="8" r="3" className={styles.artKeyhole} />
+        </g>
+      </g>
+      {/* Data moving in, sparks of attestation. */}
+      <circle cx="58" cy="58" r="4" className={styles.artSpark} />
+      <circle cx="270" cy="210" r="3" className={styles.artSpark} style={{animationDelay: '1.2s'}} />
+      <circle cx="262" cy="48" r="2.5" className={styles.artSpark} style={{animationDelay: '2.1s'}} />
+    </svg>
+  );
+}
+
+function Hero(): ReactNode {
+  const {openSearch, prefetchSearch} = useOverlays();
+  return (
+    <section className={styles.hero} aria-labelledby="home-title">
+      <p className={styles.notice}>
+        <InfoIcon />
+        <span>
+          <strong>Proof of concept.</strong> Not official Fortanix documentation, and not reviewed or approved by
+          Fortanix. Confirm anything here with Fortanix before you rely on it.
         </span>
-      </span>
-      <span className={styles.bannerCta}>Start reading →</span>
-    </Link>
+      </p>
+      <div className={styles.heroBody}>
+        <div className={styles.heroText}>
+          <h1 id="home-title" className={styles.title}>
+            <span className={styles.titleBrand}>Fortanix</span> Documentation
+          </h1>
+          <p className={styles.lead}>
+            Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.
+          </p>
+          <button
+            type="button"
+            className={styles.search}
+            onClick={openSearch}
+            onPointerEnter={prefetchSearch}
+            onFocus={prefetchSearch}
+            {...{[SEARCH_TRIGGER_ATTR]: ''}}>
+            <SearchIcon />
+            <span className={styles.searchText}>Search the docs</span>
+            <kbd className={styles.searchKey}>/</kbd>
+          </button>
+          <div className={styles.heroLinks}>
+            <Link to="/get-familiar/what-fortanix-does" className={styles.start}>
+              New to Fortanix? Start here
+              <ArrowIcon />
+            </Link>
+            <ul className={styles.quick} aria-label="Popular pages">
+              {quickLinks.map((q) => (
+                <li key={q.href}>
+                  <Link to={q.href} className={styles.quickLink}>
+                    {q.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <HeroArt />
+      </div>
+    </section>
   );
 }
 
@@ -98,7 +228,10 @@ function RecentlyViewed(): ReactNode {
     return loc ? [{href: p, ...loc}] : [];
   });
   useEffect(() => {
-    if (paths !== null) setRecentsLayout(items.length);
+    if (paths === null) return;
+    // Pages moved or removed since: forgotten, so the head script counts only what shows.
+    if (items.length !== paths.length) writeRecents(items.map((i) => i.href));
+    setRecentsLayout(items.length);
   }, [paths, items.length]);
 
   const visible = showAll ? items : items.slice(0, RECENTS_VISIBLE);
@@ -130,6 +263,7 @@ function RecentlyViewed(): ReactNode {
             {visible.map((item, i) => (
               <li key={item.href} className={styles.recentItem}>
                 <Link to={item.href} className={styles.recentCard} title={item.path.join(' / ')}>
+                  <PageIcon />
                   <span className={styles.recentTitle}>{item.title}</span>
                   {/* The closest parent section; the full path is in the tooltip. */}
                   <span className={styles.recentPath}>{item.path[item.path.length - 1]}</span>
@@ -179,20 +313,90 @@ function HomeSidebar(): ReactNode {
   );
 }
 
+/** Confidential AI, featured: what it is, its main pages, and a small picture of the flow. */
+function Spotlight(): ReactNode {
+  return (
+    <section className={styles.spotlight} aria-labelledby="spotlight-title">
+      <div className={styles.spotText}>
+        <span className={styles.eyebrow}>Solution</span>
+        <h2 id="spotlight-title" className={styles.spotTitle}>
+          Confidential AI
+        </h2>
+        <p className={styles.spotLine}>
+          Run models in a TEE on the CPU and the GPU, prove what runs before it gets a secret, and release the model
+          key only to approved workloads.
+        </p>
+        <ul className={styles.spotLinks}>
+          <li>
+            <Link to="/solutions/confidential-ai/overview" className={styles.spotPrimary}>
+              Overview
+              <ArrowIcon />
+            </Link>
+          </li>
+          <li>
+            <Link to="/solutions/confidential-ai/how-to-guides/overview" className={styles.spotSecondary}>
+              Deploy and operate
+            </Link>
+          </li>
+          <li>
+            <Link to="/solutions/confidential-ai/use-cases/proprietary-model" className={styles.spotSecondary}>
+              Use cases
+            </Link>
+          </li>
+        </ul>
+      </div>
+      {/* A model in a TEE; CCM checks it, DSM sends the key. Decorative. */}
+      <svg className={styles.spotArt} viewBox="0 0 300 180" aria-hidden="true">
+        <rect x="8" y="14" width="96" height="44" rx="10" className={styles.spotCard} />
+        <text x="56" y="42" textAnchor="middle" className={styles.spotLabel}>
+          CCM
+        </text>
+        <rect x="196" y="14" width="96" height="44" rx="10" className={styles.spotCard} />
+        <text x="244" y="42" textAnchor="middle" className={styles.spotLabel}>
+          DSM
+        </text>
+        <rect x="58" y="96" width="184" height="72" rx="16" className={styles.spotTee} />
+        <text x="150" y="120" textAnchor="middle" className={styles.spotTeeLabel}>
+          TEE
+        </text>
+        <rect x="98" y="130" width="104" height="26" rx="8" className={styles.spotCard} />
+        <text x="150" y="148" textAnchor="middle" className={styles.spotSmall}>
+          Model workload
+        </text>
+        <path d="M56 58v38" className={styles.spotFlow} />
+        <path d="M244 58v38" className={styles.spotFlow} style={{animationDelay: '0.9s'}} />
+        <circle cx="56" cy="77" r="9" className={styles.spotDot} />
+        <path d="M52 77l3 3 5-6" className={styles.spotTick} />
+        <circle cx="244" cy="77" r="9" className={styles.spotDot} />
+        <path d="M240 77a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0M245 77h4" className={styles.spotTick} />
+      </svg>
+    </section>
+  );
+}
+
 function ExploreFortanix(): ReactNode {
+  const cards = featured.filter((c) => c.title !== 'Confidential AI');
   return (
     <section className={styles.section} aria-labelledby="explore-heading">
       <h2 id="explore-heading" className={styles.heading}>
         Explore Fortanix
       </h2>
       <ul className={styles.exploreGrid}>
-        {featured.map((card) => (
+        {cards.map((card) => (
           <li key={card.href}>
-            <Link to={card.href} className={styles.exploreCard}>
+            <Link to={card.href} className={styles.exploreCard} data-kind={card.kind}>
+              <span className={styles.cardTop}>
+                <span className={styles.cardIcon}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    {CARD_ICONS[card.icon]}
+                  </svg>
+                </span>
+                <span className={styles.cardKind}>{card.kind === 'product' ? 'Product' : 'Solution'}</span>
+              </span>
+              <span className={styles.exploreTitle}>{card.title}</span>
               <span className={styles.explorePath} title={card.path}>
                 {card.path}
               </span>
-              <span className={styles.exploreTitle}>{card.title}</span>
               <span className={styles.exploreLine}>{card.line}</span>
               <span className={styles.tags}>
                 {card.tags.map((tag) => (
@@ -201,6 +405,31 @@ function ExploreFortanix(): ReactNode {
                   </span>
                 ))}
               </span>
+              <ArrowIcon />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** How-tos people come back for: in the right column on wide screens, after the cards otherwise. */
+function PopularTasks(): ReactNode {
+  return (
+    <section className={styles.tasks} aria-labelledby="tasks-heading">
+      <h2 id="tasks-heading" className={styles.heading}>
+        Popular tasks
+      </h2>
+      <ul className={styles.taskList}>
+        {popularTasks.map((t) => (
+          <li key={t.href}>
+            <Link to={t.href} className={styles.task}>
+              <span className={styles.taskText}>
+                <span className={styles.taskTitle}>{t.title}</span>
+                <span className={styles.taskSection}>{t.section}</span>
+              </span>
+              <ArrowIcon />
             </Link>
           </li>
         ))}
@@ -211,20 +440,22 @@ function ExploreFortanix(): ReactNode {
 
 export default function Home(): ReactNode {
   return (
-    <Layout title="Home" description="Documentation for Fortanix products.">
+    <Layout title="Home" description="Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.">
       <div className={styles.layout}>
         <HomeSidebar />
-        {/* Main column + right rail, centred together beside the sidebar. */}
         <div className={styles.content}>
-          <main className={styles.main}>
-            <h1 className="sr-only">Fortanix Documentation</h1>
-            <PocNotice />
-            <GetFamiliarBanner />
-            <RecentlyViewed />
-            <ExploreFortanix />
-          </main>
-          {/* Right rail, reserved for later content (e.g. Get help / Slack). Empty for now. */}
-          <div className={styles.rail} />
+          <Hero />
+          {/* Main column and right column under the hero. */}
+          <div className={styles.columns}>
+            <main className={styles.main}>
+              <RecentlyViewed />
+              <Spotlight />
+              <ExploreFortanix />
+            </main>
+            <aside className={styles.rail} aria-label="Popular tasks">
+              <PopularTasks />
+            </aside>
+          </div>
         </div>
       </div>
     </Layout>

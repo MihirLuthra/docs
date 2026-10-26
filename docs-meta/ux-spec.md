@@ -40,22 +40,31 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 ## Home
 
-- **Grid:** sidebar | main column (max 1080px) | right rail (260px, from 1280px wide). The rail is reserved for later content such as "Get help / Slack" and is empty for now. The main column and rail are centred together in the space beside the sidebar.
-- **Compact top**, so Explore Fortanix is above the fold on a 1080p screen (with 6 recents, at least its first row is fully visible): about 28px between sections.
+- **Grid:** sidebar | content. The content (max 1080px main column + 260px right column, from 1280px wide) is centred in the space beside the sidebar. The hero spans both columns; below it the main column and the right column sit side by side. Narrower than 1280px, the right column's content follows the main column's.
+- Everything is static CSS and inline SVG: no images to load, no layout shift (recents reserve their height before hydration, below).
 
-1. **"New to Fortanix? Get familiar first"**: a prominent purple banner linking to *What Fortanix does*. One row, ~64px tall: icon, then the title and description running together (sharing lines where they fit), then the button. On narrow screens the button wraps below.
+1. **Hero**: a rounded panel (20px radius) with a soft purple and blue wash over a fine grid that fades out.
+   - A slim **proof-of-concept notice** strip at its top (amber).
+   - A visible title, "Fortanix Documentation", with "Fortanix" in the brand gradient; one lead line under it.
+   - A **large search box** (52px tall, up to ~544px wide) that opens the site's search panel, with its `/` key chip.
+   - Under it, **"New to Fortanix? Start here"** (a dark pill button to *What Fortanix does*), then quick-link chips (from `featured.ts`, `quickLinks`).
+   - On the right, a decorative picture: a chip with a lock inside a dashed TEE outline, a slowly turning orbit with a search and a key badge. Hidden below 900px. Nothing moves with reduced motion.
+   - Phones: tighter padding, 28px title, the chips wrap.
 2. **Recently viewed** (stored in localStorage, max 12):
-   - Cards in a 3-column grid, each with a title and its closest parent section (the full path is in the tooltip).
+   - Cards in a 3-column grid (2 below 768px, 1 below 576px), each with a page icon, a title and its closest parent section (the full path is in the tooltip).
    - Each card has its own **×** to remove it. There is **no "clear all"**.
-   - Cards are ~56px tall.
+   - Cards are 56px tall and lift slightly on hover.
    - Shows 2 rows (6 cards). A "View more (n)" / "Show less" toggle sits below the cards.
    - Empty state: "Pages you open show up here."
-3. **Explore Fortanix**: 6 curated cards (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness). Each card has a mono path, a title, one line, and tags. The cards come from one data file (`apps/docs/src/data/featured.ts`).
+   - Stored pages that no longer exist (moved or removed) are dropped when the home page loads, so the reserved height matches what shows.
+3. **Spotlight: Confidential AI**: a wide card with a "Solution" eyebrow, the title, one line, a primary "Overview" button and two text links (Deploy and operate, Use cases). On the right a small picture: CCM and DSM above a dashed TEE holding the model workload. The picture is hidden below 768px.
+4. **Explore Fortanix**: the other curated cards (Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness). The cards come from one data file (`apps/docs/src/data/featured.ts`).
+   - Each card has an icon tile and a kind label (Product blue, Solution purple), then a mono path, a title, one line, and tags.
+   - On hover the card lifts, the brand gradient shows along its top, and an arrow replaces the kind label.
    - The path is one line (ellipsis if too long, never wraps), so titles in a row line up. Paths say "Armor" for "Fortanix Armor".
-   - At most 3 columns (6 cards = 2 rows); fewer on narrow screens.
-   - About 6px between path, title, description and tags. Description line-height 1.5.
-   - Tags: 11px text, padding 1px 6px, radius 4px, background `#F2F3F6` (a dark grey in dark mode), 4px apart.
-
+   - At most 3 columns; fewer on narrow screens.
+   - Tags: 11px text, padding 1px 6px, radius 4px, the chip background, 4px apart.
+5. **Popular tasks** (right column, sticky under the header): a list of task pages, each a title over its section with an arrow (from `featured.ts`, `popularTasks`). Narrower than 1280px it follows Explore Fortanix, in two columns where they fit.
 ## Search bar
 
 A search bar in the header. Clicking it (or ⌘K / Ctrl+K or `/`) opens a larger search panel near the top of the page, over a dimmed page.
