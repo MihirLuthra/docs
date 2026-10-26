@@ -7,6 +7,7 @@ import {
   type Account, type Asset, type AssetKind, type Deployment, type OperationId, type PhaseId, type Runtime, type Step, type Territory,
 } from "./deployment";
 import { ROLES, SCENARIOS, type RoleId } from "./scenarios";
+import { charsFor, fit, textWidth, wrap } from "./scene";
 
 // A deployment as a scene, step by step. Each party is a territory holding what
 // it owns: its Fortanix accounts along the top row, its own machines along the
@@ -79,13 +80,6 @@ const LINE = 17; // an account item's line
 const ACCOUNT_HEAD = 32;
 const ASSET_H = 96;
 const HEAD = 64; // a territory's name and roles, on up to two lines
-
-/** About how wide text is at a font size; Inter averages a little over half an em. */
-const textWidth = (text: string, size: number, bold = false) => text.length * size * (bold ? 0.6 : 0.55);
-const charsFor = (avail: number, size: number) => Math.max(6, Math.floor(avail / (size * 0.55)));
-/** Shrinks a line that would run past avail, so text never spills out of its card. */
-const fit = (text: string, size: number, avail: number, bold = false) =>
-  textWidth(text, size, bold) > avail ? { textLength: Math.max(10, avail), lengthAdjust: "spacingAndGlyphs" as const } : {};
 
 const userOnly = (t: Territory) => t.roles.length === 1 && t.roles[0] === "user";
 const assetsFor = (t: Territory, _rt?: Runtime) => t.assets;
@@ -182,20 +176,6 @@ function arrowFor(l: Layout, from: string, to: string, badged: Set<string>): { p
 }
 
 // ---------- Drawing ----------
-
-/** Splits text into lines of about n characters. */
-function wrap(text: string, n: number): string[] {
-  const lines: string[] = [];
-  let line = "";
-  for (const word of text.split(" ")) {
-    if (line && (line + " " + word).length > n) {
-      lines.push(line);
-      line = word;
-    } else line = line ? `${line} ${word}` : word;
-  }
-  if (line) lines.push(line);
-  return lines;
-}
 
 const ICONS: Record<AssetKind | "ccm" | "dsm", React.ReactNode> = {
   build: <><rect x="4" y="5" width="24" height="16" rx="2" /><path d="M1 25h30l-2 3H3z" /></>,
