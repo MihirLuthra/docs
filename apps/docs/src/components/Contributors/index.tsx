@@ -1,5 +1,4 @@
 import {useId, type ReactNode} from 'react';
-import clsx from 'clsx';
 import {useLocation} from '@docusaurus/router';
 import {usePluginData} from '@docusaurus/useGlobalData';
 import {normalize} from '@site/src/components/DocsTree/tree';
@@ -7,7 +6,7 @@ import type {Contributors as Data, Person} from './types';
 import styles from './styles.module.css';
 
 // Avatars shown once expanded, overlapping in one short row; the rest are a
-// "+N" chip, and "View all on GitHub" opens the file's history.
+// "+N" chip, and "Page history on GitHub" lists every change and its author.
 const MAX_SHOWN = 5;
 
 const initials = (name: string) =>
@@ -52,11 +51,9 @@ function Avatar({person, commits}: {person: Person; commits: number}): ReactNode
  * compact row and "View all on GitHub" (the file's history). The avatars
  * load only when it is opened. From plugins/contributors.ts.
  *
- * Rendered twice: in the right-hand column under the table of contents
- * ("rail"), and under the page ("footer"). CSS shows the rail one on wide
- * screens when the page has that column, else the footer one.
+ * Shown beside "Edit this page" (theme/DocItem/Footer).
  */
-export default function Contributors({placement}: {placement: 'rail' | 'footer'}): ReactNode {
+export default function Contributors(): ReactNode {
   const headingId = useId();
   const {repo, branch, people, pages} = usePluginData('contributors') as Data;
   const page = pages[normalize(useLocation().pathname)];
@@ -65,9 +62,7 @@ export default function Contributors({placement}: {placement: 'rail' | 'footer'}
   const hidden = count - MAX_SHOWN;
   const history = `https://github.com/${repo}/commits/${branch}/${page.file}`;
   return (
-    <section
-      className={clsx(styles.contributors, placement === 'rail' ? styles.inRail : styles.inFooter)}
-      aria-labelledby={headingId}>
+    <section className={styles.contributors} aria-labelledby={headingId}>
       <details className={styles.details}>
         <summary className={styles.summary}>
           <h2 id={headingId} className={styles.heading}>
@@ -89,7 +84,7 @@ export default function Contributors({placement}: {placement: 'rail' | 'footer'}
             )}
           </ul>
           <a className={styles.more} href={history}>
-            View all on GitHub
+            Page history on GitHub
           </a>
         </div>
       </details>
