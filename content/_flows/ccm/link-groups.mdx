@@ -1,11 +1,61 @@
 {/* Shared flow (D16): link a publisher's group and a consumer's group in two
-    CCM accounts (collaborating groups). Text steps for now.
-    TODO: a walkthrough with the captured screenshots (img/todo). */}
+    CCM accounts (collaborating groups). Groups are in Armor's Identity &
+    Access Management. */}
 
-Collaboration links a group of the publisher's account with a group of the consumer's. Group settings are in Armor's **Identity & Access Management**, under **Groups**.
+<Walkthrough label="Link the groups">
+<Step
+  title="Publisher. Open the group"
+  image={require('../img/iam-group-page.webp').default}
+  width={1903}
+  height={697}
+  marks={[[83.2, 18.9, 7.7, 6.6]]}
+  alt="The group page in Identity & Access Management, with COLLABORATE outlined">
 
-1. **Publisher.** Open the group and click **COLLABORATE**, then **GENERATE TOKEN**, then **COPY**. Send the token to the consumer over a channel you trust.
-2. **Consumer.** Open the group and click **ACCEPT TOKEN**. Paste the token under **Paste token** and click **PROCEED**.
-3. **Publisher.** Go to **COLLABORATION GROUPS** > **PUBLISHER**. The consumer's group is listed as **Pending**. In the row's menu, click **Accept**.
+In Armor's **Identity & Access Management**, go to **Groups**, open the group, and click **COLLABORATE**.
 
-The link is now **Accepted**. The consumer sees it under **COLLABORATION GROUPS** > **CONSUMER**.
+</Step>
+<Step
+  title="Publisher. Generate and copy the token"
+  image={require('../img/iam-collaborate.webp').default}
+  width={875}
+  height={565}
+  marks={[[3.2, 56.1, 93.5, 13.5], [3.2, 70.3, 6.9, 7.3]]}
+  alt="The Collaborate dialog, with the token and COPY outlined">
+
+Click **GENERATE TOKEN**, then **COPY**. Send the token to the consumer over a channel you trust.
+
+</Step>
+<Step
+  title="Consumer. Open the group"
+  image={require('../img/iam-group-page.webp').default}
+  width={1903}
+  height={697}
+  marks={[[91.5, 18.9, 7.9, 6.6]]}
+  alt="A group page in Identity & Access Management, with ACCEPT TOKEN outlined">
+
+In the consumer's account, open its group in **Identity & Access Management** and click **ACCEPT TOKEN**.
+
+</Step>
+<Step
+  title="Consumer. Paste the token"
+  image={require('../img/iam-accept-token.webp').default}
+  width={874}
+  height={377}
+  marks={[[3.1, 62.9, 93.7, 12.2], [3.1, 77.5, 12.8, 12.5]]}
+  alt="The Accept token dialog, with the token field and PROCEED outlined">
+
+Paste the token under **Paste token** and click **PROCEED**.
+
+</Step>
+<Step
+  title="Publisher. Accept the link"
+  image={require('../img/iam-collab-accept.webp').default}
+  width={1903}
+  height={685}
+  marks={[[22.5, 42.6, 8.9, 8.6], [82.4, 77.8, 13.6, 8.2]]}
+  alt="Collaboration Groups on PUBLISHER, with the row menu open and Accept outlined">
+
+Go to **COLLABORATION GROUPS** > **PUBLISHER**. The consumer's group is **Pending**. In the row's menu, click **Accept**. The link is now **Accepted**, and the consumer sees it under **CONSUMER**.
+
+</Step>
+</Walkthrough>

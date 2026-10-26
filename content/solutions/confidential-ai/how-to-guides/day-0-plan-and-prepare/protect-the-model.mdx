@@ -6,6 +6,10 @@ keywords: [encrypt model, ocicrypt, coco-keyprovider, sq-dsm, measurements, conv
 sidebar_position: 4
 ---
 
+import AddBuild from '../../../../_flows/ccm/add-build.mdx';
+import ApproveRequests from '../../../../_flows/ccm/approve-requests.mdx';
+import AddConfiguration from '../../../../_flows/ccm/add-configuration.mdx';
+
 The model owner does this. Afterwards only the approved workload, inside a TEE, can read the weights. With an open model, skip the encryption. The consumer builds, measures and registers the workload instead.
 
 ## Before you begin
@@ -112,11 +116,32 @@ Save the measurements from the converter's response, under `config.measurements`
 </Tab>
 </Tabs>
 
-## Add and approve the build
+## Add the build
 
-1. [Add a build](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application#add-a-build) to the application from [Set up CCM](set-up-ccm.mdx), with the measurements. Under **Coprocessors**, set **NVIDIA GPU attestation** to **Required**, so CCM checks the GPU evidence along with the CPU's.
-2. [Approve the build and the domain](/products/fortanix-armor/confidential-computing/ccm/applications/approve-builds-and-domains) on the **Tasks** page.
-3. [Add an application configuration](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application#add-an-application-configuration) for the build, even when the model needs no configuration items. The workflow on day 1 runs the build with it.
+Add a build to the application from [Set up CCM](set-up-ccm.mdx), with the measurements. Set **NVIDIA GPU attestation** to **Required**, so CCM checks the GPU evidence along with the CPU's.
+
+<Tabs groupId="runtime">
+<Tab label="Confidential Containers">
+
+<AddBuild />
+
+</Tab>
+<Tab label="Enclave OS">
+
+<AddBuild runtime="eos" />
+
+</Tab>
+</Tabs>
+
+## Approve the build and the domain
+
+<ApproveRequests />
+
+## Add an application configuration
+
+Add one for the build, even when the model needs no configuration items. The workflow on day 1 runs the build with it.
+
+<AddConfiguration />
 
 Until the build and its domain are approved, CCM refuses the workload's certificate, and DSM releases no key.
 

@@ -1,0 +1,104 @@
+{/* Shared flow (D16): create a workflow in one CCM account, approve it, and
+    find the application configuration ID. */}
+
+<Walkthrough label="Create a workflow">
+<Step
+  title="Name the workflow"
+  image={require('../img/ccm-workflow-add.webp').default}
+  width={1310}
+  height={513}
+  marks={[[3.4, 25.7, 46.3, 16.8], [50.5, 25.7, 46.2, 16.8], [15.0, 76.8, 18.3, 11.9]]}
+  alt="The Add Workflow dialog, with the name, the group and ADD WORKFLOW outlined">
+
+Go to **Workflows** and click **ADD WORKFLOW**. Enter a **Name**, such as `llama-chat-serving`, select the **Group**, and click **ADD WORKFLOW**. The workflow opens as a draft.
+
+</Step>
+<Step
+  title="Select the application"
+  image={require('../img/ccm-wf-select-app.webp').default}
+  width={1513}
+  height={758}
+  marks={[[2.6, 61.2, 95.0, 9.1], [8.5, 91.7, 7.4, 6.1]]}
+  alt="The application picker, with the application and PROCEED outlined">
+
+Drag the **Application** icon from the bar under the graph onto the graph, and click **ADD APPLICATION** on the new node. Select the application and click **PROCEED**.
+
+</Step>
+<Step
+  title="Select the build"
+  image={require('../img/ccm-wf-select-build.webp').default}
+  width={1513}
+  height={758}
+  marks={[[1.8, 44.5, 53.7, 5.7], [8.5, 91.7, 7.4, 6.1]]}
+  alt="The build picker, with the build and PROCEED outlined">
+
+Select the build and click **PROCEED**.
+
+</Step>
+<Step
+  title="Select the configuration"
+  image={require('../img/ccm-wf-select-config.webp').default}
+  width={1513}
+  height={758}
+  marks={[[2.6, 67.8, 95.0, 9.1], [8.5, 91.7, 11.4, 6.1]]}
+  alt="The configuration picker, with the configuration and ADD APPLICATION outlined">
+
+Select the application configuration, or click **CREATE NEW CONFIGURATION**, and click **ADD APPLICATION**.
+
+</Step>
+<Step
+  title="Save the draft"
+  image={require('../img/ccm-wf-canvas.webp').default}
+  width={1903}
+  height={778}
+  marks={[[44.6, 68.0, 11.5, 8.7], [76.1, 17.0, 6.8, 5.9]]}
+  alt="The draft workflow with the application node and SAVE DRAFT outlined">
+
+The node shows the application. Click **SAVE DRAFT**. Without it, the node isn't saved, and requesting approval fails with "can't create empty workflow".
+
+</Step>
+<Step
+  title="Request approval"
+  image={require('../img/ccm-wf-request.webp').default}
+  width={525}
+  height={292}
+  marks={[[19.6, 71.2, 35.8, 15.8]]}
+  alt="The confirmation dialog, with REQUEST APPROVAL outlined">
+
+Click **SAVE AND REQUEST APPROVAL**, and confirm with **REQUEST APPROVAL**. The workflow moves to **Pending Approval**.
+
+</Step>
+<Step
+  title="Approve"
+  image={require('../img/ccm-wf-approve.webp').default}
+  width={1468}
+  height={770}
+  marks={[[10.9, 91.6, 8.9, 6.6]]}
+  alt="The approval request, with the graph, the reviewers and APPROVE outlined">
+
+A reviewer goes to **Workflows** > **Pending Approval**, clicks the workflow, checks the graph, and clicks **APPROVE**.
+
+</Step>
+<Step
+  title="Open the approved workflow"
+  image={require('../img/ccm-wf-approved.webp').default}
+  width={1903}
+  height={778}
+  marks={[[89.6, 54.2, 6.0, 5.7]]}
+  alt="The Approved workflows, with VIEW DETAILS outlined">
+
+Go to **Workflows** > **Approved** and click **VIEW DETAILS** on the workflow.
+
+</Step>
+<Step
+  title="Copy the application configuration ID"
+  image={require('../img/ccm-wf-config-id.webp').default}
+  width={937}
+  height={758}
+  marks={[[2.9, 89.7, 62.0, 9.0]]}
+  alt="The application properties, with the application configuration ID outlined">
+
+Click the information icon on the application's node, and copy the **Application configuration ID**, the runtime configuration hash. The workload passes it when it starts.
+
+</Step>
+</Walkthrough>

@@ -151,19 +151,19 @@ const STEPS: StepDef[] = [
     id: "measure", phase: "day0", actor: "builder", title: "Register the measurements",
     from: "build", to: "ccm:owner", carries: "Measurements",
     text: (c, rt) => `${c.Name("builder")} takes the workload's measurements${cc(rt) ? "" : " from the converter"} and adds them to the application llama-chat in CCM as build 1.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#add-and-approve-the-build`,
+    task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#add-the-build`,
   },
   {
     id: "approve", phase: "day0", actor: "builder", title: "Approve the build",
     to: "ccm:owner",
     text: (c) => `An administrator of ${c.name("builder")} approves build 1 and its domain on Tasks. Until then, CCM issues no certificate for it.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#add-and-approve-the-build`,
+    task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#approve-the-build-and-the-domain`,
   },
   {
     id: "config", phase: "day0", actor: "builder", title: "Add the application configuration",
     to: "ccm:owner",
     text: (c) => `${c.Name("builder")} adds an application configuration for build 1 in CCM, even with no settings. It holds the workload's runtime configuration, kept in CCM rather than on the host, and the workflow runs the build with it.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#add-and-approve-the-build`,
+    task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#add-an-application-configuration`,
   },
   {
     id: "prepare", phase: "day0", actor: "infra", title: "Prepare the infrastructure",

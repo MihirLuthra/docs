@@ -1,15 +1,93 @@
 {/* Shared flow (D16): the consumer creates a workflow with a placeholder for
-    the publisher's application, the publisher fills it in, and both approve.
-    Text steps for now.
-    TODO: a walkthrough with the captured screenshots (img/todo). */}
+    the publisher's application, the publisher fills it in, and both approve. */}
 
-1. **Consumer.** Go to **Workflows** and click **ADD WORKFLOW**. Enter a **Name**, select the group, and click **ADD WORKFLOW**.
-2. **Consumer.** Drag the **Application** icon onto the graph and click **ADD APPLICATION** on the node. Under **View by**, select **Groups**, then **Publisher group**, select the publisher's group, and click **ADD APPLICATION**. The node is a placeholder for the publisher's application. Click **SAVE DRAFT**.
-3. **Publisher.** Go to **Workflows** > **Draft**. The workflow is marked **Shared**. Click **VIEW DETAILS**, click **ADD APPLICATION** on the placeholder, select the application, its build and its configuration, and click **ADD APPLICATION**. Click **SAVE DRAFT**.
-4. **Consumer.** Open the draft, click **SAVE AND REQUEST APPROVAL**, and confirm with **REQUEST APPROVAL**.
-5. **Publisher.** Go to **Workflows** > **Pending Approval**, click the workflow, and click **APPROVE**.
-6. **Consumer.** Go to **Workflows** > **Pending Approval**, click the workflow, and click **APPROVE**. It moves to **Approved**.
+<Walkthrough label="Create and approve the shared workflow">
+<Step
+  title="Consumer. Name the workflow"
+  image={require('../img/ccm-workflow-add.webp').default}
+  width={1310}
+  height={513}
+  marks={[[3.4, 25.7, 46.3, 16.8], [50.5, 25.7, 46.2, 16.8], [15.0, 76.8, 18.3, 11.9]]}
+  alt="The Add Workflow dialog, with the name, the group and ADD WORKFLOW outlined">
 
-The publisher approves first. Each side can change only its own part of the workflow. The publisher chooses which application, build and configuration runs, so the consumer can't swap in another application.
+Go to **Workflows** and click **ADD WORKFLOW**. Enter a **Name**, select the group, and click **ADD WORKFLOW**.
 
-{/* TODO(verify): these steps were checked with an Enclave OS application on Intel TDX; confirm they are the same for Confidential Containers applications. */}
+</Step>
+<Step
+  title="Consumer. Add a placeholder for the publisher's application"
+  image={require('../img/ccm-wf-placeholder.webp').default}
+  width={1513}
+  height={758}
+  marks={[[11.1, 32.7, 6.5, 5.0], [11.1, 43.4, 10.6, 5.0], [1.8, 54.0, 96.7, 5.5], [8.5, 91.7, 11.4, 6.1]]}
+  alt="The application picker on Groups and Publisher group, with the group and ADD APPLICATION outlined">
+
+Drag the **Application** icon onto the graph and click **ADD APPLICATION** on the node. Under **View by**, select **Groups**, then **Publisher group**, select the publisher's group, and click **ADD APPLICATION**.
+
+</Step>
+<Step
+  title="Consumer. Save the draft"
+  image={require('../img/ccm-wf-consumer-draft.webp').default}
+  width={1903}
+  height={778}
+  marks={[[44.6, 68.0, 11.1, 8.7], [76.0, 16.7, 7.1, 6.4]]}
+  alt="The draft with the placeholder node and SAVE DRAFT outlined">
+
+The node is a placeholder for the publisher's application. Click **SAVE DRAFT**.
+
+</Step>
+<Step
+  title="Publisher. Open the shared draft"
+  image={require('../img/ccm-wf-shared-draft.webp').default}
+  width={1903}
+  height={550}
+  marks={[[33.2, 52.2, 7.6, 11.5], [91.2, 76.7, 6.0, 8.0]]}
+  alt="The publisher's Draft workflows, with the shared workflow's VIEW DETAILS outlined">
+
+In the publisher's account, go to **Workflows** > **Draft**. The workflow is marked **Shared**. Click **VIEW DETAILS**.
+
+</Step>
+<Step
+  title="Publisher. Fill in the placeholder"
+  image={require('../img/ccm-wf-fill-placeholder.webp').default}
+  width={1903}
+  height={550}
+  marks={[[15.7, 60.5, 11.3, 12.4], [92.5, 24.0, 6.8, 8.4]]}
+  alt="The shared draft, with the placeholder and SAVE DRAFT outlined">
+
+Click **ADD APPLICATION** on the placeholder, select the application, its build and its configuration, and click **ADD APPLICATION**. Click **SAVE DRAFT**.
+
+</Step>
+<Step
+  title="Consumer. Request approval"
+  image={require('../img/ccm-wf-request.webp').default}
+  width={525}
+  height={292}
+  marks={[[19.6, 71.2, 35.8, 15.8]]}
+  alt="The confirmation dialog, with REQUEST APPROVAL outlined">
+
+In the consumer's account, open the draft, click **SAVE AND REQUEST APPROVAL**, and confirm with **REQUEST APPROVAL**.
+
+</Step>
+<Step
+  title="Publisher. Approve"
+  image={require('../img/ccm-wf-pending-shared.webp').default}
+  width={1903}
+  height={550}
+  marks={[[21.8, 52.2, 12.3, 11.5], [14.7, 74.0, 84.5, 12.9]]}
+  alt="The publisher's Pending Approval tab, with the shared workflow outlined">
+
+In the publisher's account, go to **Workflows** > **Pending Approval**, click the workflow, check the graph, and click **APPROVE**.
+
+</Step>
+<Step
+  title="Consumer. Approve"
+  image={require('../img/ccm-wf-approve.webp').default}
+  width={1468}
+  height={770}
+  marks={[[10.9, 91.6, 8.9, 6.6]]}
+  alt="The approval request, with APPROVE outlined">
+
+In the consumer's account, go to **Workflows** > **Pending Approval**, click the workflow, and click **APPROVE**. It moves to **Approved**, in both accounts.
+
+</Step>
+</Walkthrough>

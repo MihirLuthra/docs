@@ -6,6 +6,10 @@ keywords: [application, build, measurements, mrtd, rtmr, mr_config_id, certifica
 sidebar_position: 1
 ---
 
+import AddApplication from '../../../../../_flows/ccm/add-application.mdx';
+import AddBuild from '../../../../../_flows/ccm/add-build.mdx';
+import AddConfiguration from '../../../../../_flows/ccm/add-configuration.mdx';
+
 CCM issues a workload's certificate only when the workload attests with the measurements of an approved build of its application. You register the application once, with the domain of its certificate, and add a build for every version you deploy.
 
 ## Before you begin
@@ -13,17 +17,24 @@ CCM issues a workload's certificate only when the workload attests with the meas
 - A CCM account and a group for the application.
 - The measurements of the build, from [Confidential Containers](../../workload-runtimes/confidential-containers/take-measurements.mdx) or the [Enclave OS converter](../../workload-runtimes/enclave-os/convert-an-image.mdx).
 
-{/* TODO: show these steps as walkthroughs with the captured screenshots (content/_flows/img/todo), shared with the Confidential AI guides. */}
-
 ## Add the application
 
 The steps are the same for both runtimes, apart from the type.
 
-1. Go to **Applications** and click **ADD APPLICATION**.
-2. Under **Select application type**, select **Confidential Container - CoCo** or **Confidential Container - Enclave OS**. Under **Select platform type**, select the platform, such as **Intel TDX**. Click **NEXT**.
-3. Enter the **Application name**, a **Description** if you like, and select the **Group**.
-4. Under **Certificate Configuration**, click **ADD CERTIFICATE** and enter the **Domain** of the workload's certificate. Click **ADD DOMAIN** for more. Leave **Type** as **Certificate Issued by Confidential Computing Manager**.
-5. Click **ADD APPLICATION**.
+<Tabs groupId="runtime">
+<Tab label="Confidential Containers">
+
+<AddApplication />
+
+</Tab>
+<Tab label="Enclave OS">
+
+<AddApplication runtime="eos" />
+
+</Tab>
+</Tabs>
+
+To give the certificate more than one domain, click **ADD DOMAIN**.
 
 The new domain is a request on the **Tasks** page. See [Approve builds and domains](approve-builds-and-domains.mdx).
 
@@ -31,10 +42,20 @@ The application's **application ID** is the UUID at the end of its address in CC
 
 ## Add a build
 
-1. Open the application and, on **BUILDS**, click **ADD BUILD**.
-2. Enter a unique **Build version**, then the measurements. For Intel TDX, these are MRTD and RTMR0 to RTMR3, and for Confidential Containers also MR_CONFIG_ID, the hash of the workload's InitData.
-3. Under **Coprocessors**, set **NVIDIA GPU attestation** to **Required** for a workload with a GPU, so that CCM also checks the GPU's evidence. Set it to **Ignored** for one without.
-4. Click **ADD BUILD**.
+For Intel TDX, the measurements are MRTD and RTMR0 to RTMR3, and for Confidential Containers also MR_CONFIG_ID, the hash of the workload's InitData. Set **NVIDIA GPU attestation** to **Required** for a workload with a GPU, so that CCM also checks the GPU's evidence, and to **Ignored** for one without.
+
+<Tabs groupId="runtime">
+<Tab label="Confidential Containers">
+
+<AddBuild />
+
+</Tab>
+<Tab label="Enclave OS">
+
+<AddBuild runtime="eos" />
+
+</Tab>
+</Tabs>
 
 The build is listed on **BUILDS** with its approval **Pending**, and is a request on the **Tasks** page. CCM certifies a workload with its measurements only once it is approved.
 
@@ -42,10 +63,7 @@ The build is listed on **BUILDS** with its approval **Pending**, and is a reques
 
 An [application configuration](../concepts.md#application-configurations) holds the application's runtime configuration, kept in CCM. A workflow runs a build with one, so add one for each build, even with no configuration items.
 
-1. Open the application and go to **CONFIGURATIONS**. Click **ADD CONFIGURATION**.
-2. Select **Add new configuration**. Enter the **Configuration name**, select the **Group** and the **Build**.
-3. Add **Ports** and configuration items if the application needs them.
-4. Click **ADD CONFIGURATION**.
+<AddConfiguration />
 
 You can also create the configuration while you add the application to a workflow, with **CREATE NEW CONFIGURATION**.
 

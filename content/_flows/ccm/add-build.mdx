@@ -1,0 +1,49 @@
+{/* Shared flow (D16): add a build to an application in CCM.
+    Props: runtime, "cc" (default) or "eos". */}
+
+<Walkthrough label="Add a build">
+<Step
+  title="Open the application"
+  image={require('../img/ccm-app-page.webp').default}
+  width={1903}
+  height={839}
+  marks={[[90.3, 76.5, 7.0, 5.5]]}
+  alt="The application page on BUILDS, with the ADD BUILD button outlined">
+
+Open the application. On **BUILDS**, click **ADD BUILD**.
+
+</Step>
+<Step
+  title="Name the build"
+  image={props.runtime === 'eos' ? require('../img/ccm-build-version-eos.webp').default : require('../img/ccm-build-version.webp').default}
+  width={1036}
+  height={522}
+  marks={props.runtime === 'eos' ? [[3.5, 39.5, 93.1, 15.5]] : [[3.5, 39.5, 93.1, 15.5]]}
+  alt="The Add Build dialog, with the Build version field outlined">
+
+Enter a unique **Build version**, such as `1.0`.
+
+</Step>
+<Step
+  title="Enter the measurements"
+  image={props.runtime === 'eos' ? require('../img/ccm-build-measurements-eos.webp').default : require('../img/ccm-build-measurements.webp').default}
+  width={1036}
+  height={809}
+  marks={props.runtime === 'eos' ? [[3.5, 10.8, 93.1, 57.6], [16.2, 83.1, 12.5, 5.4], [15.3, 93.6, 13.9, 6.3]] : [[3.5, 4.0, 93.1, 63.8], [16.2, 83.1, 12.5, 5.4], [15.3, 93.6, 13.9, 6.3]]}
+  alt="The measurements, the NVIDIA GPU attestation setting and the ADD BUILD button outlined">
+
+Enter the measurements: MRTD and RTMR0 to RTMR3{props.runtime === 'eos' ? ', from the converter' : ', and MR_CONFIG_ID, the hash of the InitData'}. Under **Coprocessors**, set **NVIDIA GPU attestation** to **Required** for a workload with a GPU. Click **ADD BUILD**.
+
+</Step>
+<Step
+  title="Check the build"
+  image={require('../img/ccm-build-pending.webp').default}
+  width={1903}
+  height={839}
+  marks={[[17.9, 77.7, 80.0, 9.3]]}
+  alt="The application page with the new build listed, its approval pending">
+
+The build is listed with its approval **Pending**. It is a request on the **Tasks** page.
+
+</Step>
+</Walkthrough>
