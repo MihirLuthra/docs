@@ -1,7 +1,7 @@
 /* 996px is Docusaurus's desktop breakpoint (media queries can't use vars). */
 
-/* Like a GitHub repo's Contributors box: heading and count, a grid of
-   avatars, "+ N contributors". */
+/* Collapsed to "Contributors" and a count; opened, a short overlapping row
+   of avatars and "View all on GitHub". */
 .contributors {
   padding-top: var(--fx-space-4);
   border-top: var(--fx-border-width) solid var(--fx-border);
@@ -38,11 +38,49 @@
   }
 }
 
+.summary {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-2);
+  width: fit-content;
+  border-radius: var(--fx-radius-sm);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.summary:focus-visible {
+  outline: var(--fx-focus-width) solid var(--fx-focus);
+  outline-offset: 2px;
+}
+
+.chevron {
+  flex: none;
+  color: var(--fx-text-muted);
+  transition: transform var(--fx-duration-chevron) var(--fx-ease);
+}
+
+.details[open] .chevron {
+  transform: rotate(180deg);
+}
+
+.summary:hover .chevron {
+  color: var(--fx-text);
+}
+
+.body {
+  padding-top: var(--fx-space-3);
+}
+
 .heading {
   display: flex;
   align-items: center;
   gap: var(--fx-space-2);
-  margin: 0 0 var(--fx-space-3);
+  margin: 0;
   font-size: var(--fx-text-lg);
   font-weight: 600;
 }
@@ -57,11 +95,10 @@
   line-height: 1.6;
 }
 
+/* One row, each avatar tucked under the one before, with a ring of the
+   page's background between them. */
 .avatars {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--fx-space-2);
-  max-width: var(--fx-contributors-max);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -71,24 +108,36 @@
   margin: 0;
 }
 
+.avatars li + li {
+  margin-left: calc(-1 * var(--fx-avatar-overlap));
+}
+
 .avatarLink {
   display: block;
   border-radius: 50%;
 }
 
 .avatar,
-.initials {
+.initials,
+.moreChip {
   display: block;
   box-sizing: border-box;
   width: var(--fx-avatar-size);
   height: var(--fx-avatar-size);
-  border: var(--fx-border-width) solid var(--fx-border);
+  border: 2px solid var(--fx-bg);
   border-radius: 50%;
   background-color: var(--fx-chip);
 }
 
-/* No GitHub account linked to the commit email. */
-.initials {
+.avatarLink:hover .avatar,
+.avatarLink:focus-visible .avatar {
+  position: relative;
+  transform: translateY(-2px);
+}
+
+/* No GitHub account linked to the commit email; or how many more there are. */
+.initials,
+.moreChip {
   display: grid;
   place-items: center;
   color: var(--fx-text-secondary);
@@ -98,6 +147,12 @@
 
 .more {
   display: inline-block;
-  margin-top: var(--fx-space-3);
+  margin-top: var(--fx-space-2);
   font-size: var(--fx-text-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
 }

@@ -69,8 +69,8 @@
   --fx-link-underline-offset: 0.2em;
   --fx-breadcrumb-home-size: 1.1rem;
   --fx-breadcrumb-caret-size: 10px;
-  --fx-avatar-size: 32px; /* contributors */
-  --fx-contributors-max: 300px; /* about 7 avatars a row, like GitHub's box */
+  --fx-avatar-size: 28px; /* contributors */
+  --fx-avatar-overlap: 8px; /* each avatar tucked under the one before */
   --fx-menu-min: 200px; /* small menus (Back / Forward, path) fit their items */
   --fx-menu-max: 280px;
   --fx-tree-home-h: 40px;

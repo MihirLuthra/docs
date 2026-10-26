@@ -6,8 +6,9 @@ import {normalize} from '@site/src/components/DocsTree/tree';
 import type {Contributors as Data, Person} from './types';
 import styles from './styles.module.css';
 
-// Avatars shown; the rest are "+ N contributors", linking to the history.
-const MAX_SHOWN = 14;
+// Avatars shown once expanded, overlapping in one short row; the rest are a
+// "+N" chip, and "View all on GitHub" opens the file's history.
+const MAX_SHOWN = 5;
 
 const initials = (name: string) =>
   name
@@ -46,10 +47,10 @@ function Avatar({person, commits}: {person: Person; commits: number}): ReactNode
 }
 
 /**
- * The page's contributors, like the Contributors box on a GitHub repo: a
- * count, their avatars (to their GitHub profiles), and "+ N contributors"
- * (the file's history on GitHub) when there are more. From
- * plugins/contributors.ts.
+ * The page's contributors, collapsed to a "Contributors" line with a count.
+ * Expanded, it shows the first few avatars (to their GitHub profiles) in a
+ * compact row and "View all on GitHub" (the file's history). The avatars
+ * load only when it is opened. From plugins/contributors.ts.
  *
  * Rendered twice: in the right-hand column under the table of contents
  * ("rail"), and under the page ("footer"). CSS shows the rail one on wide
@@ -62,23 +63,36 @@ export default function Contributors({placement}: {placement: 'rail' | 'footer'}
   if (!page) return null;
   const count = page.authors.length;
   const hidden = count - MAX_SHOWN;
+  const history = `https://github.com/${repo}/commits/${branch}/${page.file}`;
   return (
     <section
       className={clsx(styles.contributors, placement === 'rail' ? styles.inRail : styles.inFooter)}
       aria-labelledby={headingId}>
-      <h2 id={headingId} className={styles.heading}>
-        Contributors <span className={styles.count}>{count}</span>
-      </h2>
-      <ul className={styles.avatars}>
-        {page.authors.slice(0, MAX_SHOWN).map(({person, commits}) => (
-          <Avatar key={person} person={people[person]} commits={commits} />
-        ))}
-      </ul>
-      {hidden > 0 && (
-        <a className={styles.more} href={`https://github.com/${repo}/commits/${branch}/${page.file}`}>
-          + {hidden} contributor{hidden === 1 ? '' : 's'}
-        </a>
-      )}
+      <details className={styles.details}>
+        <summary className={styles.summary}>
+          <h2 id={headingId} className={styles.heading}>
+            Contributors <span className={styles.count}>{count}</span>
+          </h2>
+          <svg className={styles.chevron} width="12" height="12" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2.5" />
+          </svg>
+        </summary>
+        <div className={styles.body}>
+          <ul className={styles.avatars}>
+            {page.authors.slice(0, MAX_SHOWN).map(({person, commits}) => (
+              <Avatar key={person} person={people[person]} commits={commits} />
+            ))}
+            {hidden > 0 && (
+              <li className={styles.moreChip} aria-label={`and ${hidden} more`}>
+                <span aria-hidden="true">+{hidden}</span>
+              </li>
+            )}
+          </ul>
+          <a className={styles.more} href={history}>
+            View all on GitHub
+          </a>
+        </div>
+      </details>
     </section>
   );
 }
