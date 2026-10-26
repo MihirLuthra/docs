@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type FocusEvent,
   type KeyboardEvent,
   type PointerEvent,
   type ReactNode,
@@ -146,6 +147,9 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
 
   // Smart index: the rows the pointer and the keyboard focus are on. Every
   // open section holding neither, nor the current page, closes after a moment.
+  // While the pointer or focus is in the tree, a section above it waits: its
+  // closing would pull the rows being looked at upwards. It closes once the
+  // pointer and focus have left the tree.
   const [pointerKey, setPointerKey] = useState<string | null>(null);
   const [focusIn, setFocusIn] = useState<string | null>(null);
   const closeTimers = useRef(new Map<string, number>());
@@ -153,15 +157,19 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
     const timers = closeTimers.current;
     const inUse = (key: string) =>
       [pointerKey, focusIn, currentKey].some((at) => at !== null && (at === key || at.startsWith(`${key}.`)));
+    const order = visibleRows(tree, open).map((r) => r.key);
+    const anchor = order.indexOf(pointerKey ?? focusIn ?? '');
+    // A section above the anchor (and so not holding it) lies wholly above it.
+    const above = (key: string) => anchor >= 0 && order.indexOf(key) < anchor;
     for (const [key, timer] of timers) {
-      if (!smart || !open.has(key) || inUse(key)) {
+      if (!smart || !open.has(key) || inUse(key) || above(key)) {
         window.clearTimeout(timer);
         timers.delete(key);
       }
     }
     if (!smart) return;
     for (const key of open) {
-      if (inUse(key) || timers.has(key)) continue;
+      if (inUse(key) || above(key) || timers.has(key)) continue;
       timers.set(
         key,
         window.setTimeout(() => {
@@ -170,7 +178,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
         }, SMART_CLOSE_MS),
       );
     }
-  }, [smart, open, pointerKey, focusIn, currentKey]);
+  }, [smart, tree, open, pointerKey, focusIn, currentKey]);
   useEffect(() => () => closeTimers.current.forEach((t) => window.clearTimeout(t)), []);
 
   // Sections that just closed: their rows stay a moment, sliding shut.
@@ -414,9 +422,10 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
             'aria-level': depth + 1,
             tabIndex: key === tabKey && !exiting ? 0 : -1,
             onKeyDown: (e: KeyboardEvent) => onKeyDown(e, row, index),
-            onFocus: () => {
+            onFocus: (e: FocusEvent<HTMLElement>) => {
               setFocusKey(key);
-              setFocusIn(key);
+              // Keyboard focus only: a click focuses the row too, but the mouse is what's in use then.
+              setFocusIn(e.currentTarget.matches(':focus-visible') ? key : null);
             },
             // Sections open on hover (mouse only); pages don't.
             onPointerEnter: (e: PointerEvent) => {
