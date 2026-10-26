@@ -3,6 +3,9 @@
 /* Spacing and the path's text styles are in custom.css (.breadcrumbs). */
 .container {
   --ifm-breadcrumb-size-multiplier: 0.8;
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-1);
 }
 
 .homeIcon {
@@ -44,4 +47,65 @@
   .desktopOnly {
     display: none;
   }
+}
+
+/* Copy the path: a small icon button after the page's name. */
+.copy {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--fx-space-6);
+  height: var(--fx-space-6);
+  padding: 0;
+  border: 0;
+  border-radius: var(--fx-radius-sm);
+  background: none;
+  color: var(--fx-text-muted);
+  cursor: pointer;
+}
+
+.copy:hover {
+  background-color: var(--fx-hover);
+  color: var(--fx-text);
+}
+
+.copy:focus-visible {
+  outline: var(--fx-focus-width) solid var(--fx-focus);
+  outline-offset: 0;
+}
+
+.copy[data-copied] {
+  color: var(--fx-brand-text);
+}
+
+.copyIcon {
+  width: var(--fx-breadcrumb-home-size);
+  height: var(--fx-breadcrumb-home-size);
+}
+
+/* A small tooltip under the button, on hover and keyboard focus, and while
+   "Copied" shows. */
+.copyTip {
+  position: absolute;
+  top: calc(100% + var(--fx-space-1));
+  left: 50%;
+  z-index: 10;
+  padding: var(--fx-space-1) var(--fx-space-2);
+  border-radius: var(--fx-radius-sm);
+  background-color: var(--fx-tooltip-bg);
+  color: var(--fx-tooltip-text);
+  font-size: var(--fx-text-xs);
+  line-height: 1.3;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity var(--fx-duration-fast) var(--fx-ease);
+}
+
+.copy:hover .copyTip,
+.copy:focus-visible .copyTip,
+.copy[data-copied] .copyTip {
+  opacity: 1;
 }

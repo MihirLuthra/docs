@@ -1,4 +1,4 @@
-import {useCallback, useRef, useState, type KeyboardEvent, type ReactNode} from 'react';
+import {useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode} from 'react';
 import Link from '@docusaurus/Link';
 import {useLocation} from '@docusaurus/router';
 import Menu, {menuStyles} from '@site/src/components/Menu';
@@ -23,6 +23,82 @@ function CaretIcon(): ReactNode {
     <svg viewBox="0 0 24 24" className={styles.caret} aria-hidden="true">
       <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2.5" />
     </svg>
+  );
+}
+
+function CopyIcon(): ReactNode {
+  return (
+    <svg viewBox="0 0 24 24" className={styles.copyIcon} aria-hidden="true">
+      <rect x="9" y="9" width="11" height="11" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
+      <path d="M5 15V6a2 2 0 0 1 2-2h8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CheckIcon(): ReactNode {
+  return (
+    <svg viewBox="0 0 24 24" className={styles.copyIcon} aria-hidden="true">
+      <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// What the copied path starts with, in place of the Home icon.
+const PATH_ROOT = 'Fortanix Docs';
+const COPIED_MS = 1500;
+
+const escapeHtml = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/**
+ * Copies the page's path ("Fortanix Docs / Solutions / … / Page") linked to
+ * the page: as a link where the paste takes rich text, else the path with
+ * the URL on the line under it.
+ */
+function CopyPath({labels}: {labels: string[]}): ReactNode {
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return undefined;
+    const t = window.setTimeout(() => setCopied(false), COPIED_MS);
+    return () => window.clearTimeout(t);
+  }, [copied]);
+
+  const copy = async () => {
+    const text = [PATH_ROOT, ...labels].join(' / ');
+    const url = `${window.location.origin}${window.location.pathname}`;
+    const plain = `${text}\n${url}`;
+    const html = `<a href="${escapeHtml(url)}">${escapeHtml(text)}</a>`;
+    try {
+      if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/plain': new Blob([plain], {type: 'text/plain'}),
+            'text/html': new Blob([html], {type: 'text/html'}),
+          }),
+        ]);
+      } else {
+        await navigator.clipboard.writeText(plain);
+      }
+      setCopied(true);
+    } catch {
+      // No clipboard access (insecure page, denied): nothing to show.
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      className={styles.copy}
+      onClick={copy}
+      aria-label={copied ? 'Copied' : 'Copy page path with link'}
+      data-copied={copied || undefined}>
+      {copied ? <CheckIcon /> : <CopyIcon />}
+      <span className={styles.copyTip} aria-hidden="true">
+        {copied ? 'Copied' : 'Copy path with link'}
+      </span>
+      <span className="sr-only" aria-live="polite">
+        {copied ? 'Copied' : ''}
+      </span>
+    </button>
   );
 }
 
@@ -129,7 +205,8 @@ function FolderCrumb({tree, folderKey, currentHref}: {tree: TreeNode[]; folderKe
 
 /**
  * The path above a doc's title (ux-spec.md, Doc pages): Home, then each
- * folder as a menu of its contents, then the page itself.
+ * folder as a menu of its contents, then the page itself, then a button that
+ * copies the path with a link to the page.
  */
 export default function DocBreadcrumbs(): ReactNode {
   const tree = useTree();
@@ -160,6 +237,7 @@ export default function DocBreadcrumbs(): ReactNode {
           </span>
         </li>
       </ul>
+      <CopyPath labels={along.map((n) => n.label)} />
     </nav>
   );
 }
