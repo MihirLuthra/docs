@@ -49,10 +49,13 @@ const COPIED_MS = 1500;
 
 const escapeHtml = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+/** A path part with no spaces: "Day 0 · Plan and prepare" → "Day-0-Plan-and-prepare". */
+const segment = (label: string) => label.trim().replace(/[\s·]+/g, '-');
+
 /**
- * Copies the page's path ("Fortanix Docs / Solutions / … / Page") linked to
- * the page: as a link where the paste takes rich text, else the path with
- * the URL on the line under it.
+ * Copies the page's path ("Fortanix-Docs/Solutions/…/Page"): linked to the
+ * page where the paste takes rich text (Slack, docs, email), and the path
+ * alone where it takes plain text (a terminal).
  */
 function CopyPath({labels}: {labels: string[]}): ReactNode {
   const [copied, setCopied] = useState(false);
@@ -63,20 +66,19 @@ function CopyPath({labels}: {labels: string[]}): ReactNode {
   }, [copied]);
 
   const copy = async () => {
-    const text = [PATH_ROOT, ...labels].join(' / ');
+    const text = [PATH_ROOT, ...labels].map(segment).join('/');
     const url = `${window.location.origin}${window.location.pathname}`;
-    const plain = `${text}\n${url}`;
     const html = `<a href="${escapeHtml(url)}">${escapeHtml(text)}</a>`;
     try {
       if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
         await navigator.clipboard.write([
           new ClipboardItem({
-            'text/plain': new Blob([plain], {type: 'text/plain'}),
+            'text/plain': new Blob([text], {type: 'text/plain'}),
             'text/html': new Blob([html], {type: 'text/html'}),
           }),
         ]);
       } else {
-        await navigator.clipboard.writeText(plain);
+        await navigator.clipboard.writeText(text);
       }
       setCopied(true);
     } catch {
@@ -89,11 +91,11 @@ function CopyPath({labels}: {labels: string[]}): ReactNode {
       type="button"
       className={styles.copy}
       onClick={copy}
-      aria-label={copied ? 'Copied' : 'Copy page path with link'}
+      aria-label={copied ? 'Copied' : 'Copy page path'}
       data-copied={copied || undefined}>
       {copied ? <CheckIcon /> : <CopyIcon />}
       <span className={styles.copyTip} aria-hidden="true">
-        {copied ? 'Copied' : 'Copy path with link'}
+        {copied ? 'Copied' : 'Copy path'}
       </span>
       <span className="sr-only" aria-live="polite">
         {copied ? 'Copied' : ''}
@@ -235,9 +237,10 @@ export default function DocBreadcrumbs(): ReactNode {
           <span className="breadcrumbs__link" aria-current="page">
             {along[along.length - 1].label}
           </span>
+          {/* In the last crumb, so it stays on the same line as the page's name when the path wraps. */}
+          <CopyPath labels={along.map((n) => n.label)} />
         </li>
       </ul>
-      <CopyPath labels={along.map((n) => n.label)} />
     </nav>
   );
 }

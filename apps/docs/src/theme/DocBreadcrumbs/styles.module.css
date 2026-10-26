@@ -3,9 +3,6 @@
 /* Spacing and the path's text styles are in custom.css (.breadcrumbs). */
 .container {
   --ifm-breadcrumb-size-multiplier: 0.8;
-  display: flex;
-  align-items: center;
-  gap: var(--fx-space-1);
 }
 
 .homeIcon {
@@ -49,14 +46,16 @@
   }
 }
 
-/* Copy the path: a small icon button after the page's name. */
+/* Inline after the page's name, centred on its text: a 24px target whose
+   middle sits on the text's middle, without making the line taller. */
 .copy {
   position: relative;
   display: inline-grid;
-  flex: none;
   place-items: center;
   width: var(--fx-space-6);
   height: var(--fx-space-6);
+  margin: calc((1lh - var(--fx-space-6)) / 2) 0 calc((1lh - var(--fx-space-6)) / 2) var(--fx-space-1);
+  vertical-align: middle;
   padding: 0;
   border: 0;
   border-radius: var(--fx-radius-sm);
