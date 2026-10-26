@@ -51,6 +51,8 @@ function visibleRows(nodes: TreeNode[], open: Set<string>): Row[] {
 // How long the mouse rests on a section before it opens, so sweeping across
 // the tree doesn't open everything on the way.
 const HOVER_DELAY_MS = 200;
+// A section a hover opened closes this long after the pointer leaves it.
+const HOVER_CLOSE_MS = 3000;
 
 // How long a row revealed from a path menu stays highlighted.
 const REVEAL_FLASH_MS = 1500;
@@ -102,8 +104,9 @@ function CollapseAllIcon(): ReactNode {
 /**
  * The docs navigation tree (ux-spec.md, Sidebar): a Home row, then the whole
  * tree, collapsed except along the current page's path. Resting the mouse on
- * a section opens it, and it stays open; only a click closes it. Hover-open
- * can be turned off, and "Collapse all" closes everything.
+ * a section opens it; a few seconds after the pointer leaves it, it closes
+ * again, unless it holds the current page or was clicked. Hover-open can be
+ * turned off, and "Collapse all" closes everything.
  */
 export default function DocsTree({onNavigate}: {onNavigate?: () => void}): ReactNode {
   const tree = useTree();
@@ -126,6 +129,39 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
   // a click on it then keeps it open instead of closing it (someone who
   // didn't notice it opened meant to open it).
   const hoverOpened = useRef<string | null>(null);
+  // Sections opened by hover and not clicked since, each with its close timer
+  // once the pointer has left it.
+  const byHover = useRef(new Map<string, number | undefined>());
+  const currentRef = useRef(currentKey);
+  currentRef.current = currentKey;
+  const keep = (key: string) => {
+    window.clearTimeout(byHover.current.get(key));
+    byHover.current.delete(key);
+  };
+  /** The pointer is on row `at` (null: off the tree). Sections it has left start closing. */
+  const pointerAt = (at: string | null) => {
+    for (const [key, timer] of byHover.current) {
+      const inside = at !== null && (at === key || at.startsWith(`${key}.`));
+      if (inside) {
+        window.clearTimeout(timer);
+        byHover.current.set(key, undefined);
+      } else if (timer === undefined) {
+        byHover.current.set(
+          key,
+          window.setTimeout(() => {
+            byHover.current.delete(key);
+            // The section holding the current page stays open.
+            if (ancestors(currentRef.current).includes(key)) return;
+            setOpen((prev) => {
+              const next = new Set(prev);
+              next.delete(key);
+              return next;
+            });
+          }, HOVER_CLOSE_MS),
+        );
+      }
+    }
+  };
   const openSoon = (key: string | null) => {
     window.clearTimeout(hoverTimer.current);
     hoverOpened.current = null;
@@ -133,10 +169,17 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
     hoverTimer.current = window.setTimeout(() => {
       if (open.has(key)) return;
       hoverOpened.current = key;
+      byHover.current.set(key, undefined);
       toggle(key, true);
     }, HOVER_DELAY_MS);
   };
-  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
+  useEffect(
+    () => () => {
+      window.clearTimeout(hoverTimer.current);
+      for (const timer of byHover.current.values()) window.clearTimeout(timer);
+    },
+    [],
+  );
 
   // Open the tree along the current page whenever it changes.
   useEffect(() => {
@@ -150,6 +193,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
       setOpen(new Set());
       setFocusKey(null);
       window.clearTimeout(hoverTimer.current);
+      for (const key of [...byHover.current.keys()]) keep(key);
       for (let el = navRef.current?.parentElement; el; el = el.parentElement) {
         if (el.scrollTop) el.scrollTop = 0;
       }
@@ -158,6 +202,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
 
   const collapseAll = useCallback(() => {
     window.clearTimeout(hoverTimer.current);
+    for (const key of [...byHover.current.keys()]) keep(key);
     setOpen(new Set());
   }, []);
 
@@ -236,16 +281,20 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
         break;
       case 'ArrowRight':
         if (!isFolder) return;
+        keep(row.key);
         if (isOpen) focus(rows[index + 1]?.key);
         else toggle(row.key, true);
         break;
       case 'ArrowLeft':
-        if (isFolder && isOpen) toggle(row.key, false);
-        else focus(row.parentKey);
+        if (isFolder && isOpen) {
+          keep(row.key);
+          toggle(row.key, false);
+        } else focus(row.parentKey);
         break;
       case 'Enter':
       case ' ':
         if (!isFolder) return; // links handle Enter themselves
+        keep(row.key);
         toggle(row.key);
         break;
       default:
@@ -313,7 +362,10 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
         role="tree"
         aria-label="Documentation"
         className={styles.tree}
-        onPointerLeave={() => openSoon(null)}>
+        onPointerLeave={() => {
+          openSoon(null);
+          pointerAt(null);
+        }}>
         {rows.map((row, index) => {
           const {key, node, depth} = row;
           const isFolder = !!node.items;
@@ -330,7 +382,10 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
             onKeyDown: (e: KeyboardEvent) => onKeyDown(e, row, index),
             onFocus: () => setFocusKey(key),
             // Sections open on hover (mouse only); pages don't.
-            onPointerEnter: (e: PointerEvent) => openSoon(isFolder && e.pointerType === 'mouse' ? key : null),
+            onPointerEnter: (e: PointerEvent) => {
+              openSoon(isFolder && e.pointerType === 'mouse' ? key : null);
+              if (e.pointerType === 'mouse') pointerAt(key);
+            },
             className: clsx(
               styles.row,
               depth === 0 && styles.top,
@@ -366,6 +421,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
                   aria-expanded={isOpen}
                   onClick={() => {
                     window.clearTimeout(hoverTimer.current); // a pending hover-open
+                    keep(key); // clicked: it stays as the user left it
                     if (hoverOpened.current === key) hoverOpened.current = null;
                     else toggle(key);
                   }}>
