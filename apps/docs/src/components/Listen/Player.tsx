@@ -35,7 +35,8 @@ const SPEEDS = [0.75, 1, 1.25, 1.5, 1.75, 2];
 const VOICE_KEY = 'fx-listen-voice';
 const SPEED_KEY = 'fx-listen-speed';
 const READING = 'fx-speech-reading'; // custom.css: the block being read
-const WORD = 'fx-speech-word'; // custom.css ::highlight(): the word being read
+const WORD = 'fx-speech-word'; // custom.css ::highlight(): the word being read (its colour)
+const WORD_MARKER = 'fx-speech-marker'; // custom.css: the rounded marker behind it
 const SELECTION = 'fx-speech-selection'; // custom.css ::highlight(): the text chosen to read
 const REPEAT_DELAY = 350; // holding a word button: the first repeat, then every…
 const REPEAT_EVERY = 110;
@@ -66,6 +67,53 @@ const mark = (name: string, range: Range | null) => {
   if (!h) return;
   if (!range) h.delete(name);
   else h.set(name, new (window as unknown as {Highlight: new (r: Range) => unknown}).Highlight(range));
+};
+
+/**
+ * The word being read: a rounded marker that slides from word to word (and
+ * jumps, without sliding, to a new line). It sits over the text, blended so
+ * the text shows through; the word's own colour comes from the highlight.
+ */
+const marker = {
+  el: null as HTMLDivElement | null,
+  range: null as Range | null,
+  top: NaN,
+  show(range: Range | null) {
+    this.range = range;
+    const rect = range?.getClientRects()[0];
+    if (!rect) return this.hide();
+    let el = this.el;
+    if (!el) {
+      el = this.el = document.createElement('div');
+      el.className = WORD_MARKER;
+      el.setAttribute('aria-hidden', 'true');
+      document.body.append(el);
+    }
+    const top = rect.top + window.scrollY;
+    // A new line (or just shown): no slide across the text.
+    el.toggleAttribute('data-jump', el.hidden || Math.abs(top - this.top) > 2);
+    this.top = top;
+    el.hidden = false;
+    el.style.transform = `translate(${rect.left + window.scrollX}px, ${top}px)`;
+    el.style.width = `${rect.width}px`;
+    el.style.height = `${rect.height}px`;
+  },
+  /** After the page reflows (a resize): the same word, where it is now. */
+  refresh() {
+    if (this.el && !this.el.hidden && this.range) {
+      this.top = NaN;
+      this.show(this.range);
+    }
+  },
+  hide() {
+    this.range = null;
+    if (this.el) this.el.hidden = true;
+  },
+  remove() {
+    this.el?.remove();
+    this.el = null;
+    this.range = null;
+  },
 };
 
 /** The page range of characters [from, to) of a block's text. */
@@ -214,6 +262,7 @@ export default function Player({manifestUrl, request, onClose}: PlayerProps): Re
     lit.current = null;
     word.current = '';
     mark(WORD, null);
+    marker.hide();
   };
 
   const enterBlock = (i: number) => {
@@ -295,7 +344,9 @@ export default function Player({manifestUrl, request, onClose}: PlayerProps): Re
     if (id !== word.current) {
       word.current = id;
       const origins = w && originsOf(i);
-      mark(WORD, w && origins ? rangeOf(origins, w[2], w[3]) : null);
+      const range = w && origins ? rangeOf(origins, w[2], w[3]) : null;
+      mark(WORD, range);
+      marker.show(range);
     }
   };
 
@@ -316,6 +367,12 @@ export default function Player({manifestUrl, request, onClose}: PlayerProps): Re
     const tick = () => {
       const a = audio.current;
       if (!a) return;
+      // A jump waiting for the audio to load: don't follow time 0 (the page's
+      // start) meanwhile, or the page scrolls up and back down.
+      if (pendingSeek.current !== null) {
+        frame = requestAnimationFrame(tick);
+        return;
+      }
       const t = a.currentTime;
       if (stopAt.current !== null && t >= stopAt.current) {
         a.pause();
@@ -549,9 +606,17 @@ export default function Player({manifestUrl, request, onClose}: PlayerProps): Re
       lit.current?.classList.remove(READING);
       mark(WORD, null);
       mark(SELECTION, null);
+      marker.remove();
     },
     [],
   );
+
+  // The page reflows on a resize: the marker follows its word.
+  useEffect(() => {
+    const onResize = () => marker.refresh();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   // The OS's media controls (media keys, lock screen).
   const media = useRef({toggle, stepBlock, stepWord});
