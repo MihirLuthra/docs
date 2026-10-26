@@ -5,14 +5,14 @@ import Layout from '@theme/Layout';
 import {locate, useTree} from '@site/src/components/DocsTree/tree';
 import type {TreeNode} from '@site/src/components/DocsTree/types';
 import {useOverlays} from '@site/src/components/Overlays/context';
-import {featured, type FeaturedIcon} from '@site/src/data/featured';
-import {RECENTS_VISIBLE, readRecents, setRecentsLayout, writeRecents} from '@site/src/lib/recents';
+import {featured, type FeaturedIcon, type FeaturedItem} from '@site/src/data/featured';
+import {readRecents, writeRecents} from '@site/src/lib/recents';
 import {SEARCH_TRIGGER_ATTR} from '@site/src/lib/search-early';
 import styles from './index.module.css';
 
-// The home page (ux-spec.md, Home; D17): full-width bands, no docs tree
-// beside them. A dark hero with the site's search, then recently viewed
-// pages and every solution and product as equal cards, then the whole docs
+// The home page (ux-spec.md, Home; D17). The first screen answers "what is
+// here": a dark hero with the title, the one search box and the pages you
+// read last, beside every product and solution. Below it, the whole docs
 // tree as a directory. All drawn with CSS and inline SVG: no images to load,
 // nothing that moves the page.
 
@@ -20,16 +20,8 @@ const stroke = {fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLi
 
 function CloseIcon(): ReactNode {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2.5" />
-    </svg>
-  );
-}
-
-function PageIcon(): ReactNode {
-  return (
-    <svg className={styles.pageIcon} viewBox="0 0 24 24" aria-hidden="true">
-      <path {...stroke} d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h4" />
+    <svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="3" />
     </svg>
   );
 }
@@ -59,7 +51,7 @@ function InfoIcon(): ReactNode {
   );
 }
 
-/** One icon per card, on a tile in the brand gradient. */
+/** One icon per product or solution, on a tile in the brand gradient. */
 const CARD_ICONS: Record<FeaturedIcon, ReactNode> = {
   ai: (
     <>
@@ -93,6 +85,18 @@ const CARD_ICONS: Record<FeaturedIcon, ReactNode> = {
       <path {...stroke} d="M10.5 12v-1a1.5 1.5 0 0 1 3 0v1" />
     </>
   ),
+  users: (
+    <>
+      <circle {...stroke} cx="9" cy="8.5" r="3.2" />
+      <path {...stroke} d="M3.5 19a5.5 5.5 0 0 1 11 0M15.5 5.6a3.2 3.2 0 0 1 0 6M17 13.6a5.5 5.5 0 0 1 3.5 5.4" />
+    </>
+  ),
+  insight: (
+    <>
+      <circle {...stroke} cx="10.5" cy="10.5" r="6.5" />
+      <path {...stroke} d="M15.3 15.3L20.5 20.5M7.5 12.5l2-2.5 2 1.5 2.5-3" />
+    </>
+  ),
   atom: (
     <>
       <circle cx="12" cy="12" r="1.6" fill="currentColor" />
@@ -102,62 +106,6 @@ const CARD_ICONS: Record<FeaturedIcon, ReactNode> = {
     </>
   ),
 };
-
-/**
- * The hero's picture: a protected core (the TEE) holding a chip and a lock,
- * with keys, attestation and data orbiting it. Decorative only.
- */
-function HeroArt(): ReactNode {
-  return (
-    <svg className={styles.heroArt} viewBox="0 0 320 260" aria-hidden="true">
-      <defs>
-        <linearGradient id="fx-hero-line" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="var(--fx-hero-art-a)" />
-          <stop offset="1" stopColor="var(--fx-hero-art-b)" />
-        </linearGradient>
-        <radialGradient id="fx-hero-glow" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="var(--fx-hero-art-a)" stopOpacity="0.45" />
-          <stop offset="1" stopColor="var(--fx-hero-art-a)" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <circle cx="160" cy="130" r="120" fill="url(#fx-hero-glow)" />
-      {/* Orbit, with what moves around the core. */}
-      <g className={styles.orbit}>
-        <ellipse cx="160" cy="130" rx="138" ry="52" fill="none" stroke="url(#fx-hero-line)" strokeWidth="1.2" strokeDasharray="3 6" opacity="0.7" />
-        <g transform="translate(26 130)">
-          <circle r="15" className={styles.artBadge} />
-          <circle {...stroke} cx="-3" cy="0" r="4" className={styles.artGlyph} />
-          <path {...stroke} d="M1 0h8M6 0v3" className={styles.artGlyph} />
-        </g>
-        <g transform="translate(294 130)">
-          <circle r="15" className={styles.artBadge} />
-          <path {...stroke} d="M-5 0l3.5 3.5L5.5-4" className={styles.artGlyph} />
-        </g>
-      </g>
-      {/* The TEE: a boundary, a chip, a lock. */}
-      <rect x="92" y="62" width="136" height="136" rx="28" className={styles.artTee} />
-      <rect x="92" y="62" width="136" height="136" rx="28" fill="none" stroke="url(#fx-hero-line)" strokeWidth="2" strokeDasharray="8 6" className={styles.artDash} />
-      <g transform="translate(160 130)">
-        <rect x="-38" y="-38" width="76" height="76" rx="14" className={styles.artChip} />
-        <path
-          d="M-24 -48v10M-8 -48v10M8 -48v10M24 -48v10M-24 38v10M-8 38v10M8 38v10M24 38v10M-48 -24h10M-48 -8h10M-48 8h10M-48 24h10M38 -24h10M38 -8h10M38 8h10M38 24h10"
-          stroke="url(#fx-hero-line)"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-        <g className={styles.artLock}>
-          <rect x="-15" y="-4" width="30" height="24" rx="5" fill="url(#fx-hero-line)" />
-          <path d="M-9 -4v-6a9 9 0 0 1 18 0v6" fill="none" stroke="url(#fx-hero-line)" strokeWidth="4" strokeLinecap="round" />
-          <circle cx="0" cy="8" r="3" className={styles.artKeyhole} />
-        </g>
-      </g>
-      {/* Data moving in, sparks of attestation. */}
-      <circle cx="58" cy="58" r="4" className={styles.artSpark} />
-      <circle cx="270" cy="210" r="3" className={styles.artSpark} style={{animationDelay: '1.2s'}} />
-      <circle cx="262" cy="48" r="2.5" className={styles.artSpark} style={{animationDelay: '2.1s'}} />
-    </svg>
-  );
-}
 
 /**
  * The page has one search box showing at a time: the header's is hidden
@@ -185,6 +133,118 @@ function useHeroSearchWatch() {
     };
   }, []);
   return ref;
+}
+
+/**
+ * The pages read last, as one row of chips under the search box (newest
+ * first; as many as fit). One row of fixed height whatever is stored, so
+ * nothing moves when it fills in after loading.
+ */
+function RecentStrip(): ReactNode {
+  const tree = useTree();
+  // null until read from localStorage after hydration.
+  const [paths, setPaths] = useState<string[] | null>(null);
+  const labelRef = useRef<HTMLSpanElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    setPaths(readRecents());
+  }, []);
+
+  const items = (paths ?? []).flatMap((p) => {
+    const loc = locate(tree, p);
+    return loc ? [{href: p, ...loc}] : [];
+  });
+  // Pages moved or removed since: forgotten.
+  useEffect(() => {
+    if (paths !== null && items.length !== paths.length) writeRecents(items.map((i) => i.href));
+  }, [paths, items.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const remove = (href: string, index: number) => {
+    const next = (paths ?? []).filter((p) => p !== href);
+    writeRecents(next);
+    setPaths(next);
+    // Keep focus in the row: the next chip's ×, else the previous, else the label.
+    requestAnimationFrame(() => {
+      const buttons = listRef.current?.querySelectorAll<HTMLButtonElement>('button');
+      const target = buttons?.[Math.min(index, buttons.length - 1)];
+      (target ?? labelRef.current)?.focus();
+    });
+  };
+
+  return (
+    <div className={styles.recent}>
+      <span ref={labelRef} id="recent-label" className={styles.recentLabel} tabIndex={-1}>
+        Recently viewed
+      </span>
+      {paths !== null && items.length === 0 && <span className={styles.recentEmpty}>Pages you open show up here.</span>}
+      {items.length > 0 && (
+        <ul ref={listRef} className={styles.recentList} aria-labelledby="recent-label">
+          {items.map((item, i) => (
+            <li key={item.href} className={styles.recentChip}>
+              <Link to={item.href} className={styles.recentLink} title={[...item.path, item.title].join(' / ')}>
+                {item.title}
+              </Link>
+              <button
+                type="button"
+                className={styles.remove}
+                onClick={() => remove(item.href, i)}
+                aria-label={`Remove ${item.title} from recently viewed`}>
+                <CloseIcon />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function CatalogItem({item}: {item: FeaturedItem}): ReactNode {
+  const inner = (
+    <>
+      <span className={styles.itemIcon} aria-hidden="true">
+        <svg viewBox="0 0 24 24">{CARD_ICONS[item.icon]}</svg>
+      </span>
+      <span className={styles.itemText}>
+        <span className={styles.itemTitle}>{item.title}</span>
+        <span className={styles.itemLine}>{item.line}</span>
+      </span>
+    </>
+  );
+  return item.href ? (
+    <Link to={item.href} className={styles.item}>
+      {inner}
+      <ArrowIcon />
+    </Link>
+  ) : (
+    <span className={styles.item} data-empty="">
+      {inner}
+    </span>
+  );
+}
+
+/** Every product and solution, in two columns: what Fortanix has, at a glance. */
+function Catalog(): ReactNode {
+  return (
+    <div className={styles.catalog}>
+      {featured.map((group) => (
+        <section key={group.title} className={styles.group} aria-labelledby={`group-${group.title}`}>
+          <h2 id={`group-${group.title}`} className={styles.groupTitle}>
+            {group.title}
+          </h2>
+          <p className={styles.groupLine}>{group.line}</p>
+          <ul className={styles.items}>
+            {group.items.map((item) => (
+              <li key={item.title}>
+                <CatalogItem item={item} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
 }
 
 function Hero(): ReactNode {
@@ -220,128 +280,15 @@ function Hero(): ReactNode {
               <span className={styles.searchText}>Search the docs</span>
               <kbd className={styles.searchKey}>/</kbd>
             </button>
-            <div className={styles.heroLinks}>
-              <Link to="/get-familiar/what-fortanix-does" className={styles.start}>
-                New to Fortanix? Start here
-                <ArrowIcon />
-              </Link>
-            </div>
+            <RecentStrip />
+            <Link to="/get-familiar/what-fortanix-does" className={styles.start}>
+              New to Fortanix? Start here
+              <ArrowIcon />
+            </Link>
           </div>
-          <HeroArt />
+          <Catalog />
         </div>
       </div>
-    </section>
-  );
-}
-
-function RecentlyViewed(): ReactNode {
-  const tree = useTree();
-  // null until read from localStorage after hydration; the slot's height is
-  // reserved from the inline head script meanwhile (see lib/recents.ts).
-  const [paths, setPaths] = useState<string[] | null>(null);
-  const [showAll, setShowAll] = useState(false);
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
-
-  useEffect(() => {
-    setPaths(readRecents());
-  }, []);
-
-  const items = (paths ?? []).flatMap((p) => {
-    const loc = locate(tree, p);
-    return loc ? [{href: p, ...loc}] : [];
-  });
-  useEffect(() => {
-    if (paths === null) return;
-    // Pages moved or removed since: forgotten, so the head script counts only what shows.
-    if (items.length !== paths.length) writeRecents(items.map((i) => i.href));
-    setRecentsLayout(items.length);
-  }, [paths, items.length]);
-
-  const visible = showAll ? items : items.slice(0, RECENTS_VISIBLE);
-  const hidden = items.length - RECENTS_VISIBLE;
-
-  const remove = (href: string, index: number) => {
-    const next = (paths ?? []).filter((p) => p !== href);
-    writeRecents(next);
-    setPaths(next);
-    // Keep focus in the list: the next card's ×, else the previous, else the heading.
-    requestAnimationFrame(() => {
-      const buttons = listRef.current?.querySelectorAll<HTMLButtonElement>('button');
-      const target = buttons?.[Math.min(index, buttons.length - 1)];
-      (target ?? headingRef.current)?.focus();
-    });
-  };
-
-  return (
-    <section className={styles.section} aria-labelledby="recent-heading">
-      <h2 id="recent-heading" ref={headingRef} tabIndex={-1} className={styles.heading}>
-        Recently viewed
-      </h2>
-      <div className={styles.recentSlot}>
-        {paths !== null && items.length === 0 && (
-          <p className={styles.empty}>Pages you open show up here.</p>
-        )}
-        {items.length > 0 && (
-          <ul ref={listRef} id="recent-list" className={styles.recentGrid}>
-            {visible.map((item, i) => (
-              <li key={item.href} className={styles.recentItem}>
-                <Link to={item.href} className={styles.recentCard} title={item.path.join(' / ')}>
-                  <PageIcon />
-                  <span className={styles.recentTitle}>{item.title}</span>
-                  {/* The closest parent section; the full path is in the tooltip. */}
-                  <span className={styles.recentPath}>{item.path[item.path.length - 1]}</span>
-                </Link>
-                <button
-                  type="button"
-                  className={styles.remove}
-                  onClick={() => remove(item.href, i)}
-                  aria-label={`Remove ${item.title} from recently viewed`}>
-                  <CloseIcon />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        {hidden > 0 && (
-          <button
-            type="button"
-            className={styles.more}
-            onClick={() => setShowAll(!showAll)}
-            aria-expanded={showAll}
-            aria-controls="recent-list">
-            {showAll ? 'Show less' : `View more (${hidden})`}
-          </button>
-        )}
-      </div>
-    </section>
-  );
-}
-
-/** Every solution and product, as equal cards: the icon, the title, one line and "Explore". */
-function ExploreFortanix(): ReactNode {
-  return (
-    <section className={styles.section} aria-labelledby="explore-heading">
-      <h2 id="explore-heading" className={styles.heading}>
-        Explore Fortanix
-      </h2>
-      <ul className={styles.exploreGrid}>
-        {featured.map((card) => (
-          <li key={card.href}>
-            <Link to={card.href} className={styles.exploreCard}>
-              <span className={styles.cardIcon} aria-hidden="true">
-                <svg viewBox="0 0 24 24">{CARD_ICONS[card.icon]}</svg>
-              </span>
-              <span className={styles.exploreTitle}>{card.title}</span>
-              <span className={styles.exploreLine}>{card.line}</span>
-              <span className={styles.cardMore}>
-                Explore
-                <ArrowIcon />
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }
@@ -416,10 +363,6 @@ export default function Home(): ReactNode {
       </Head>
       <main className={styles.home}>
         <Hero />
-        <div className={styles.inner}>
-          <RecentlyViewed />
-          <ExploreFortanix />
-        </div>
         <DocsDirectory />
       </main>
     </Layout>

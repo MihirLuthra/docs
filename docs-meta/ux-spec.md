@@ -39,33 +39,20 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 ## Home
 
-D17: a landing page without the docs tree beside it. Full-width bands, each with its content centred (max 1200px, 48px gutters, 16px below 997px).
+D17: a landing page without the docs tree beside it. The first screen answers "what is here". Two full-width bands, each with its content centred (max 1200px, 48px gutters, 16px below 997px).
 
 - **Header on Home:** the menu button shows at every width and opens the tree in the drawer (wide screens: without the header links, which the header already shows).
 - **One search box at a time.** The header's search is hidden while the hero's search box is in view, and fades in once it scrolls under the header. Hidden, not removed, so the header never shifts. **/** and **Ctrl K** work as everywhere.
-- **Colours:** the brand's only (dark grey, purple, blue and their gradient). No colour per card or per section.
-- No one solution or product gets more weight than the others: they are all equal cards.
-- Everything is static CSS and inline SVG: no images to load, no layout shift (recents reserve their height before hydration, below).
+- **Colours:** the brand's only (dark grey, purple, blue and their gradient). No colour per item or per section.
+- Every product and solution has the same weight.
+- Everything is static CSS and inline SVG: no images to load, no layout shift.
 
-1. **Hero**, dark in both themes (#0e0b14 with a purple glow top left, a blue glow right, a fine grid fading out, a hairline of the brand gradient along the bottom).
-   - A slim **proof-of-concept notice** pill at its top (amber on dark).
-   - The title, "Fortanix Documentation", up to 52px, white with "Fortanix" in the brand gradient; one lead line under it.
-   - A **large white search box** (56px tall, up to 576px wide, a soft purple ring) that opens the site's search panel, with its `/` key chip.
-   - Under it, **"New to Fortanix? Start here"**, an outlined pill to *What Fortanix does*.
-   - On the right, a decorative picture (340px): a chip with a lock inside a dashed TEE outline, a slowly turning orbit with a search and a check badge. Hidden below 900px. Nothing moves with reduced motion.
-   - Phones: tighter padding, 32px title.
-2. **Recently viewed** (stored in localStorage, max 12):
-   - Cards in a 3-column grid (2 below 768px, 1 below 576px), each with a page icon, a title and its closest parent section (the full path is in the tooltip).
-   - Each card has its own **×** to remove it. There is **no "clear all"**.
-   - Cards are 56px tall and lift slightly on hover.
-   - Shows 2 rows (6 cards). A "View more (n)" / "Show less" toggle sits below the cards.
-   - Empty state: "Pages you open show up here."
-   - Stored pages that no longer exist (moved or removed) are dropped when the home page loads, so the reserved height matches what shows.
-3. **Explore Fortanix**: 6 cards, one per solution or product (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness), all the same. The cards come from one data file (`apps/docs/src/data/featured.ts`).
-   - Each card: a 48px icon tile in the brand gradient with a white icon, the title, one line, and "Explore →" in purple.
-   - On hover the card lifts, its border turns purple, the brand gradient shows along its top and the arrow nudges right.
-   - At most 3 columns (6 cards = 2 rows); fewer on narrow screens.
-4. **Browse all docs**: a band in a faint grey with the whole docs tree as a directory, built from the tree. One column per top-level section with pages (small capitals title); in it, its pages and folders, each folder with its own pages and folders listed under it. A folder links to its first page; a folder whose only content is one page shows as that page; folders with no pages yet are left out.
+1. **Hero**, dark in both themes (#0e0b14 with a purple glow top left, a blue glow right, a fine grid fading out, a hairline of the brand gradient along the bottom). A slim **proof-of-concept notice** pill (amber on dark) above two columns:
+   - **Left:** the title, "Fortanix Documentation", up to 48px, white with "Fortanix" in the brand gradient; one lead line; a **large white search box** (56px, a soft purple ring) that opens the search panel, with its `/` key chip; **Recently viewed**; then **"New to Fortanix? Start here →"**, a text link to *What Fortanix does*.
+   - **Recently viewed** (localStorage, newest first, max 12): one row of chips after a small "Recently viewed" label, as many as fit (the rest wrap out of sight). Each chip is the page title (the full path in the tooltip) with a **×** to remove it; no "clear all". Empty: "Pages you open show up here." The row has a fixed height (30px), so it never moves the page as it fills in. Stored pages that no longer exist are dropped.
+   - **Right:** a translucent panel with two columns, **Products** ("Fortanix Armor and its parts") and **Solutions** ("Built on the products, for one problem each"), in the docs tree's order. Each item: a 36px icon tile in the brand gradient, the name, and one line (up to two lines, never cut with "…"); rows are at least 64px, so both columns line up. An arrow comes in on hover. A product with no pages yet (Key Insight) shows dimmed, "No pages yet", and isn't a link. The items come from `apps/docs/src/data/featured.ts`.
+   - Below 1101px the panel goes under the search; below 681px its columns stack. Phones: tighter padding, 32px title.
+2. **Browse all docs**: a band in a faint grey with the whole docs tree as a directory, built from the tree. One column per top-level section with pages (small capitals title); in it, its pages and folders, each folder with its own pages and folders listed under it. A folder links to its first page; a folder whose only content is one page shows as that page; folders with no pages yet are left out.
 
 ## Search bar
 

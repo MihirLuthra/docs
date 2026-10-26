@@ -6,7 +6,6 @@ import docsTree from './plugins/docs-tree';
 import contributors from './plugins/contributors';
 import versions from './plugins/versions';
 import prismTheme from './src/lib/prism-theme';
-import {recentsHeadScript} from './src/lib/recents';
 import {fontFaceCss, fontUrl} from './src/lib/fonts';
 import {searchEarlyScript} from './src/lib/search-early';
 
@@ -51,8 +50,6 @@ const config: Config = {
     {tagName: 'style', attributes: {}, innerHTML: fontFaceCss(BASE_URL)},
     // Keeps search clicks/shortcuts made before hydration (lib/search-early.ts).
     {tagName: 'script', attributes: {}, innerHTML: searchEarlyScript},
-    // Lets the home page reserve space for Recently viewed before hydration.
-    {tagName: 'script', attributes: {}, innerHTML: recentsHeadScript},
     {
       tagName: 'link',
       attributes: {

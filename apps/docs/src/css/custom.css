@@ -110,13 +110,10 @@
   --fx-home-max: 1200px; /* home page content */
   --fx-section-gap: 28px;
   --fx-banner-py: 10px; /* two 1.3 lines (or the 40px icon) + 2 x 10 + border = ~64px banner */
-  --fx-recent-card-h: 56px;
   --fx-card-gap: 6px; /* between path, title, description and tags */
   --fx-tag-py: 1px;
   --fx-tag-px: 6px;
   --fx-tag-gap: var(--fx-space-1);
-  --fx-recent-empty-h: 48px;
-  --fx-recent-more-h: 26px;
   --fx-search-top: 88px;
   --fx-search-width: 680px;
   --fx-search-input-h: 60px;
@@ -229,20 +226,22 @@
      like fortanix.com: the dark grey with purple and blue glows. */
   --fx-home-gutter: var(--fx-space-12);
   --fx-home-section-gap: 56px;
-  --fx-home-hero-pb: 88px;
-  --fx-text-hero: clamp(2.25rem, 1.5rem + 2.4vw, 3.25rem);
+  --fx-home-hero-pb: 64px;
+  --fx-home-recent-h: 30px;
+  --fx-home-item-icon: 36px;
+  --fx-home-item-h: 64px;
+  --fx-text-hero: clamp(2.25rem, 1.6rem + 1.6vw, 3rem);
   --fx-text-hero-sm: 2rem;
   --fx-text-lead: 1.125rem;
   --fx-text-home-heading: 1.25rem;
   --fx-hero-search-h: 56px;
-  --fx-hero-art-w: 340px;
-  --fx-card-icon-size: 48px;
   --fx-home-hero-bg: #0e0b14;
   --fx-home-hero-glow-a: rgb(153 23 255 / 0.38);
   --fx-home-hero-glow-b: rgb(0 191 255 / 0.2);
   --fx-home-hero-grid: rgb(255 255 255 / 0.05);
   --fx-home-hero-text: var(--fx-white);
   --fx-home-hero-muted: #c9c4d6;
+  --fx-home-hero-dim: #a29cb3;
   --fx-home-hero-line: rgb(255 255 255 / 0.16);
   --fx-home-hero-line-strong: rgb(255 255 255 / 0.32);
   --fx-home-hero-chip: rgb(255 255 255 / 0.06);
@@ -257,13 +256,13 @@
   --fx-home-search-key-border: #d5d8e0;
   --fx-home-search-shadow: 0 10px 30px rgb(0 0 0 / 0.35), 0 0 0 4px rgb(153 23 255 / 0.18);
   --fx-home-search-shadow-hover: 0 10px 30px rgb(0 0 0 / 0.35), 0 0 0 5px rgb(153 23 255 / 0.32);
-  --fx-hero-art-a: #c48bff;
-  --fx-hero-art-b: #4fd2ff;
-  --fx-hero-tee: rgb(153 23 255 / 0.16);
   --fx-home-icon-bg: linear-gradient(135deg, var(--fx-purple), var(--fx-purple-dark) 55%, #3b5bdb);
-  --fx-home-icon-shadow: 0 6px 16px rgb(153 23 255 / 0.28);
+  --fx-home-icon-shadow: 0 4px 12px rgb(153 23 255 / 0.35);
+  --fx-home-panel-bg: rgb(255 255 255 / 0.04);
+  --fx-home-panel-border: rgb(255 255 255 / 0.1);
+  --fx-home-panel-shadow: 0 24px 60px rgb(0 0 0 / 0.35);
+  --fx-home-item-hover: rgb(255 255 255 / 0.07);
   --fx-home-band-bg: #f8f7fc;
-  --fx-shadow-card-lift: 0 12px 32px rgb(64 0 114 / 0.1), 0 2px 6px rgb(19 19 19 / 0.04);
 
   /* Infima mapping */
   --ifm-font-family-base: var(--fx-font-sans);
@@ -374,8 +373,6 @@
   --fx-diagram-party-soft: #0d2630;
   --fx-home-hero-bg: #0b0910;
   --fx-home-band-bg: #17151c;
-  --fx-home-icon-shadow: 0 6px 16px rgb(0 0 0 / 0.4);
-  --fx-shadow-card-lift: 0 12px 32px rgb(0 0 0 / 0.5);
 
   --ifm-color-primary-darkest: var(--fx-purple);
   --ifm-color-primary-light: var(--fx-purple-light);
