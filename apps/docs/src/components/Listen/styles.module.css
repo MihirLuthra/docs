@@ -19,13 +19,16 @@
   line-height: 1.5;
 }
 
-/* "Listen", at the right end of the path above the title. */
+/* "Listen", at the right end of the path above the title: the icon, the
+   word and its key chip centred on one line. */
 .listen {
   display: inline-flex;
   flex: none;
   align-items: center;
   gap: var(--fx-space-1);
-  padding: var(--fx-border-width) var(--fx-space-1) var(--fx-border-width) var(--fx-space-2);
+  box-sizing: border-box;
+  height: var(--fx-listen-button);
+  padding: 0 var(--fx-space-1) 0 var(--fx-space-2);
   border: var(--fx-border-width) solid var(--fx-border-strong);
   border-radius: var(--fx-radius-pill);
   background: var(--fx-bg);
@@ -33,7 +36,7 @@
   font: inherit;
   font-size: var(--fx-text-xs-plus);
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -43,10 +46,17 @@
 }
 
 .listenKey {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  min-width: var(--fx-listen-key);
+  height: var(--fx-listen-key);
   margin-left: var(--fx-space-1);
+  padding: 0;
   border-color: var(--fx-border-strong);
   border-radius: var(--fx-radius-pill);
   color: var(--fx-text-muted);
+  line-height: 1;
 }
 
 @media (hover: none) {
@@ -56,33 +66,123 @@
 }
 
 .listen:focus-visible,
-.selection:focus-visible,
+.selectionPart:focus-visible,
+.fromHeading:focus-visible,
 .control:focus-visible,
 .menuItem:focus-visible {
   outline: var(--fx-focus-width) solid var(--fx-focus);
   outline-offset: 2px;
 }
 
-/* By a selection in the page: centred just above its first line. */
+/* By a selection in the page, centred just above its first line: "Listen"
+   (just the selection) and "From here". */
 .selection {
   position: absolute;
   z-index: var(--fx-z-listen);
+  display: inline-flex;
+  align-items: stretch;
+  overflow: hidden;
+  border-radius: var(--fx-radius-pill);
+  background: var(--fx-tooltip-bg);
+  box-shadow: var(--fx-shadow-menu);
+  color: var(--fx-tooltip-text);
+  transform: translate(-50%, calc(-100% - var(--fx-space-2)));
+  animation: fx-listen-in var(--fx-duration-fast) var(--fx-ease-out);
+}
+
+.selectionPart {
   display: inline-flex;
   align-items: center;
   gap: var(--fx-space-1);
   padding: var(--fx-space-1) var(--fx-space-3);
   border: 0;
-  border-radius: var(--fx-radius-pill);
-  background: var(--fx-tooltip-bg);
-  box-shadow: var(--fx-shadow-menu);
-  color: var(--fx-tooltip-text);
+  background: none;
+  color: inherit;
   font: inherit;
   font-size: var(--fx-text-sm);
   font-weight: 600;
+  line-height: 1.4;
   white-space: nowrap;
   cursor: pointer;
-  transform: translate(-50%, calc(-100% - var(--fx-space-2)));
-  animation: fx-listen-in var(--fx-duration-fast) var(--fx-ease-out);
+}
+
+.selectionPart + .selectionPart {
+  border-left: var(--fx-border-width) solid var(--fx-tooltip-kbd-border);
+}
+
+.selectionPart:hover {
+  background-color: var(--fx-tooltip-hover);
+}
+
+/* "Listen from here" in a section heading, beside its copy button: shown
+   while the heading is pointed at or the button has focus. */
+.fromHeading {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--fx-space-6);
+  height: var(--fx-space-6);
+  margin: calc((1lh - var(--fx-space-6)) / 2) 0 calc((1lh - var(--fx-space-6)) / 2) var(--fx-border-width);
+  padding: 0;
+  border: 0;
+  border-radius: var(--fx-radius-sm);
+  background: none;
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-sm);
+  font-weight: 400;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  /* As the copy button: "middle" is the lowercase letters' middle. */
+  transform: translateY(calc(-2 * var(--fx-border-width)));
+  opacity: 0;
+  transition: opacity var(--fx-duration-fast) var(--fx-ease);
+}
+
+.fromHeading .icon {
+  width: var(--fx-breadcrumb-home-size);
+  height: var(--fx-breadcrumb-home-size);
+}
+
+.fromHeading:hover {
+  background-color: var(--fx-hover);
+  color: var(--fx-text);
+}
+
+:global(.anchor):hover > .fromHeading,
+.fromHeading:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .fromHeading {
+    opacity: 0.5;
+  }
+}
+
+.fromTip {
+  position: absolute;
+  top: calc(100% + var(--fx-space-1));
+  left: 50%;
+  z-index: 10;
+  padding: var(--fx-space-1) var(--fx-space-2);
+  border-radius: var(--fx-radius-sm);
+  background-color: var(--fx-tooltip-bg);
+  color: var(--fx-tooltip-text);
+  font-size: var(--fx-text-xs);
+  letter-spacing: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity var(--fx-duration-fast) var(--fx-ease);
+}
+
+.fromHeading:hover .fromTip,
+.fromHeading:focus-visible .fromTip {
+  opacity: 1;
 }
 
 /* The player: a bar floating over the bottom of the page. Wide screens: the

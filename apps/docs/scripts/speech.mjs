@@ -30,11 +30,8 @@ const CACHE = path.join(APP, '..', '..', '.cache', 'speech');
 const MODEL = 'onnx-community/Kokoro-82M-v1.0-ONNX';
 const DTYPE = 'fp32'; // the full model: the best voices
 
-/** The voices readers can choose from; the first is the default. */
-const VOICES = [
-  {id: 'af_heart', label: 'Heart (US English)'},
-  {id: 'am_michael', label: 'Michael (US English)'},
-];
+/** The voices readers can choose from; the first is the default. One for now. */
+const VOICES = [{id: 'af_heart', label: 'Heart (US English)'}];
 
 const RATE = 24000; // Kokoro's sample rate
 const KBPS = 48; // mono MP3, plenty for speech (~360 KB a minute)
@@ -201,7 +198,7 @@ async function main() {
   const listFile = path.join(APP, '.docusaurus', 'speech-pages.json');
   if (!fs.existsSync(listFile)) throw new Error('speech: run `pnpm build` first (no .docusaurus/speech-pages.json)');
   const {baseUrl, pages} = JSON.parse(fs.readFileSync(listFile, 'utf8'));
-  if (!pages.length) return console.log('speech: no page has `listen: true`');
+  if (!pages.length) return console.log('speech: no pages to voice');
 
   fs.mkdirSync(path.join(CACHE, 'clips'), {recursive: true});
   let tts;

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "@docusaurus/Link";
 import SiteStorage from "@generated/site-storage";
 import "./styles.css";
@@ -187,6 +187,19 @@ const ICONS: Record<AssetKind | "ccm" | "dsm", React.ReactNode> = {
   dsm: <><circle cx="5" cy="8" r="3" /><path d="M8 8h6.5M12 8v2.5M14 8v2" /></>,
 };
 
+/** What "Listen" says before step n: the day (and operation) at its first step, then "Next, step k." */
+function speechLead(list: Step[], n: number): string {
+  const s = list[n];
+  const prev = list[n - 1];
+  const day = PHASES.find((p) => p.id === s.phase)!;
+  const k = list.slice(0, n + 1).filter((x) => x.phase === s.phase && x.op === s.op).length;
+  if (!prev || prev.phase !== s.phase || prev.op !== s.op) {
+    const op = s.op ? `, ${OPERATIONS.find((o) => o.id === s.op)!.label}` : "";
+    return `${day.label.replace(" · ", ", ")}${op}. Step 1.`;
+  }
+  return `Next, step ${k}.`;
+}
+
 export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: string; scenarios?: string[] | true; role?: RoleId }) {
   const ids = useMemo(() => {
     if (scenarios === true) return SCENARIOS.map((s) => s.id);
@@ -199,6 +212,7 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
   const [phase, setPhase] = useState<PhaseId>("day0");
   const [op, setOp] = useState<OperationId>(OPERATIONS[0].id);
   const [index, setIndex] = useState(0);
+  const figureRef = useRef<HTMLElement>(null);
 
   const d = useMemo(() => deployment(scenarioId), [scenarioId]);
   const all = d.steps[runtime];
@@ -227,6 +241,26 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
   };
   const atEnd = phase === "day2" && i === steps.length - 1;
   const atStart = phase === "day0" && i === 0;
+
+  // "Listen" (components/Listen) shows each step while it reads it.
+  const latest = useRef({ d, runtime });
+  latest.current = { d, runtime };
+  useEffect(() => {
+    const el = figureRef.current;
+    if (!el) return undefined;
+    const onStep = (e: Event) => {
+      const { d: dep, runtime: rt } = latest.current;
+      const list = dep.steps[rt];
+      const s = list[(e as CustomEvent<{ step: number }>).detail.step];
+      if (!s) return;
+      const same = list.filter((x) => x.phase === s.phase && (s.phase !== "day2" || x.op === s.op));
+      setPhase(s.phase);
+      if (s.op) setOp(s.op);
+      setIndex(same.indexOf(s));
+    };
+    el.addEventListener("fx-speech-step", onStep);
+    return () => el.removeEventListener("fx-speech-step", onStep);
+  }, []);
 
   const wide = useMemo(() => wideLayout(d, runtime), [d, runtime]);
   const narrow = useMemo(() => narrowLayout(d, runtime), [d, runtime]);
@@ -352,7 +386,13 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
   const runtimeLabel = RUNTIMES.find((r) => r.id === runtime)!.label;
 
   return (
-    <figure className="cai cai-deploy" aria-label="Deployment, step by step">
+    <figure
+      ref={figureRef}
+      className="cai cai-deploy"
+      aria-label="Deployment, step by step"
+      data-speech="steps"
+      data-speech-intro="A diagram follows, showing each step of the deployment, from day 0 to day 2"
+      data-speech-variant={runtime}>
       {ids.length > 1 && (
         <label className="cai-select">
           <span>Deployment</span>
@@ -405,14 +445,24 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
 
       {/* Every step's text, for both runtimes, in one cell: the panel is as tall as the longest and the page doesn't move. */}
       <div className="cai-deploy-panels" aria-live="polite">
-        {RUNTIMES.flatMap((r) => d.steps[r.id].map((s) => ({ s, r: r.id }))).map(({ s, r }) => {
+        {RUNTIMES.flatMap((r) => d.steps[r.id].map((s, n) => ({ s, r: r.id, n }))).map(({ s, r, n }) => {
           const active = r === runtime && s === step;
           return (
-            <div key={`${r}-${s.phase}-${s.op ?? ""}-${s.id}`} className="cai-deploy-panel" data-active={active} aria-hidden={!active}>
+            <div
+              key={`${r}-${s.phase}-${s.op ?? ""}-${s.id}`}
+              className="cai-deploy-panel"
+              data-active={active}
+              aria-hidden={!active}
+              data-speech-step={n}
+              data-speech-variant={r}
+              data-speech-lead={speechLead(d.steps[r], n)}>
               <p className="cai-deploy-who">
-                {PHASES.find((p) => p.id === s.phase)!.label}
-                {s.op ? ` · ${OPERATIONS.find((o) => o.id === s.op)!.label}` : ""}
-                {" · "}
+                {/* Read aloud in the step's lead instead ("Day 0, Prepare. Step 1."). */}
+                <span data-speech-skip>
+                  {PHASES.find((p) => p.id === s.phase)!.label}
+                  {s.op ? ` · ${OPERATIONS.find((o) => o.id === s.op)!.label}` : ""}
+                  {" · "}
+                </span>
                 {s.party ? `${s.party.name}, ${ROLES[s.actor as RoleId].name.toLowerCase()}` : "All parties"}
                 {role && s.actor === role && <span className="cai-deploy-you">Your step</span>}
               </p>
@@ -427,7 +477,7 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
                   ))}
                 </div>
               )}
-              <div className="cai-deploy-actions">
+              <div className="cai-deploy-actions" data-speech-skip>
                 <Link className="cai-deploy-guide" to={s.task} tabIndex={active ? 0 : -1}>
                   Open the how-to for this step
                   <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>

@@ -19,13 +19,15 @@ import styles from './styles.module.css';
 // audio's own clock, so it keeps pace at any speed.
 //
 // Keys (while open, when not typing): Space play/pause, ← → a word back or
-// forward (hold to keep going), Shift ← → a block, < > slower or faster,
-// V the next voice, Esc close.
+// forward (hold to keep going), Shift ← → a block, ↑ ↓ faster or slower,
+// V the next voice (when there are several), Esc close.
 
 export type Request =
   | {kind: 'page'; nonce: number}
   | {kind: 'toggle'; nonce: number}
-  | {kind: 'range'; range: Range; nonce: number};
+  | {kind: 'range'; range: Range; nonce: number}
+  /** Listen from here: a point in the page's text, or an element (a heading). */
+  | {kind: 'from'; at: {node: Node; offset: number} | Element; nonce: number};
 
 export type PlayerProps = {manifestUrl: string; request: Request; onClose: () => void};
 
@@ -381,26 +383,24 @@ export default function Player({manifestUrl, request, onClose}: PlayerProps): Re
       const first = nextPlayable(0);
       return seek(first >= 0 ? times(first)!.start : 0, true);
     }
+    if (request.kind === 'from') {
+      endSelection();
+      const at = request.at;
+      if (at instanceof Element) {
+        // The first block at or after it.
+        const i = blocks.current.findIndex(
+          (b, k) => b && playable(k) && (b.el === at || at.contains(b.el) || !!(at.compareDocumentPosition(b.el) & Node.DOCUMENT_POSITION_FOLLOWING)),
+        );
+        return i >= 0 ? seek(times(i)!.start, true) : undefined;
+      }
+      const t = timeAt(at.node, at.offset, false);
+      return t === null ? undefined : seek(Math.max(0, t - 0.05), true);
+    }
     // A selection: from the word it starts in to the word it ends in, only
     // the chosen text tinted (not its whole block).
     const range = request.range;
-    const at = (node: Node, offset: number, end: boolean): number | null => {
-      let found = -1;
-      blocks.current.forEach((b, i) => {
-        if (b && !b.narration && b.el.contains(node.nodeType === 1 ? node : node.parentNode)) found = i;
-      });
-      const b = blocks.current[found];
-      const tm = times(found);
-      if (!b || !tm) return null;
-      const r = document.createRange();
-      r.selectNodeContents(b.el);
-      r.setEnd(node, offset);
-      const c = r.toString().replace(/\s+/g, ' ').trimStart().length; // where in the block's text
-      const w = end ? [...tm.words].reverse().find((x) => x[2] < c) : tm.words.find((x) => x[3] > c);
-      return w ? (end ? w[1] : w[0]) : end ? tm.end : tm.start;
-    };
-    const start = at(range.startContainer, range.startOffset, false);
-    const end = at(range.endContainer, range.endOffset, true);
+    const start = timeAt(range.startContainer, range.startOffset, false);
+    const end = timeAt(range.endContainer, range.endOffset, true);
     if (start === null) return;
     clearMarks();
     reading.current = 'selection';
@@ -410,6 +410,23 @@ export default function Player({manifestUrl, request, onClose}: PlayerProps): Re
     window.getSelection()?.removeAllRanges();
     seek(Math.max(0, start - 0.05), true);
   }, [request, manifest, voice]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /** The time of the word at a point in the page's text: its start, or with `end`, its end. */
+  function timeAt(node: Node, offset: number, end: boolean): number | null {
+    let found = -1;
+    blocks.current.forEach((b, i) => {
+      if (b && !b.narration && b.el.contains(node.nodeType === 1 ? node : node.parentNode)) found = i;
+    });
+    const b = blocks.current[found];
+    const tm = times(found);
+    if (!b || !tm) return null;
+    const r = document.createRange();
+    r.selectNodeContents(b.el);
+    r.setEnd(node, offset);
+    const c = r.toString().replace(/\s+/g, ' ').trimStart().length; // where in the block's text
+    const w = end ? [...tm.words].reverse().find((x) => x[2] < c) : tm.words.find((x) => x[3] > c);
+    return w ? (end ? w[1] : w[0]) : end ? tm.end : tm.start;
+  }
 
   // Speed, kept for next time.
   useEffect(() => {
@@ -487,8 +504,8 @@ export default function Player({manifestUrl, request, onClose}: PlayerProps): Re
       toggle();
     } else if (e.key === 'ArrowRight' && !menu) (e.shiftKey ? stepBlock : stepWord)(1);
     else if (e.key === 'ArrowLeft' && !menu) (e.shiftKey ? stepBlock : stepWord)(-1);
-    else if (e.key === '>') faster(1);
-    else if (e.key === '<') faster(-1);
+    else if ((e.key === 'ArrowUp' && !menu) || e.key === '>') faster(1);
+    else if ((e.key === 'ArrowDown' && !menu) || e.key === '<') faster(-1);
     else if (e.key === 'v' || e.key === 'V') nextVoice();
     else return;
     e.preventDefault();
@@ -668,10 +685,10 @@ export default function Player({manifestUrl, request, onClose}: PlayerProps): Re
             aria-haspopup="menu"
             aria-expanded={menu === 'speed'}
             aria-label={`Speed, ${speed} times`}
-            aria-keyshortcuts="Shift+Comma Shift+Period"
+            aria-keyshortcuts="ArrowUp ArrowDown"
             onClick={() => setMenu(menu === 'speed' ? null : 'speed')}>
             {speed}×
-            {menu !== 'speed' && <Tip label="Speed" keys={['<', '>']} />}
+            {menu !== 'speed' && <Tip label="Speed" keys={['↑', '↓']} />}
           </button>
           {menu === 'speed' && (
             <Menu label="Speed" onClose={() => setMenu(null)}>

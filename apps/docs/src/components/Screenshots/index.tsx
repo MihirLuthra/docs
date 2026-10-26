@@ -1,4 +1,4 @@
-import {Children, isValidElement, useId, useRef, useState, type KeyboardEvent, type ReactNode} from 'react';
+import {Children, isValidElement, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode} from 'react';
 import styles from './styles.module.css';
 
 type ScreenshotProps = {caption: string; children?: ReactNode};
@@ -22,10 +22,19 @@ export function Screenshots({children}: {children?: ReactNode}): ReactNode {
   const [active, setActive] = useState(0);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const id = useId();
+  // "Listen" (components/Listen) shows each screenshot while it reads its caption.
+  const figure = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = figure.current;
+    if (!el) return undefined;
+    const onStep = (e: Event) => setActive((e as CustomEvent<{step: number}>).detail.step);
+    el.addEventListener('fx-speech-step', onStep);
+    return () => el.removeEventListener('fx-speech-step', onStep);
+  }, []);
 
   if (shots.length === 1) {
     return (
-      <figure className={styles.figure}>
+      <figure className={styles.figure} data-speech-intro="A screenshot follows">
         <div className={styles.frame}>{shots[0].children}</div>
         <figcaption className={styles.caption}>{shots[0].caption}</figcaption>
       </figure>
@@ -52,7 +61,7 @@ export function Screenshots({children}: {children?: ReactNode}): ReactNode {
   };
 
   return (
-    <figure className={styles.figure}>
+    <figure ref={figure} className={styles.figure} data-speech="steps" data-speech-intro="Screenshots follow">
       <div role="tablist" aria-label="Steps" className={styles.steps} onKeyDown={onKeyDown}>
         {shots.map((shot, index) => (
           <button
@@ -82,7 +91,9 @@ export function Screenshots({children}: {children?: ReactNode}): ReactNode {
             aria-labelledby={`${id}-tab-${index}`}
             className={styles.frame}
             data-active={index === active}
-            inert={index !== active}>
+            inert={index !== active}
+            data-speech-step={index}
+            data-speech-text={shot.caption}>
             {shot.children}
           </div>
         ))}

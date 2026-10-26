@@ -3,13 +3,25 @@ import {createPortal} from 'react-dom';
 import {useLocation} from '@docusaurus/router';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import {SPEECH_ROOT, speechBlocks, speechDir} from '@site/src/lib/speech/blocks';
+import {findKey, nodesAlong, normalize, useTree} from '@site/src/components/DocsTree/tree';
 import type {PlayerProps, Request} from './Player';
 import styles from './styles.module.css';
 
-// "Listen" for pages with `listen: true` (audio made at build time by
-// scripts/speech.mjs). The button sits in the path above the title; selecting
-// text in the page offers "Listen" for just that. The player itself is loaded
-// only when one of them is used, so pages carry no more than this.
+// "Listen" for doc pages (audio made at build time by scripts/speech.mjs).
+// The button sits in the path above the title; selecting text in the page
+// offers "Listen" for just that or "From here"; each heading has "Listen
+// from here" (ListenFrom). The player itself is loaded only when one of them
+// is used, so pages carry no more than this.
+
+/** Asks the page's Listen to read from an element (a heading). */
+export const listenFrom = (el: Element) => document.dispatchEvent(new CustomEvent('fx-listen-from', {detail: {el}}));
+
+/** Whether the page being shown has audio. */
+export function usePageListens(): boolean {
+  const tree = useTree();
+  const key = findKey(tree, normalize(useLocation().pathname));
+  return !!key && !!nodesAlong(tree, key).at(-1)?.listen;
+}
 
 function HeadphonesIcon(): ReactNode {
   return (
@@ -67,6 +79,13 @@ export default function Listen(): ReactNode {
     };
   }, []);
 
+  // "Listen from here" on a heading.
+  useEffect(() => {
+    const onFrom = (e: Event) => open({kind: 'from', at: (e as CustomEvent<{el: Element}>).detail.el, nonce: Date.now()});
+    document.addEventListener('fx-listen-from', onFrom);
+    return () => document.removeEventListener('fx-listen-from', onFrom);
+  }, [open]);
+
   // L (when not typing): listen, or pause and play again.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -99,19 +118,29 @@ export default function Listen(): ReactNode {
       </button>
       {spot &&
         createPortal(
-          <button
-            type="button"
-            className={styles.selection}
-            style={{left: spot.x, top: spot.y}}
-            // Keep the selection: a mousedown here would clear it first.
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => {
-              open({kind: 'range', range: spot.range, nonce: Date.now()});
-              setSpot(null);
-            }}>
-            <HeadphonesIcon />
-            Listen
-          </button>,
+          // Keep the selection: a mousedown here would clear it first.
+          <div className={styles.selection} style={{left: spot.x, top: spot.y}} onMouseDown={(e) => e.preventDefault()}>
+            <button
+              type="button"
+              className={styles.selectionPart}
+              onClick={() => {
+                open({kind: 'range', range: spot.range, nonce: Date.now()});
+                setSpot(null);
+              }}>
+              <HeadphonesIcon />
+              Listen
+            </button>
+            <button
+              type="button"
+              className={styles.selectionPart}
+              onClick={() => {
+                open({kind: 'from', at: {node: spot.range.startContainer, offset: spot.range.startOffset}, nonce: Date.now()});
+                window.getSelection()?.removeAllRanges();
+                setSpot(null);
+              }}>
+              From here
+            </button>
+          </div>,
           document.body,
         )}
       {Player && request && createPortal(<Player manifestUrl={manifestUrl} request={request} onClose={() => setRequest(null)} />, document.body)}

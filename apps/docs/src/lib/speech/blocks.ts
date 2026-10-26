@@ -13,7 +13,10 @@
 // - A diagram marked data-speech="steps" is read step by step from its step
 //   panels (data-speech-step, data-speech-variant): "Step 1. …", "Next,
 //   step 2. …", then "That was the last step." The diagram shows each step
-//   as it is read.
+//   as it is read. A panel can say its own lead (data-speech-lead, "Day 1.
+//   Step 1.") and, when its words aren't in it (a screenshot's caption is
+//   on its tab), what it says (data-speech-text).
+// - A figure's caption with no paragraphs of its own is read as text.
 // - Hidden tab panels and diagram paths are blocks too (the audio has them);
 //   the player skips what isn't showing.
 
@@ -158,10 +161,13 @@ export function speechBlocks(root: Element): SpeechBlock[] {
       for (const variant of variants) {
         const steps = panels.filter((p) => (p.getAttribute('data-speech-variant') ?? '') === variant);
         const v = variant || undefined;
-        narrate(el, `${intro}. It has ${plural(steps.length, 'step')}.`, {figure: el, variant: v});
+        narrate(el, `${intro}, in ${plural(steps.length, 'step')}.`, {figure: el, variant: v});
         for (const panel of steps) {
           const n = Number(panel.getAttribute('data-speech-step'));
-          shown(panel, textOf(panel), n === 0 ? 'Step 1.' : `Next, step ${n + 1}.`, {figure: el, step: n, variant: v});
+          const lead = panel.getAttribute('data-speech-lead') ?? (n === 0 ? 'Step 1.' : `Next, step ${n + 1}.`);
+          const said = panel.getAttribute('data-speech-text');
+          if (said) narrate(panel, `${lead} ${said}`, {figure: el, step: n, variant: v});
+          else shown(panel, textOf(panel), lead, {figure: el, step: n, variant: v});
         }
         narrate(el, 'That was the last step.', {figure: el, variant: v});
       }
@@ -191,14 +197,15 @@ export function speechBlocks(root: Element): SpeechBlock[] {
 
     // A tab: say which one, as the tab strip above it shows.
     if (el.getAttribute('role') === 'tabpanel') {
+      // The tab set's own tabs and panels, not those of a carousel inside it.
       const container = el.closest('.tabs-container');
-      const panels = container ? Array.from(container.querySelectorAll('[role="tabpanel"]')) : [];
-      const tabs = container ? Array.from(container.querySelectorAll('[role="tab"]')) : [];
+      const panels = container ? Array.from(container.querySelectorAll(':scope > div > [role="tabpanel"]')) : [];
+      const tabs = container ? Array.from(container.querySelectorAll(':scope > [role="tablist"] > [role="tab"]')) : [];
       const label = tabs[panels.indexOf(el)]?.textContent?.trim();
       if (label) narrate(el, `The ${label} tab.`);
     }
 
-    if (LEAF.has(el.tagName)) {
+    if (LEAF.has(el.tagName) || (el.tagName === 'FIGCAPTION' && !el.querySelector('p, ul, ol, div'))) {
       if (!onlyLinks(el)) shown(el, textOf(el));
       // A list item's nested lists are read after it, item by item.
       if (el.tagName === 'LI') for (const child of Array.from(el.children)) if (child.tagName === 'UL' || child.tagName === 'OL') walk(child);

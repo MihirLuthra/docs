@@ -72,6 +72,8 @@
   --fx-avatar-size: 28px; /* contributors */
   --fx-avatar-overlap: 8px; /* each avatar tucked under the one before */
   --fx-listen-icon: 14px; /* Listen button and player icons */
+  --fx-listen-button: 24px; /* the Listen button's height */
+  --fx-listen-key: 16px; /* its L chip */
   --fx-listen-control: 32px; /* player buttons */
   --fx-listen-play: 40px; /* its play button */
   --fx-listen-control-touch: 40px; /* on phones */
@@ -139,6 +141,7 @@
   --fx-tooltip-bg: #1b1b1f;
   --fx-tooltip-text: #ffffff;
   --fx-tooltip-kbd-border: rgb(255 255 255 / 0.35);
+  --fx-tooltip-hover: rgb(255 255 255 / 0.12); /* a button on a tooltip-dark surface, hovered */
   --fx-text: var(--fx-dark-gray);
   --fx-text-secondary: #3d4250;
   --fx-text-muted: #5b6170;

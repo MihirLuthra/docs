@@ -77,8 +77,9 @@ function kindOf(names: string[], isFolder: boolean, docType?: string): Kind {
  * Both come from the sidebar Docusaurus generates from content/.
  */
 export default function docsTreePlugin(context: LoadContext): Plugin {
-  // Pages with `listen: true` in front matter (permalinks), for the speech
-  // build (scripts/speech.mjs), which reads them from the generated files.
+  // Pages that can be listened to (permalinks): those with `listen: true` in
+  // front matter, for now. For the speech build (scripts/speech.mjs), which
+  // reads them from the generated files.
   const listenPages: string[] = [];
   return {
     name: 'docs-tree',
@@ -128,8 +129,9 @@ export default function docsTreePlugin(context: LoadContext): Plugin {
               depth: names.length,
               keywords: (doc.frontMatter.keywords ?? []).map((k) => k.toLowerCase()),
             });
-            if (doc.frontMatter.listen) listenPages.push(doc.permalink);
-            return [{label, href: doc.permalink, ...(doc.frontMatter.listen && {listen: true})}];
+            const listen = doc.frontMatter.listen === true;
+            if (listen) listenPages.push(doc.permalink);
+            return [{label, href: doc.permalink, ...(listen && {listen: true})}];
           }
           return [];
         });

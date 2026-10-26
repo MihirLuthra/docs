@@ -45,6 +45,13 @@ function Avatar({person, commits}: {person: Person; commits: number}): ReactNode
   );
 }
 
+/** The page's history on GitHub (its file's commits), for pages that have one. */
+export function usePageHistory(): string | null {
+  const {repo, branch, pages} = usePluginData('contributors') as Data;
+  const page = pages[normalize(useLocation().pathname)];
+  return page ? `https://github.com/${repo}/commits/${branch}/${page.file}` : null;
+}
+
 /**
  * The page's contributors, collapsed to a "Contributors" line with a count.
  * Expanded, it shows the first few avatars (to their GitHub profiles) in a

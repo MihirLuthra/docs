@@ -10,18 +10,40 @@
   border-top: var(--fx-border-width) solid var(--fx-border);
 }
 
+/* "Edit this page", then "Page history", on one line. */
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--fx-space-1) var(--fx-space-4);
+}
+
+.history {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fx-space-1);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-sm);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.history:hover {
+  color: var(--fx-link-hover);
+}
+
 /* Docusaurus lays the footer out as a grid row of columns; here it is just
    the edit link, on the same line as "Contributors". */
-.meta > :global(.theme-doc-footer) {
+.links > :global(.theme-doc-footer) {
   flex: 0 1 auto;
   margin-top: 0;
 }
 
-.meta > :global(.theme-doc-footer) :global(.row) {
+.links > :global(.theme-doc-footer) :global(.row) {
   margin: 0 !important;
 }
 
-.meta > :global(.theme-doc-footer) :global(.col) {
+.links > :global(.theme-doc-footer) :global(.col) {
   padding: 0;
 }
 
