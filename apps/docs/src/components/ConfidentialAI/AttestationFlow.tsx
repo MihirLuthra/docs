@@ -7,7 +7,7 @@ import { charsFor, fit, textWidth, wrap } from "./scene";
 // when the workload needs one, get the model key from DSM.
 //
 // CCM and DSM are on the top row. The host is below, untrusted, with the TEE
-// inside it. In the TEE, the attestation client sits under CCM and the model
+// inside it. In the TEE, the Fortanix Attestation Client sits under CCM and the model
 // under DSM, so every exchange is a short vertical arrow that crosses nothing.
 // One fixed shape for wide screens and one for narrow ones, so nothing around
 // the scene moves.
@@ -33,15 +33,15 @@ const MEASUREMENT = "9c2e…41a7";
 const COMMON: Step[] = [
   {
     id: "run", focus: "tee", title: "Run inside a TEE",
-    text: "The model workload starts inside a trusted execution environment, with the GPU in confidential computing mode. Its memory is encrypted and isolated, so the host operating system, the hypervisor and their administrators cannot read or change it.",
+    text: "The model workload starts inside a trusted execution environment, with the GPU in confidential computing mode. As it starts, the TEE records its measurement, a fingerprint of exactly what is running. Its memory is encrypted and isolated, so the host operating system, the hypervisor and their administrators cannot read or change it.",
   },
   {
     id: "evidence", focus: "ccm", from: "client", carries: "Signed evidence", title: "Send evidence to CCM",
-    text: "The attestation client inside the workload collects signed evidence from the CPU and GPU. The evidence includes the workload's measurement, a fingerprint of exactly what is running.",
+    text: "The Fortanix Attestation Client inside the workload collects signed evidence from the CPU and GPU and sends it to CCM. The evidence includes the workload's measurement.",
   },
   {
     id: "verify", focus: "ccm", title: "CCM verifies",
-    text: "CCM checks that the hardware is genuine, that its firmware and security settings meet policy, and that the measurement matches an approved model.",
+    text: "CCM checks that the hardware is genuine, that the platform is up to date, for example its firmware and TDX module versions, and that the measurement matches an approved model.",
   },
   {
     id: "cert", focus: "client", from: "ccm", carries: "Certificate", title: "CCM issues a certificate",
@@ -72,9 +72,8 @@ const WITHOUT_KEY: Step[] = [
 ];
 
 const CHIPS = ["Memory encrypted", "CPU TEE", "GPU in confidential computing mode", "CPU to GPU traffic encrypted"];
-const CHECKS = ["Genuine TEE hardware", "Firmware and security settings", "Approved model measurement"];
-const HOST = "Host operating system, hypervisor and administrators";
-const CANNOT = "Cannot read or change what runs inside the TEE";
+const CHECKS = ["Genuine TEE hardware", "Platform up to date", "Approved model measurement"];
+const HOST = "The host operating system, hypervisor and administrators cannot read or change what runs inside the TEE";
 
 // ---------- Layout ----------
 
@@ -85,8 +84,8 @@ interface Layout {
   h: number;
   spots: Record<Spot, R>;
   host: R;
-  hostText: { x: number; y: number; lines: string[] };
-  caption: { x: number; y: number };
+  hostText: { x: number; y: number; lines: string[] }; // under the TEE, clear of the arrows
+  measurement: R;
   chips: (R & { text: string })[];
   pillY?: number; // wide only: where an arrow's label sits, in the clear gap
 }
@@ -95,6 +94,8 @@ const SERVICE_H = 108;
 const CARD_H = 58;
 const CHIP_H = 22;
 const chipWidth = (t: string) => textWidth(t, 11.5) + 20;
+const MEASURE_LABEL = `Measurement ${MEASUREMENT}`;
+const MEASURE_W = textWidth(MEASURE_LABEL, 11.5, true) + 24;
 
 /** Lays chips out in rows within [x, x + w], each row centred. */
 function placeChips(x: number, y: number, w: number): { chips: (R & { text: string })[]; bottom: number } {
@@ -127,20 +128,21 @@ function wideLayout(): Layout {
   const ccm = { x: M, y: M, w: half, h: SERVICE_H };
   const dsm = { x: M + half + 16, y: M, w: half, h: SERVICE_H };
   const hostY = M + SERVICE_H + 56;
-  const tee = { x: 20, y: hostY + 38, w: W - 40, h: 0 };
-  const cardW = 256;
+  const tee = { x: 20, y: hostY + 24, w: W - 40, h: 0 };
+  const cardW = 280;
   const cardY = tee.y + 24;
   const client = { x: ccm.x + ccm.w / 2 - cardW / 2, y: cardY, w: cardW, h: CARD_H };
   const model = { x: dsm.x + dsm.w / 2 - cardW / 2, y: cardY, w: cardW, h: CARD_H };
-  const { chips, bottom } = placeChips(tee.x + 12, cardY + CARD_H + 14, tee.w - 24);
+  const measurement = { x: W / 2 - MEASURE_W / 2, y: cardY + CARD_H + 12, w: MEASURE_W, h: CHIP_H };
+  const { chips, bottom } = placeChips(tee.x + 12, measurement.y + CHIP_H + 10, tee.w - 24);
   tee.h = bottom + 14 - tee.y;
-  const caption = { x: W / 2, y: tee.y + tee.h + 20 };
-  const host = { x: M, y: hostY, w: W - 2 * M, h: caption.y + 12 - hostY };
+  const textY = tee.y + tee.h + 20;
+  const host = { x: M, y: hostY, w: W - 2 * M, h: textY + 12 - hostY };
   return {
     w: W, h: host.y + host.h + M,
-    spots: { ccm, dsm, tee, client, model }, host,
-    hostText: { x: W / 2, y: hostY + 19, lines: [HOST] },
-    caption, chips, pillY: (ccm.y + ccm.h + hostY) / 2,
+    spots: { ccm, dsm, tee, client, model }, host, measurement,
+    hostText: { x: W / 2, y: textY, lines: [HOST] },
+    chips, pillY: (ccm.y + ccm.h + hostY) / 2,
   };
 }
 
@@ -149,19 +151,20 @@ function narrowLayout(): Layout {
   const ccm = { x: M, y: M, w: W - 2 * M, h: SERVICE_H };
   const dsm = { x: M, y: ccm.y + SERVICE_H + 14, w: W - 2 * M, h: SERVICE_H };
   const hostY = dsm.y + SERVICE_H + 18;
-  const lines = wrap(HOST, charsFor(W - 40, 12));
-  const tee = { x: 16, y: hostY + 26 + lines.length * 15, w: W - 32, h: 0 };
+  const lines = wrap(HOST, charsFor(W - 40, 11.5));
+  const tee = { x: 16, y: hostY + 24, w: W - 32, h: 0 };
   const client = { x: tee.x + 12, y: tee.y + 24, w: tee.w - 24, h: CARD_H };
   const model = { x: client.x, y: client.y + CARD_H + 12, w: client.w, h: CARD_H };
-  const { chips, bottom } = placeChips(tee.x + 10, model.y + CARD_H + 14, tee.w - 20);
+  const measurement = { x: W / 2 - MEASURE_W / 2, y: model.y + CARD_H + 12, w: MEASURE_W, h: CHIP_H };
+  const { chips, bottom } = placeChips(tee.x + 10, measurement.y + CHIP_H + 10, tee.w - 20);
   tee.h = bottom + 14 - tee.y;
-  const caption = { x: W / 2, y: tee.y + tee.h + 20 };
-  const host = { x: M, y: hostY, w: W - 2 * M, h: caption.y + 12 - hostY };
+  const textY = tee.y + tee.h + 20;
+  const host = { x: M, y: hostY, w: W - 2 * M, h: textY + (lines.length - 1) * 15 + 12 - hostY };
   return {
     w: W, h: host.y + host.h + M,
-    spots: { ccm, dsm, tee, client, model }, host,
-    hostText: { x: W / 2, y: hostY + 20, lines },
-    caption, chips,
+    spots: { ccm, dsm, tee, client, model }, host, measurement,
+    hostText: { x: W / 2, y: textY, lines },
+    chips,
   };
 }
 
@@ -247,7 +250,7 @@ export function AttestationFlow({
   };
 
   const ccmBody = (r: R) => {
-    const status = certified ? "Certificate issued" : verified ? "Matches an approved model" : sent ? `Received measurement ${MEASUREMENT}` : "Waiting for evidence";
+    const status = certified ? "Certificate issued" : verified ? "Matches an approved model" : sent ? `Received measurement ${MEASUREMENT}` : "";
     return (
       <>
         {CHECKS.map((c, k) => {
@@ -287,9 +290,9 @@ export function AttestationFlow({
     );
 
   const card = (r: R, id: "client" | "model") => {
-    const title = id === "client" ? "Attestation client" : "Model";
+    const title = id === "client" ? "Fortanix Attestation Client" : "Model";
     const sub = id === "client"
-      ? `Measurement ${MEASUREMENT}`
+      ? certified ? "Holds the workload's certificate" : "Proves the workload to CCM"
       : needsKey ? (serving ? "Weights decrypted inside the TEE" : keyed ? "Key received, weights encrypted" : "Weights encrypted") : serving ? "Serving requests" : "Weights loaded in the TEE";
     const icon = id === "client" ? "client" : needsKey && !serving ? "lock" : "unlock";
     return (
@@ -344,9 +347,8 @@ export function AttestationFlow({
         <g className="cai-s-host">
           <rect x={l.host.x} y={l.host.y} width={l.host.w} height={l.host.h} rx="14" />
           {l.hostText.lines.map((t, k) => (
-            <text key={k} x={l.hostText.x} y={l.hostText.y + k * 15} textAnchor="middle" className="cai-s-host-name">{t}</text>
+            <text key={k} x={l.hostText.x} y={l.hostText.y + k * 15} textAnchor="middle" className="cai-s-host-name" {...fit(t, 11.5, l.host.w - 24, true)}>{t}</text>
           ))}
-          <text x={l.caption.x} y={l.caption.y} textAnchor="middle" className="cai-s-host-note" {...fit(CANNOT, 11.5, l.host.w - 24)}>{CANNOT}</text>
         </g>
 
         <g className="cai-s-teebox" data-state={state("tee")}>
@@ -358,6 +360,11 @@ export function AttestationFlow({
               <text x={c.x + c.w / 2} y={c.y + 15} textAnchor="middle">{c.text}</text>
             </g>
           ))}
+          {/* Recorded as the TEE starts, so it joins just after the TEE. */}
+          <g className="cai-s-measure">
+            <rect x={l.measurement.x} y={l.measurement.y} width={l.measurement.w} height={l.measurement.h} rx="11" />
+            <text x={l.measurement.x + l.measurement.w / 2} y={l.measurement.y + 15} textAnchor="middle">{MEASURE_LABEL}</text>
+          </g>
           <g className="cai-s-tee">
             <rect x={tee.x + tee.w / 2 - tw / 2} y={tee.y - 11} width={tw} height="22" rx="11" />
             <text x={tee.x + tee.w / 2} y={tee.y + 4} textAnchor="middle">{teeLabel}</text>
@@ -430,7 +437,6 @@ export function AttestationFlow({
       </div>
 
       <p className="cai-deploy-accounts">
-        The measurement value is an example.{" "}
         {keyRelease === "toggle" && step.id !== "run" && (
           <>{needsKey ? "The workload gets the model key from DSM." : "The workload needs no key from DSM."} <button type="button" className="cai-link" onClick={() => setIndex(0)}>Change</button></>
         )}

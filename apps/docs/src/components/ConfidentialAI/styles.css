@@ -20,13 +20,15 @@
 
 /* The host: untrusted, red. The TEE inside it: secure, purple. */
 .cai-s-host rect { fill: var(--fx-diagram-insecure-soft); stroke: var(--fx-diagram-insecure); stroke-width: 1.2; stroke-dasharray: 5 4; }
-.cai-scene .cai-s-host-name { fill: var(--fx-diagram-insecure); font-size: 12px; font-weight: 700; }
-.cai-scene .cai-s-host-note { fill: var(--fx-diagram-insecure); font-size: 11.5px; }
+.cai-scene .cai-s-host-name { fill: var(--fx-diagram-insecure); font-size: 11.5px; font-weight: 600; }
 .cai-s-teebox > .cai-s-card { fill: var(--fx-diagram-secure-soft); stroke: var(--fx-diagram-secure); stroke-width: 1.6; }
 .cai-s-teebox[data-state] > .cai-s-card { stroke: var(--fx-diagram-secure); stroke-width: 2.4; }
 .cai-s-chip rect { fill: var(--fx-bg); stroke: var(--fx-diagram-secure); stroke-width: 1; }
 .cai-scene .cai-s-chip text { fill: var(--fx-diagram-secure); font-size: 11.5px; font-weight: 600; }
 .cai-scene .cai-s-badge { font-size: 11px; }
+.cai-s-measure rect { fill: var(--fx-diagram-secure); }
+.cai-scene .cai-s-measure text { fill: var(--fx-bg); font-size: 11.5px; font-weight: 700; }
+.cai-s-measure { animation: cai-join 400ms 350ms ease-out backwards; }
 /* Its step text is short, so the scene can take more of the screen than the deployment one. */
 .cai-attest .cai-scene.is-wide { max-height: min(62vh, 520px); }
 
@@ -38,7 +40,7 @@
 .cai-s-account.is-idle .cai-s-card { fill: none; stroke-dasharray: 5 4; }
 .cai-s-fade { animation: cai-join 400ms ease-out; }
 @media (prefers-reduced-motion: reduce) {
-  .cai-s-tick.is-ok, .cai-scene .cai-s-tick-mark, .cai-s-fade { animation: none; }
+  .cai-s-tick.is-ok, .cai-scene .cai-s-tick-mark, .cai-s-fade, .cai-s-measure { animation: none; }
 }
 
 /* ---------- Roles explorer ---------- */

@@ -9,15 +9,15 @@ sidebar_position: 1
 
 Confidential AI runs AI models inside a trusted execution environment (TEE). The TEE keeps the model's memory encrypted and isolated on the CPU and on the GPU. The host operating system, the hypervisor and their administrators cannot read or change it.
 
-Before the model workload gets any secret, attestation proves exactly what is running and that it runs securely. Exactly what is running means the workload's measurement, a fingerprint of the workload that includes the model. Running securely means genuine TEE hardware with the expected firmware and security settings. CCM checks both. DSM then releases keys directly into the TEE, and only for approved models, so only the approved code around the model can use them.
+Before the model workload gets any secret, attestation proves exactly what is running and that it runs securely. Exactly what is running means the workload's measurement, a fingerprint of the workload that includes the model. Running securely means genuine TEE hardware on an up to date, securely configured platform. CCM checks both. DSM then releases keys directly into the TEE, and only for approved models, so only the approved code around the model can use them.
 
 ## How it works
 
 <AttestationFlow />
 
 1. **Run inside a TEE.** The model workload runs in a TEE, with the GPU in confidential computing mode. Its memory is encrypted and isolated from the host.
-2. **Attest to CCM.** The attestation client inside the workload sends signed evidence from the CPU and GPU to CCM. The evidence includes the workload's measurement.
-3. **Get a certificate.** CCM checks that the hardware is genuine, that its firmware and security settings meet policy, and that the measurement matches an approved model. Settings it checks include the firmware and TDX module versions and whether SMT is disabled. If every check passes, CCM issues the workload a certificate.
+2. **Attest to CCM.** The Fortanix Attestation Client inside the workload sends signed evidence from the CPU and GPU to CCM. The evidence includes the workload's measurement.
+3. **Get a certificate.** CCM checks that the hardware is genuine, that the platform is up to date and configured as policy requires, and that the measurement matches an approved model. Settings it checks include the firmware and TDX module versions and whether SMT is disabled. If every check passes, CCM issues the workload a certificate.
 4. **Use the certificate.** The workload authenticates to DSM over mutual TLS, using the certificate as its client certificate. DSM releases the model encryption key directly into the TEE, and only for the approved model. Any other service can authenticate the workload the same way.
 
 ## Building blocks
@@ -26,7 +26,7 @@ Before the model workload gets any secret, attestation proves exactly what is ru
 |---|---|---|
 | Confidential Computing Manager (CCM) | Checks that a workload runs on genuine, correctly configured TEE hardware and that its measurement matches an approved model, then issues it a certificate | [CCM](/products/fortanix-armor/confidential-computing/ccm/concepts) |
 | Data Security Manager (DSM) | Stores keys and releases them into the TEE only to workloads that hold the CCM certificate for an approved model | [Data Security Manager](/products/fortanix-armor/data-security-manager/overview) |
-| Workload runtime | Runs the model inside a TEE and includes the attestation client | [Confidential Containers](/products/fortanix-armor/confidential-computing/workload-runtimes/confidential-containers/overview), [Enclave OS](/products/fortanix-armor/confidential-computing/workload-runtimes/enclave-os/overview) |
+| Workload runtime | Runs the model inside a TEE and includes the Fortanix Attestation Client | [Confidential Containers](/products/fortanix-armor/confidential-computing/workload-runtimes/confidential-containers/overview), [Enclave OS](/products/fortanix-armor/confidential-computing/workload-runtimes/enclave-os/overview) |
 | Confidential computing hardware | A CPU TEE, such as Intel SGX, Intel TDX or AMD SEV-SNP. For GPU workloads, an NVIDIA GPU with confidential computing. | [TEE technologies](/get-familiar/concepts/tee-technologies/intel-sgx) |
 
 {/* TODO(verify): TEE technologies has no overview page (folders have no page, D10), so the link goes to its first page, Intel SGX. Add an overview page or pick a better target. */}
