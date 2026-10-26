@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -18,7 +19,7 @@ import {ancestors, findKey, normalize, useTree} from './tree';
 import GoToPage from './GoToPage';
 import {resetNav, useNavReset} from '@site/src/lib/nav-reset';
 import {useTreeReveal} from '@site/src/lib/tree-reveal';
-import {readHoverOpen, writeHoverOpen} from '@site/src/lib/tree-prefs';
+import {readSmartIndex, writeSmartIndex} from '@site/src/lib/tree-prefs';
 import {isPlainShortcut} from '@site/src/lib/keys';
 import styles from './styles.module.css';
 
@@ -51,8 +52,12 @@ function visibleRows(nodes: TreeNode[], open: Set<string>): Row[] {
 // How long the mouse rests on a section before it opens, so sweeping across
 // the tree doesn't open everything on the way.
 const HOVER_DELAY_MS = 200;
-// A section a hover opened closes this long after the pointer leaves it.
-const HOVER_CLOSE_MS = 3000;
+// Smart index: an open section no longer in use closes after this long.
+const SMART_CLOSE_MS = 1000;
+// Rows slide open and shut (--fx-duration-slide in custom.css). A closed
+// section's rows go when their slide ends; this is the latest they go if it
+// never runs (reduced motion, a hidden tab).
+const SLIDE_FALLBACK_MS = 1000;
 
 // How long a row revealed from a path menu stays highlighted.
 const REVEAL_FLASH_MS = 1500;
@@ -79,16 +84,13 @@ function HomeIcon(): ReactNode {
   );
 }
 
-function HoverIcon(): ReactNode {
+// Smart index: only the active line of a list is open (a dot), the rest stay short.
+function SmartIndexIcon(): ReactNode {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M5 3l14 7-6 2-2 6z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
+      <circle cx="5" cy="12" r="2.2" fill="currentColor" />
+      <path d="M10 12h11" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M10 5h7M10 19h7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.45" />
     </svg>
   );
 }
@@ -103,10 +105,11 @@ function CollapseAllIcon(): ReactNode {
 
 /**
  * The docs navigation tree (ux-spec.md, Sidebar): a Home row, then the whole
- * tree, collapsed except along the current page's path. Resting the mouse on
- * a section opens it; a few seconds after the pointer leaves it, it closes
- * again, unless it holds the current page or was clicked. Hover-open can be
- * turned off, and "Collapse all" closes everything.
+ * tree, collapsed except along the current page's path. With the smart
+ * index on (the default), resting the mouse on a section opens it, and any
+ * open section that is no longer in use closes a second later: only the
+ * sections holding the pointer, the keyboard focus or the current page stay
+ * open. "Collapse all" closes everything. Sections slide open and shut.
  */
 export default function DocsTree({onNavigate}: {onNavigate?: () => void}): ReactNode {
   const tree = useTree();
@@ -120,66 +123,80 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
   const navRef = useRef<HTMLElement>(null);
 
   // On until the saved choice is read after hydration (localStorage).
-  const [hoverOpen, setHoverOpen] = useState(true);
+  const [smart, setSmart] = useState(true);
   useEffect(() => {
-    setHoverOpen(readHoverOpen());
+    setSmart(readSmartIndex());
   }, []);
   const hoverTimer = useRef<number | undefined>(undefined);
   // The section a hover has just opened, while the pointer is still on it:
   // a click on it then keeps it open instead of closing it (someone who
   // didn't notice it opened meant to open it).
   const hoverOpened = useRef<string | null>(null);
-  // Sections opened by hover and not clicked since, each with its close timer
-  // once the pointer has left it.
-  const byHover = useRef(new Map<string, number | undefined>());
-  const currentRef = useRef(currentKey);
-  currentRef.current = currentKey;
-  const keep = (key: string) => {
-    window.clearTimeout(byHover.current.get(key));
-    byHover.current.delete(key);
-  };
-  /** The pointer is on row `at` (null: off the tree). Sections it has left start closing. */
-  const pointerAt = (at: string | null) => {
-    for (const [key, timer] of byHover.current) {
-      const inside = at !== null && (at === key || at.startsWith(`${key}.`));
-      if (inside) {
-        window.clearTimeout(timer);
-        byHover.current.set(key, undefined);
-      } else if (timer === undefined) {
-        byHover.current.set(
-          key,
-          window.setTimeout(() => {
-            byHover.current.delete(key);
-            // The section holding the current page stays open.
-            if (ancestors(currentRef.current).includes(key)) return;
-            setOpen((prev) => {
-              const next = new Set(prev);
-              next.delete(key);
-              return next;
-            });
-          }, HOVER_CLOSE_MS),
-        );
-      }
-    }
-  };
   const openSoon = (key: string | null) => {
     window.clearTimeout(hoverTimer.current);
     hoverOpened.current = null;
-    if (!key || !hoverOpen) return;
+    if (!key || !smart) return;
     hoverTimer.current = window.setTimeout(() => {
       if (open.has(key)) return;
       hoverOpened.current = key;
-      byHover.current.set(key, undefined);
       toggle(key, true);
     }, HOVER_DELAY_MS);
   };
-  useEffect(
-    () => () => {
-      window.clearTimeout(hoverTimer.current);
-      for (const timer of byHover.current.values()) window.clearTimeout(timer);
-    },
-    [],
-  );
+  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
+
+  // Smart index: the rows the pointer and the keyboard focus are on. Every
+  // open section holding neither, nor the current page, closes after a moment.
+  const [pointerKey, setPointerKey] = useState<string | null>(null);
+  const [focusIn, setFocusIn] = useState<string | null>(null);
+  const closeTimers = useRef(new Map<string, number>());
+  useEffect(() => {
+    const timers = closeTimers.current;
+    const inUse = (key: string) =>
+      [pointerKey, focusIn, currentKey].some((at) => at !== null && (at === key || at.startsWith(`${key}.`)));
+    for (const [key, timer] of timers) {
+      if (!smart || !open.has(key) || inUse(key)) {
+        window.clearTimeout(timer);
+        timers.delete(key);
+      }
+    }
+    if (!smart) return;
+    for (const key of open) {
+      if (inUse(key) || timers.has(key)) continue;
+      timers.set(
+        key,
+        window.setTimeout(() => {
+          timers.delete(key);
+          toggle(key, false);
+        }, SMART_CLOSE_MS),
+      );
+    }
+  }, [smart, open, pointerKey, focusIn, currentKey]);
+  useEffect(() => () => closeTimers.current.forEach((t) => window.clearTimeout(t)), []);
+
+  // Sections that just closed: their rows stay a moment, sliding shut.
+  const [closing, setClosing] = useState<Set<string>>(() => new Set());
+  const prevOpen = useRef(open);
+  const slideTimers = useRef(new Set<number>());
+  const doneClosing = useCallback((keys: string[]) => {
+    setClosing((prev) => {
+      if (!keys.some((k) => prev.has(k))) return prev;
+      const next = new Set(prev);
+      for (const k of keys) next.delete(k);
+      return next;
+    });
+  }, []);
+  useLayoutEffect(() => {
+    const shut = [...prevOpen.current].filter((k) => !open.has(k));
+    prevOpen.current = open;
+    if (!shut.length) return;
+    setClosing((prev) => new Set([...prev, ...shut]));
+    const t = window.setTimeout(() => {
+      slideTimers.current.delete(t);
+      doneClosing(shut);
+    }, SLIDE_FALLBACK_MS);
+    slideTimers.current.add(t);
+  }, [open, doneClosing]);
+  useEffect(() => () => slideTimers.current.forEach((t) => window.clearTimeout(t)), []);
 
   // Open the tree along the current page whenever it changes.
   useEffect(() => {
@@ -193,7 +210,6 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
       setOpen(new Set());
       setFocusKey(null);
       window.clearTimeout(hoverTimer.current);
-      for (const key of [...byHover.current.keys()]) keep(key);
       for (let el = navRef.current?.parentElement; el; el = el.parentElement) {
         if (el.scrollTop) el.scrollTop = 0;
       }
@@ -202,7 +218,6 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
 
   const collapseAll = useCallback(() => {
     window.clearTimeout(hoverTimer.current);
-    for (const key of [...byHover.current.keys()]) keep(key);
     setOpen(new Set());
   }, []);
 
@@ -241,6 +256,23 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
   }, [revealed]);
 
   const rows = useMemo(() => visibleRows(tree, open), [tree, open]);
+  // What is drawn: the open rows plus those still sliding shut.
+  const drawn = useMemo(
+    () => (closing.size ? visibleRows(tree, new Set([...open, ...closing])) : rows),
+    [tree, open, closing, rows],
+  );
+  const live = useMemo(() => new Set(rows.map((r) => r.key)), [rows]);
+  // Rows slide in when they appear, not on the tree's first render. A row
+  // keeps its first answer while it stays drawn, so its animation never replays.
+  const slideIn = useRef<Map<string, boolean> | null>(null);
+  const firstDraw = slideIn.current === null;
+  if (firstDraw) slideIn.current = new Map();
+  const slides = slideIn.current!;
+  for (const row of drawn) if (!slides.has(row.key)) slides.set(row.key, !firstDraw);
+  useEffect(() => {
+    const keys = new Set(drawn.map((r) => r.key));
+    for (const k of slides.keys()) if (!keys.has(k)) slides.delete(k);
+  }, [drawn, slides]);
   const tabKey =
     focusKey && rows.some((r) => r.key === focusKey)
       ? focusKey
@@ -281,20 +313,16 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
         break;
       case 'ArrowRight':
         if (!isFolder) return;
-        keep(row.key);
         if (isOpen) focus(rows[index + 1]?.key);
         else toggle(row.key, true);
         break;
       case 'ArrowLeft':
-        if (isFolder && isOpen) {
-          keep(row.key);
-          toggle(row.key, false);
-        } else focus(row.parentKey);
+        if (isFolder && isOpen) toggle(row.key, false);
+        else focus(row.parentKey);
         break;
       case 'Enter':
       case ' ':
         if (!isFolder) return; // links handle Enter themselves
-        keep(row.key);
         toggle(row.key);
         break;
       default:
@@ -330,15 +358,16 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
         <button
           type="button"
           className={styles.toolButton}
-          aria-pressed={hoverOpen}
-          aria-label="Open sections on hover"
+          aria-pressed={smart}
+          aria-label="Smart index"
+          aria-description="Opens the section you point at and closes the ones you leave"
           onClick={() => {
-            writeHoverOpen(!hoverOpen);
-            setHoverOpen(!hoverOpen);
+            writeSmartIndex(!smart);
+            setSmart(!smart);
           }}>
-          <HoverIcon />
+          <SmartIndexIcon />
           <span className={styles.tip} aria-hidden="true">
-            Open sections on hover: {hoverOpen ? 'on' : 'off'}
+            Smart index: {smart ? 'on' : 'off'}
           </span>
         </button>
         {/* The "c" shortcut shows on the button, like "t" in the filter. */}
@@ -362,15 +391,20 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
         role="tree"
         aria-label="Documentation"
         className={styles.tree}
-        onPointerLeave={() => {
+        onPointerLeave={(e) => {
           openSoon(null);
-          pointerAt(null);
+          // A lifted finger "leaves" too; on touch, the last row tapped stays in use.
+          if (e.pointerType === 'mouse') setPointerKey(null);
+        }}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocusIn(null);
         }}>
-        {rows.map((row, index) => {
+        {drawn.map((row, index) => {
           const {key, node, depth} = row;
           const isFolder = !!node.items;
           const isOpen = open.has(key);
           const isCurrent = key === currentKey;
+          const exiting = !live.has(key);
           const common = {
             ref: (el: HTMLElement | null) => {
               if (el) itemRefs.current.set(key, el);
@@ -378,13 +412,16 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
             },
             role: 'treeitem',
             'aria-level': depth + 1,
-            tabIndex: key === tabKey ? 0 : -1,
+            tabIndex: key === tabKey && !exiting ? 0 : -1,
             onKeyDown: (e: KeyboardEvent) => onKeyDown(e, row, index),
-            onFocus: () => setFocusKey(key),
+            onFocus: () => {
+              setFocusKey(key);
+              setFocusIn(key);
+            },
             // Sections open on hover (mouse only); pages don't.
             onPointerEnter: (e: PointerEvent) => {
               openSoon(isFolder && e.pointerType === 'mouse' ? key : null);
-              if (e.pointerType === 'mouse') pointerAt(key);
+              setPointerKey(key);
             },
             className: clsx(
               styles.row,
@@ -409,7 +446,13 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
             </>
           );
           return (
-            <div key={key}>
+            <div
+              key={key}
+              className={clsx(styles.item, exiting ? styles.exiting : slides.get(key) && styles.entering)}
+              aria-hidden={exiting || undefined}
+              // Slid shut: the closed sections above this row are done.
+              onAnimationEnd={exiting ? () => doneClosing([...closing].filter((c) => key.startsWith(`${c}.`))) : undefined}>
+              <div className={styles.itemInner}>
               {depth === 0 && index > 0 && <div className={styles.divider} aria-hidden="true" />}
               {row.empty ? (
                 <div {...common} aria-disabled="true">
@@ -421,7 +464,6 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
                   aria-expanded={isOpen}
                   onClick={() => {
                     window.clearTimeout(hoverTimer.current); // a pending hover-open
-                    keep(key); // clicked: it stays as the user left it
                     if (hoverOpened.current === key) hoverOpened.current = null;
                     else toggle(key);
                   }}>
@@ -436,6 +478,7 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
                   {content}
                 </Link>
               )}
+              </div>
             </div>
           );
         })}

@@ -1,17 +1,17 @@
-const HOVER_KEY = 'fx-docs-tree-hover';
+const SMART_KEY = 'fx-docs-tree-smart';
 
-/** Whether sections open on hover (the default), from localStorage. */
-export function readHoverOpen(): boolean {
+/** Whether the smart index is on (the default), from localStorage. */
+export function readSmartIndex(): boolean {
   try {
-    return localStorage.getItem(HOVER_KEY) !== '0';
+    return localStorage.getItem(SMART_KEY) !== '0';
   } catch {
     return true;
   }
 }
 
-export function writeHoverOpen(on: boolean): void {
+export function writeSmartIndex(on: boolean): void {
   try {
-    localStorage.setItem(HOVER_KEY, on ? '1' : '0');
+    localStorage.setItem(SMART_KEY, on ? '1' : '0');
   } catch {
     // Storage unavailable: the choice lasts until the page is left.
   }

@@ -392,3 +392,49 @@
   color: var(--fx-text-muted);
   font-size: var(--fx-text-sm);
 }
+
+/* Sections slide open and shut: each row grows from, or shrinks to, no
+   height (DocsTree SLIDE_MS). The row's focus ring is inset, so clipping
+   the row doesn't hide it. */
+.item {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+
+.itemInner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.entering {
+  animation: fx-tree-slide-in var(--fx-duration-slide) var(--fx-ease-slide);
+}
+
+.exiting {
+  animation: fx-tree-slide-out var(--fx-duration-slide) var(--fx-ease-slide) forwards;
+  pointer-events: none;
+}
+
+@keyframes fx-tree-slide-in {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+
+@keyframes fx-tree-slide-out {
+  to {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entering {
+    animation: none;
+  }
+
+  .exiting {
+    display: none;
+  }
+}

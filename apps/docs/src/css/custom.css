@@ -119,9 +119,11 @@
   --fx-duration-fast: 100ms;
   --fx-duration-chevron: 150ms;
   --fx-duration-panel: 200ms;
+  --fx-duration-slide: 200ms; /* sidebar sections opening and closing (DocsTree SLIDE_MS) */
   --fx-tooltip-delay: 400ms;
   --fx-ease: ease;
   --fx-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --fx-ease-slide: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Semantic colors: light mode */
   --fx-bg: var(--fx-white);
