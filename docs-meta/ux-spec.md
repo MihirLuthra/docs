@@ -5,8 +5,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 ## Header
 
 - Left: the Fortanix mark (no wordmark) and "Documentation" in purple, centred on the mark; goes to Home.
-- After it, **Back** and **Forward** buttons, on every page (hidden below 576px, where phones have their own back gesture). Shortcuts **b** and **f** (when not typing), shown as key chips on the arrows. Each has a caret that opens a small list of the pages that way in this tab, nearest first (up to 8): one line each, the page title then its closest section in grey (full path in the tooltip), sized to its content (200–280px), with a light shadow. Picking one goes straight there; a right-click on an arrow opens the list too. ↑ ↓ Home End Enter in the list, Esc closes it. The arrows are disabled when there is nowhere to go within the site.
-  - Browsers don't let pages read their history, so the site keeps its own per-tab list (sessionStorage; kept across reloads), matched to the browser's entries by the router's location key. It follows the browser's own back/forward too; opening a new page after going back drops the pages ahead, as the browser does.
+- No back and forward buttons of its own: the browser's are enough.
 - Centre: a search trigger ("Search the docs", with **/** and ⌘K hints) and an **Ask AI** button.
 - Right: Release notes · Advisories · Downloads.
 
@@ -40,8 +39,9 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 ## Home
 
-- **Grid:** sidebar | content. The content (max 1080px) is centred in the space beside the sidebar: the hero, then Recently viewed, then Explore Fortanix. No right column.
+- **Grid:** sidebar | content. The content (max 1200px) is centred in the space beside the sidebar: the hero, then Recently viewed, then Explore Fortanix. No right column.
 - No one solution or product gets more weight than the others on the home page: they are all equal cards in Explore Fortanix.
+- **One search box at a time.** The header's search is hidden on the home page while the hero's search box is in view, and fades in once it scrolls under the header. Hidden, not removed, so the header never shifts. **/** and **Ctrl K** work as everywhere.
 - Everything is static CSS and inline SVG: no images to load, no layout shift (recents reserve their height before hydration, below).
 
 1. **Hero**: a rounded panel (20px radius) with a soft purple and blue wash over a fine grid that fades out.
@@ -49,7 +49,7 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
    - A visible title, "Fortanix Documentation", with "Fortanix" in the brand gradient; one lead line under it.
    - A **large search box** (52px tall, up to ~544px wide) that opens the site's search panel, with its `/` key chip.
    - Under it, **"New to Fortanix? Start here"** (a dark pill button to *What Fortanix does*).
-   - On the right, a decorative picture: a chip with a lock inside a dashed TEE outline, a slowly turning orbit with a search and a key badge. Hidden below 900px. Nothing moves with reduced motion.
+   - On the right, a decorative picture (320px): a chip with a lock inside a dashed TEE outline, a slowly turning orbit with a search and a key badge. Hidden below 900px. Nothing moves with reduced motion.
    - Phones: tighter padding, 28px title.
 2. **Recently viewed** (stored in localStorage, max 12):
    - Cards in a 3-column grid (2 below 768px, 1 below 576px), each with a page icon, a title and its closest parent section (the full path is in the tooltip).
@@ -58,12 +58,11 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
    - Shows 2 rows (6 cards). A "View more (n)" / "Show less" toggle sits below the cards.
    - Empty state: "Pages you open show up here."
    - Stored pages that no longer exist (moved or removed) are dropped when the home page loads, so the reserved height matches what shows.
-3. **Explore Fortanix**: 6 curated cards (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness). The cards come from one data file (`apps/docs/src/data/featured.ts`).
-   - Each card has an icon tile and a kind label (Product blue, Solution purple), then a mono path, a title, one line, and tags.
-   - On hover the card lifts, the brand gradient shows along its top, and an arrow replaces the kind label.
-   - The path is one line (ellipsis if too long, never wraps), so titles in a row line up. Paths say "Armor" for "Fortanix Armor".
+3. **Explore Fortanix**: 6 cards, one per solution or product (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness), all the same shape. The cards come from one data file (`apps/docs/src/data/featured.ts`).
+   - Each card: a 104px band in the card's own colour (a tint, a soft glow and a fading dot grid) with its icon on a white 56px tile, then the title, one line, and "Explore →" in the card's colour.
+   - No tags, no Solution/Product label, no path.
+   - On hover the card lifts, its border takes its colour, the icon tilts slightly and the arrow nudges right.
    - At most 3 columns (6 cards = 2 rows); fewer on narrow screens.
-   - Tags: 11px text, padding 1px 6px, radius 4px, the chip background, 4px apart.
 
 ## Search bar
 
@@ -128,12 +127,12 @@ Each icon sits on a tinted tile. The kind is also written as text in the pill, s
   - sub-folders (with ›) open inside the same menu, with a "‹ parent" row to go back (→ and ← from the keyboard), as far up as the folder clicked;
   - **Show in sidebar** (wide screens) opens that folder in the sidebar tree, scrolls it into view, focuses it and highlights it briefly.
 - **Walkthroughs** (D16): a UI task as numbered steps under a large screenshot. The screenshot shows the step chosen, with the controls it uses ringed and the step's number beside the first. Click a step, use the arrows on the screenshot, drag or swipe it, or ← → when it has focus; it slides, never moving the page (fixed frame, at most 62% of the screen tall). Click the screenshot or its corner button for full screen: zoom with the wheel, a pinch, + and −, or a double click, drag to pan, ← → between steps, Esc to close. On phones a whole-page screenshot zooms in around its ringed control. Screenshots load only near the screen; the full-screen view loads only when opened.
-- **Copy path**: a small copy button right after the page's name in the path, and in each section heading in place of Docusaurus's "#" link (shown while the heading is pointed at or the button is focused; faintly always on touch screens). It copies the path as the address bar shows it, starting with "fortanix-docs" instead of "/" and without the site's base path: `fortanix-docs/solutions/confidential-ai/use-cases/proprietary-model`, and for a heading `…/proprietary-model#who-is-involved`. Where the paste takes rich text (Slack, docs, email) it is a link to the page or section; where it takes plain text (a terminal) it is the path alone. Copying never changes the address bar. Its tooltip says "Copy path", then "Copied" with a tick for 1.5s.
+- **Copy link**: a small link button (two chain links) right after the page's name in the path, and in each section heading in place of Docusaurus's "#" link (shown while the heading is pointed at or the button is focused; faintly always on touch screens). It copies a link to the page, or to the section (`…#who-is-involved`). Where the paste takes plain text it is the full address; where it takes rich text (Slack, docs, email) it is a link whose text is the path, starting with "fortanix-docs" instead of "/" and without the site's base path (`fortanix-docs/solutions/confidential-ai/use-cases/proprietary-model`). Copying never changes the address bar. Its tooltip says "Copy link", then "Link copied" with a tick for 1.5s.
 - **Listen** (pages with `listen: true` in front matter; for now only the Confidential AI overview): a "Listen" button at the right end of the path, with its **L** key chip. It reads the page aloud with voices made at build time (`pnpm speech` after `pnpm build`, Kokoro, open-source, on the build machine; no backend, nothing extra loads until it is used).
   - What it reads: the page's own text, top to bottom. Headings, paragraphs, list items and table rows (link-only cells and lines such as "Read the … use case" are left out). Never buttons, menus, navigation or pictures. Hidden tabs and the diagram path not chosen are skipped.
   - Spoken lines say what comes, said but not shown: "A table follows, with 4 rows and 3 columns: …", then "Row 1. …"; "A code block in Bash follows. It isn't read aloud." (or what the code does, when the page gives it); "The Proprietary model tab."; for a diagram, what it shows (its `data-speech-intro`) and, for a step diagram, how many steps.
   - Step diagrams: "Step 1. …", "Next, step 2. …", … "That was the last step." The deployment diagram says the day at each day's first step ("Day 1, Deploy. Step 1."), and screenshot steps read their captions. The diagram moves to each step as it is read, at the listener's speed.
-  - Highlights: the block being read gets a soft tint, the word being read a stronger one (CSS Custom Highlights; the words' times come from the build, from the pauses in each sentence's audio and the words' syllables). Reading a selection tints only the selected text.
+  - Highlights: the block being read gets a soft tint, the word being read sits on a rounded marker that slides from word to word (straight to a new line, without sliding; no slide with reduced motion), with the word's text in a strong purple (CSS Custom Highlights for the colour; the words' times come from the build, from the pauses in each sentence's audio and the words' syllables). Reading a selection tints only the selected text.
   - The player is a bar floating over the bottom of the page: previous block, a word back, play and pause, a word forward, next block (holding a word button keeps going, word by word), the progress over what is read (drag or click), a speed menu, and close (a voice menu too, once there is more than one voice). Each control's tooltip names it and shows its key. On phones it has three rows: what's playing and the time, the progress, then larger buttons (the voice button shows an icon; the menu has the names).
   - Keys, while the player is open and not typing: **Space** play and pause, **←** **→** a word back or forward (held, it keeps going), **Shift ←** **Shift →** the previous or next block, **↑** **↓** faster or slower, **Esc** close (a menu first). **L** opens it, and plays and pauses. The OS media keys work too.
   - Speed (0.75× to 2×) is kept in localStorage. One voice for now (Heart, US English).

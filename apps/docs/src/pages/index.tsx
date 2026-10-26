@@ -1,4 +1,5 @@
 import {useEffect, useRef, useState, type ReactNode} from 'react';
+import Head from '@docusaurus/Head';
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
 import DocsTree from '@site/src/components/DocsTree';
@@ -10,10 +11,10 @@ import {SEARCH_TRIGGER_ATTR} from '@site/src/lib/search-early';
 import {useFooterOverlap} from '@site/src/lib/footer-overlap';
 import styles from './index.module.css';
 
-// The home page (ux-spec.md, Home): a hero with the site's search and the
-// pages most people come for, then recently viewed pages, Confidential AI in
-// a spotlight, the solutions and products, and popular tasks. All drawn
-// with CSS and inline SVG: no images to load, nothing that moves the page.
+// The home page (ux-spec.md, Home): a hero with the site's search, then
+// recently viewed pages, then every solution and product as equal cards. All
+// drawn with CSS and inline SVG: no images to load, nothing that moves the
+// page.
 
 const stroke = {fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round'} as const;
 
@@ -158,8 +159,37 @@ function HeroArt(): ReactNode {
   );
 }
 
+/**
+ * The page has one search box showing at a time: the header's is hidden
+ * (Navbar styles) while the hero's is in view. `data-hero-search` comes with
+ * the page's HTML, so the header's never flashes; `data-hero-search-gone` is
+ * set once the hero's box scrolls under the header.
+ */
+function useHeroSearchWatch() {
+  const ref = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    const root = document.documentElement;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      root.setAttribute('data-hero-search-gone', '');
+      return undefined;
+    }
+    const header = parseFloat(getComputedStyle(root).getPropertyValue('--fx-header-height')) || 56;
+    const io = new IntersectionObserver(([e]) => root.toggleAttribute('data-hero-search-gone', !e.isIntersecting), {
+      rootMargin: `-${header}px 0px 0px 0px`,
+    });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      root.removeAttribute('data-hero-search-gone');
+    };
+  }, []);
+  return ref;
+}
+
 function Hero(): ReactNode {
   const {openSearch, prefetchSearch} = useOverlays();
+  const searchRef = useHeroSearchWatch();
   return (
     <section className={styles.hero} aria-labelledby="home-title">
       <p className={styles.notice}>
@@ -178,6 +208,7 @@ function Hero(): ReactNode {
             Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.
           </p>
           <button
+            ref={searchRef}
             type="button"
             className={styles.search}
             onClick={openSearch}
@@ -304,6 +335,7 @@ function HomeSidebar(): ReactNode {
   );
 }
 
+/** Every solution and product, as equal cards: a coloured band with the icon, the title and one line. */
 function ExploreFortanix(): ReactNode {
   return (
     <section className={styles.section} aria-labelledby="explore-heading">
@@ -313,28 +345,20 @@ function ExploreFortanix(): ReactNode {
       <ul className={styles.exploreGrid}>
         {featured.map((card) => (
           <li key={card.href}>
-            <Link to={card.href} className={styles.exploreCard} data-kind={card.kind}>
-              <span className={styles.cardTop}>
+            <Link to={card.href} className={styles.exploreCard} data-accent={card.accent}>
+              <span className={styles.cardBand} aria-hidden="true">
                 <span className={styles.cardIcon}>
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    {CARD_ICONS[card.icon]}
-                  </svg>
+                  <svg viewBox="0 0 24 24">{CARD_ICONS[card.icon]}</svg>
                 </span>
-                <span className={styles.cardKind}>{card.kind === 'product' ? 'Product' : 'Solution'}</span>
               </span>
-              <span className={styles.exploreTitle}>{card.title}</span>
-              <span className={styles.explorePath} title={card.path}>
-                {card.path}
+              <span className={styles.cardBody}>
+                <span className={styles.exploreTitle}>{card.title}</span>
+                <span className={styles.exploreLine}>{card.line}</span>
+                <span className={styles.cardMore}>
+                  Explore
+                  <ArrowIcon />
+                </span>
               </span>
-              <span className={styles.exploreLine}>{card.line}</span>
-              <span className={styles.tags}>
-                {card.tags.map((tag) => (
-                  <span key={tag} className={styles.tag}>
-                    {tag}
-                  </span>
-                ))}
-              </span>
-              <ArrowIcon />
             </Link>
           </li>
         ))}
@@ -346,6 +370,9 @@ function ExploreFortanix(): ReactNode {
 export default function Home(): ReactNode {
   return (
     <Layout title="Home" description="Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.">
+      <Head>
+        <html data-hero-search="" />
+      </Head>
       <div className={styles.layout}>
         <HomeSidebar />
         <div className={styles.content}>

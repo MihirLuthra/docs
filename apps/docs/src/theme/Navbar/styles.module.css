@@ -72,6 +72,20 @@
   border-color: var(--fx-card-hover-border);
 }
 
+/* The home page has its own large search box: the header's shows only once
+   that one has scrolled out of view (pages/index.tsx). Hidden, not removed,
+   so the header never shifts. */
+:global(html[data-hero-search]:not([data-hero-search-gone])) .searchTrigger {
+  visibility: hidden;
+  opacity: 0;
+}
+
+:global(html[data-hero-search]) .searchTrigger {
+  transition:
+    opacity var(--fx-duration-fast) var(--fx-ease),
+    visibility var(--fx-duration-fast) var(--fx-ease);
+}
+
 /* Clicked before the page finished loading; search opens once it has. */
 :global(html[data-search-pending]) .searchTrigger {
   border-color: var(--fx-focus);

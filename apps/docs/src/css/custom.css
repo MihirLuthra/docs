@@ -107,7 +107,7 @@
   --fx-content-top: 22px;
   /* The sidebar starts a little lower; +8px keeps that grid. */
   --fx-sidebar-top: calc(var(--fx-content-top) + 8px);
-  --fx-home-max: 1080px; /* home main column */ /* home right rail */
+  --fx-home-max: 1200px; /* home page content */
   --fx-section-gap: 28px;
   --fx-banner-py: 10px; /* two 1.3 lines (or the 40px icon) + 2 x 10 + border = ~64px banner */
   --fx-recent-card-h: 56px;
@@ -162,8 +162,9 @@
   --fx-hover: rgb(19 19 19 / 0.05);
   --fx-selected-bg: #f5edff;
   --fx-selected-text: #4b0a80;
-  --fx-speech-word-bg: #dcc2ff; /* the word being read aloud */
-  --fx-speech-word-text: #2b0650;
+  --fx-speech-word-bg: #e4d0ff; /* the marker behind the word being read aloud */
+  --fx-speech-word-text: #4a0a85;
+  --fx-speech-word-blend: multiply;
   --fx-focus: var(--fx-purple);
   --fx-accent-soft: #f7efff;
   --fx-accent-border: var(--fx-purple-light);
@@ -230,7 +231,22 @@
   --fx-text-lead: 1.0625rem;
   --fx-radius-hero: 20px;
   --fx-hero-search-h: 52px;
-  --fx-hero-art-w: 260px;
+  --fx-hero-art-w: 320px;
+  --fx-card-band-h: 104px;
+  --fx-card-icon-size: 56px;
+  /* Explore Fortanix card colours (the kind palette) */
+  --fx-card-violet: var(--fx-kind-solution);
+  --fx-card-violet-tint: var(--fx-kind-solution-tint);
+  --fx-card-blue: var(--fx-kind-product);
+  --fx-card-blue-tint: var(--fx-kind-product-tint);
+  --fx-card-teal: var(--fx-kind-reference);
+  --fx-card-teal-tint: var(--fx-kind-reference-tint);
+  --fx-card-green: var(--fx-kind-quickstart);
+  --fx-card-green-tint: var(--fx-kind-quickstart-tint);
+  --fx-card-amber: var(--fx-kind-concept);
+  --fx-card-amber-tint: var(--fx-kind-concept-tint);
+  --fx-card-rose: var(--fx-kind-tutorial);
+  --fx-card-rose-tint: var(--fx-kind-tutorial-tint);
   --fx-hero-bg: #fbf9ff;
   --fx-hero-border: #ece3fb;
   --fx-hero-glow-a: rgb(153 23 255 / 0.12);
@@ -302,8 +318,9 @@
   --fx-hover: rgb(255 255 255 / 0.06);
   --fx-selected-bg: #2c1640;
   --fx-selected-text: var(--fx-purple-light);
-  --fx-speech-word-bg: #5b2a91;
+  --fx-speech-word-bg: #4b2280;
   --fx-speech-word-text: #ffffff;
+  --fx-speech-word-blend: screen;
   --fx-focus: var(--fx-purple-light);
   --fx-accent-soft: #1f1230;
   --fx-accent-border: #4b1f75;
@@ -582,9 +599,44 @@ body {
     box-shadow var(--fx-duration-panel) var(--fx-ease);
 }
 
+/* The word being read: its text in a strong colour, over a rounded marker
+   that slides from word to word (Listen/Player.tsx). The marker is blended
+   into the page (multiply on light, screen on dark), so the text shows
+   through it. */
 ::highlight(fx-speech-word) {
-  background-color: var(--fx-speech-word-bg);
   color: var(--fx-speech-word-text);
+}
+
+.fx-speech-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  box-sizing: content-box;
+  margin: -1px 0 0 -3px;
+  padding: 1px 3px;
+  border-radius: var(--fx-radius-md);
+  background-color: var(--fx-speech-word-bg);
+  mix-blend-mode: var(--fx-speech-word-blend);
+  pointer-events: none;
+  transition:
+    transform var(--fx-duration-fast) var(--fx-ease-out),
+    width var(--fx-duration-fast) var(--fx-ease-out);
+}
+
+.fx-speech-marker[data-jump],
+.fx-speech-marker[hidden] {
+  transition: none;
+}
+
+.fx-speech-marker[hidden] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-speech-marker {
+    transition: none;
+  }
 }
 
 ::highlight(fx-speech-selection) {
