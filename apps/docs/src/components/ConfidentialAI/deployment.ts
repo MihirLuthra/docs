@@ -95,18 +95,6 @@ const STEPS: StepDef[] = [
     task: `${GUIDES}/day-0-plan-and-prepare/set-up-ccm#add-the-application`,
   },
   {
-    id: "ccm-consumer-account", phase: "day0", actor: "consumer", title: "Create a CCM account",
-    to: "ccm:consumer", when: separate,
-    text: (c) => `${c.Name("consumer")} gets its own Fortanix CCM account and creates a group in it, such as llm-serving. The infrastructure and the workload's certificates will belong to this account.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/set-up-ccm#create-the-consumers-group`,
-  },
-  {
-    id: "zone-ca", phase: "day0", actor: "consumer", title: "Share the zone CA",
-    from: "ccm:consumer", to: "dsm:owner", carries: "Zone CA certificate", when: model,
-    text: (c) => `${c.Name("consumer")} downloads the zone CA certificate of its CCM account${c.separate ? ` and sends it to ${c.name("owner")}` : ""}. DSM will trust workload certificates signed by this CA, and no others.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/set-up-ccm#share-the-zone-ca`,
-  },
-  {
     id: "dsm-account", phase: "day0", actor: "owner", title: "Create a DSM account",
     to: "dsm:owner", when: model,
     text: (c) => `${c.Name("owner")} gets a Fortanix DSM account and creates a group for the model, such as llama-chat-keys. The model's key will never leave it.`,
@@ -117,6 +105,18 @@ const STEPS: StepDef[] = [
     to: "dsm:owner", when: model,
     text: (c) => `${c.Name("owner")} creates an app with an API key in the group. It is used to encrypt the model, and its API key stays with the people who do that.`,
     task: `${GUIDES}/day-0-plan-and-prepare/set-up-dsm`,
+  },
+  {
+    id: "ccm-consumer-account", phase: "day0", actor: "consumer", title: "Create a CCM account",
+    to: "ccm:consumer", when: separate,
+    text: (c) => `${c.Name("consumer")} gets its own Fortanix CCM account and creates a group in it, such as llm-serving. The infrastructure and the workload's certificates will belong to this account.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/set-up-ccm#create-the-consumers-group`,
+  },
+  {
+    id: "zone-ca", phase: "day0", actor: "consumer", title: "Share the zone CA",
+    from: "ccm:consumer", to: "dsm:owner", carries: "Zone CA certificate", when: model,
+    text: (c) => `${c.Name("consumer")} downloads the zone CA certificate of its CCM account${c.separate ? ` and sends it to ${c.name("owner")}` : ""}. DSM will trust workload certificates from this CA, and only with the application's fortanix.cloud name.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/set-up-ccm#share-the-zone-ca`,
   },
   {
     id: "trust-app", phase: "day0", actor: "owner", title: "Create the Trusted CA app",
