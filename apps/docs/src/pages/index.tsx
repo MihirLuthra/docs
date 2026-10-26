@@ -1,28 +1,26 @@
 import {useEffect, useRef, useState, type ReactNode} from 'react';
-import Head from '@docusaurus/Head';
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
+import DocsTree from '@site/src/components/DocsTree';
 import {locate, useTree} from '@site/src/components/DocsTree/tree';
-import type {TreeNode} from '@site/src/components/DocsTree/types';
-import {useOverlays} from '@site/src/components/Overlays/context';
-import {featured, type FeaturedIcon, type FeaturedItem} from '@site/src/data/featured';
+import {docGroups, reference, startHere, type DocIcon, type DocSet} from '@site/src/data/featured';
+import {useFooterOverlap} from '@site/src/lib/footer-overlap';
 import {readRecents, writeRecents} from '@site/src/lib/recents';
-import {SEARCH_TRIGGER_ATTR} from '@site/src/lib/search-early';
 import styles from './index.module.css';
 
-// The home page (ux-spec.md, Home; D17). The first screen answers "what is
-// here": a dark hero with the title, the one search box and the pages you
-// read last, beside every product and solution. Below it, the whole docs
-// tree as a directory. All drawn with CSS and inline SVG: no images to load,
-// nothing that moves the page.
+// The home page (ux-spec.md, Home; D17): a page of the docs, laid out like
+// the others. The docs tree with "Go to page" on the left; the title, where
+// to start, every doc set grouped by topic with links to its main parts, and
+// reference pages in the middle; recently viewed pages on the right, where a
+// doc page has its table of contents.
 
 const stroke = {fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round'} as const;
 
-function CloseIcon(): ReactNode {
+function Icon({name}: {name: DocIcon}): ReactNode {
   return (
-    <svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="3" />
-    </svg>
+    <span className={styles.icon} aria-hidden="true">
+      <svg viewBox="0 0 24 24">{ICONS[name]}</svg>
+    </span>
   );
 }
 
@@ -34,25 +32,31 @@ function ArrowIcon(): ReactNode {
   );
 }
 
-function SearchIcon(): ReactNode {
+function ChevronIcon(): ReactNode {
   return (
-    <svg className={styles.searchIcon} viewBox="0 0 24 24" aria-hidden="true">
-      <circle {...stroke} strokeWidth={2.2} cx="11" cy="11" r="6.5" />
-      <path {...stroke} strokeWidth={2.2} d="M16 16l4.5 4.5" />
+    <svg className={styles.chevron} viewBox="0 0 24 24" aria-hidden="true">
+      <path {...stroke} strokeWidth={2.2} d="M9 6l6 6-6 6" />
     </svg>
   );
 }
 
-function InfoIcon(): ReactNode {
+function CloseIcon(): ReactNode {
   return (
-    <svg className={styles.noticeIcon} viewBox="0 0 24 24" aria-hidden="true">
-      <path {...stroke} strokeWidth={2} d="M12 3.5L2.5 20h19zM12 10v4.5M12 17.2v.3" />
+    <svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="3" />
     </svg>
   );
 }
 
-/** One icon per product or solution, on a tile in the brand gradient. */
-const CARD_ICONS: Record<FeaturedIcon, ReactNode> = {
+function PageIcon(): ReactNode {
+  return (
+    <svg className={styles.pageIcon} viewBox="0 0 24 24" aria-hidden="true">
+      <path {...stroke} d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h4" />
+    </svg>
+  );
+}
+
+const ICONS: Record<DocIcon, ReactNode> = {
   ai: (
     <>
       <rect {...stroke} x="6" y="6" width="12" height="12" rx="2.5" />
@@ -91,10 +95,26 @@ const CARD_ICONS: Record<FeaturedIcon, ReactNode> = {
       <path {...stroke} d="M3.5 19a5.5 5.5 0 0 1 11 0M15.5 5.6a3.2 3.2 0 0 1 0 6M17 13.6a5.5 5.5 0 0 1 3.5 5.4" />
     </>
   ),
-  insight: (
+  compass: (
     <>
-      <circle {...stroke} cx="10.5" cy="10.5" r="6.5" />
-      <path {...stroke} d="M15.3 15.3L20.5 20.5M7.5 12.5l2-2.5 2 1.5 2.5-3" />
+      <circle {...stroke} cx="12" cy="12" r="8.5" />
+      <path {...stroke} d="M15.5 8.5l-2 5-5 2 2-5z" />
+    </>
+  ),
+  notes: (
+    <>
+      <path {...stroke} d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h4" />
+    </>
+  ),
+  alert: (
+    <>
+      <path {...stroke} d="M12 3l8 3v5.5c0 4.5-3.3 8-8 9.5-4.7-1.5-8-5-8-9.5V6z" />
+      <path {...stroke} d="M12 8.5v4M12 15.5v.3" />
+    </>
+  ),
+  download: (
+    <>
+      <path {...stroke} d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14" />
     </>
   ),
   atom: (
@@ -107,44 +127,69 @@ const CARD_ICONS: Record<FeaturedIcon, ReactNode> = {
   ),
 };
 
-/**
- * The page has one search box showing at a time: the header's is hidden
- * (Navbar styles) while the hero's is in view. `data-home` comes with the
- * page's HTML, so the header's never flashes; `data-hero-search-gone` is set
- * once the hero's box scrolls under the header.
- */
-function useHeroSearchWatch() {
-  const ref = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    const root = document.documentElement;
-    if (!el || typeof IntersectionObserver === 'undefined') {
-      root.setAttribute('data-hero-search-gone', '');
-      return undefined;
-    }
-    const header = parseFloat(getComputedStyle(root).getPropertyValue('--fx-header-height')) || 56;
-    const io = new IntersectionObserver(([e]) => root.toggleAttribute('data-hero-search-gone', !e.isIntersecting), {
-      rootMargin: `-${header}px 0px 0px 0px`,
-    });
-    io.observe(el);
-    return () => {
-      io.disconnect();
-      root.removeAttribute('data-hero-search-gone');
-    };
-  }, []);
-  return ref;
+/** A page to go to: its icon, title and one line, all one link. */
+function PageCard({set}: {set: DocSet}): ReactNode {
+  return (
+    <Link to={set.href} className={styles.pageCard}>
+      <Icon name={set.icon} />
+      <span className={styles.cardText}>
+        <span className={styles.cardTitle}>{set.title}</span>
+        <span className={styles.cardLine}>{set.line}</span>
+      </span>
+      <ArrowIcon />
+    </Link>
+  );
+}
+
+/** A doc set: its overview (the head of the card) and links to its main parts. */
+function SetCard({set}: {set: DocSet}): ReactNode {
+  return (
+    <div className={styles.setCard}>
+      <Link to={set.href} className={styles.setHead}>
+        <Icon name={set.icon} />
+        <span className={styles.cardText}>
+          <span className={styles.cardTitle}>
+            {set.title}
+            <ArrowIcon />
+          </span>
+          <span className={styles.cardLine}>{set.line}</span>
+        </span>
+      </Link>
+      <ul className={styles.setLinks} aria-label={`${set.title}, main parts`}>
+        {(set.links ?? []).map((l) => (
+          <li key={l.href}>
+            <Link to={l.href} className={styles.setLink}>
+              <ChevronIcon />
+              {l.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function Section({id, title, children}: {id: string; title: string; children: ReactNode}): ReactNode {
+  return (
+    <section className={styles.section} aria-labelledby={id}>
+      <h2 id={id} className={styles.heading}>
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
 }
 
 /**
- * The pages read last, as one row of chips under the search box (newest
- * first; as many as fit). One row of fixed height whatever is stored, so
- * nothing moves when it fills in after loading.
+ * Recently viewed pages, newest first, in the right column (after the page's
+ * content on narrower screens). Filling in after loading moves nothing: on
+ * the right nothing is below it, and narrower it comes last.
  */
-function RecentStrip(): ReactNode {
+function RecentlyViewed(): ReactNode {
   const tree = useTree();
   // null until read from localStorage after hydration.
   const [paths, setPaths] = useState<string[] | null>(null);
-  const labelRef = useRef<HTMLSpanElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
@@ -164,26 +209,29 @@ function RecentStrip(): ReactNode {
     const next = (paths ?? []).filter((p) => p !== href);
     writeRecents(next);
     setPaths(next);
-    // Keep focus in the row: the next chip's ×, else the previous, else the label.
+    // Keep focus in the list: the next page's ×, else the previous, else the heading.
     requestAnimationFrame(() => {
       const buttons = listRef.current?.querySelectorAll<HTMLButtonElement>('button');
       const target = buttons?.[Math.min(index, buttons.length - 1)];
-      (target ?? labelRef.current)?.focus();
+      (target ?? headingRef.current)?.focus();
     });
   };
 
   return (
-    <div className={styles.recent}>
-      <span ref={labelRef} id="recent-label" className={styles.recentLabel} tabIndex={-1}>
+    <section className={styles.recent} aria-labelledby="recent-heading">
+      <h2 id="recent-heading" ref={headingRef} tabIndex={-1} className={styles.railHeading}>
         Recently viewed
-      </span>
-      {paths !== null && items.length === 0 && <span className={styles.recentEmpty}>Pages you open show up here.</span>}
+      </h2>
+      {paths !== null && items.length === 0 && <p className={styles.recentEmpty}>Pages you open show up here.</p>}
       {items.length > 0 && (
-        <ul ref={listRef} className={styles.recentList} aria-labelledby="recent-label">
+        <ul ref={listRef} className={styles.recentList}>
           {items.map((item, i) => (
-            <li key={item.href} className={styles.recentChip}>
+            <li key={item.href} className={styles.recentItem} style={{animationDelay: `${i * 40}ms`}}>
               <Link to={item.href} className={styles.recentLink} title={[...item.path, item.title].join(' / ')}>
-                {item.title}
+                <PageIcon />
+                <span className={styles.recentTitle}>{item.title}</span>
+                {/* The closest parent section; the full path is in the tooltip. */}
+                <span className={styles.recentPath}>{item.path[item.path.length - 1]}</span>
               </Link>
               <button
                 type="button"
@@ -196,175 +244,82 @@ function RecentStrip(): ReactNode {
           ))}
         </ul>
       )}
-    </div>
-  );
-}
-
-function CatalogItem({item}: {item: FeaturedItem}): ReactNode {
-  const inner = (
-    <>
-      <span className={styles.itemIcon} aria-hidden="true">
-        <svg viewBox="0 0 24 24">{CARD_ICONS[item.icon]}</svg>
-      </span>
-      <span className={styles.itemText}>
-        <span className={styles.itemTitle}>{item.title}</span>
-        <span className={styles.itemLine}>{item.line}</span>
-      </span>
-    </>
-  );
-  return item.href ? (
-    <Link to={item.href} className={styles.item}>
-      {inner}
-      <ArrowIcon />
-    </Link>
-  ) : (
-    <span className={styles.item} data-empty="">
-      {inner}
-    </span>
-  );
-}
-
-/** Every product and solution, in two columns: what Fortanix has, at a glance. */
-function Catalog(): ReactNode {
-  return (
-    <div className={styles.catalog}>
-      {featured.map((group) => (
-        <section key={group.title} className={styles.group} aria-labelledby={`group-${group.title}`}>
-          <h2 id={`group-${group.title}`} className={styles.groupTitle}>
-            {group.title}
-          </h2>
-          <p className={styles.groupLine}>{group.line}</p>
-          <ul className={styles.items}>
-            {group.items.map((item) => (
-              <li key={item.title}>
-                <CatalogItem item={item} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
-    </div>
-  );
-}
-
-function Hero(): ReactNode {
-  const {openSearch, prefetchSearch} = useOverlays();
-  const searchRef = useHeroSearchWatch();
-  return (
-    <section className={styles.hero} aria-labelledby="home-title">
-      <div className={styles.inner}>
-        <p className={styles.notice}>
-          <InfoIcon />
-          <span>
-            <strong>Proof of concept.</strong> Not official Fortanix documentation, and not reviewed or approved by
-            Fortanix. Confirm anything here with Fortanix before you rely on it.
-          </span>
-        </p>
-        <div className={styles.heroBody}>
-          <div className={styles.heroText}>
-            <h1 id="home-title" className={styles.title}>
-              <span className={styles.titleBrand}>Fortanix</span> Documentation
-            </h1>
-            <p className={styles.lead}>
-              Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.
-            </p>
-            <button
-              ref={searchRef}
-              type="button"
-              className={styles.search}
-              onClick={openSearch}
-              onPointerEnter={prefetchSearch}
-              onFocus={prefetchSearch}
-              {...{[SEARCH_TRIGGER_ATTR]: ''}}>
-              <SearchIcon />
-              <span className={styles.searchText}>Search the docs</span>
-              <kbd className={styles.searchKey}>/</kbd>
-            </button>
-            <RecentStrip />
-            <Link to="/get-familiar/what-fortanix-does" className={styles.start}>
-              New to Fortanix? Start here
-              <ArrowIcon />
-            </Link>
-          </div>
-          <Catalog />
-        </div>
-      </div>
     </section>
   );
 }
-
-/** The first page in a node: itself, or the first inside a folder (folders have no page, D10). */
-function firstPage(node: TreeNode): string | undefined {
-  if (node.href) return node.href;
-  for (const child of node.items ?? []) {
-    const href = firstPage(child);
-    if (href) return href;
-  }
-  return undefined;
-}
-
-/** A folder whose only page is one page: shown as that page, under the folder's name. */
-const single = (node: TreeNode) => node.items?.length === 1 && !!node.items[0].href;
 
 /**
- * The whole docs tree as a directory, one column per top-level section: its
- * pages and folders, and each folder's own (a folder links to its first
- * page). Folders with no pages yet are left out. Built from the tree, so it
- * never goes stale.
+ * The docs tree beside the page, as on doc pages. The column is as tall as
+ * the page; the scroller inside sticks under the header and ends above the
+ * footer.
  */
-function DocsDirectory(): ReactNode {
-  const columns = useTree().filter(firstPage);
-  const link = (node: TreeNode) => (
-    <Link to={firstPage(node)!} className={styles.dirLink}>
-      {node.label}
-    </Link>
-  );
+function HomeSidebar(): ReactNode {
+  const ref = useRef<HTMLDivElement>(null);
+  useFooterOverlap(ref);
   return (
-    <section className={styles.directory} aria-labelledby="directory-heading">
-      <div className={styles.inner}>
-        <h2 id="directory-heading" className={styles.heading}>
-          Browse all docs
-        </h2>
-        <div className={styles.dirGrid}>
-          {columns.map((column) => (
-            <nav key={column.label} className={styles.dirColumn} aria-label={column.label}>
-              <h3 className={styles.dirTitle}>{column.label}</h3>
-              <ul className={styles.dirList}>
-                {(column.items ?? []).filter(firstPage).map((node) =>
-                  node.items && !single(node) ? (
-                    <li key={node.label} className={styles.dirGroup}>
-                      <Link to={firstPage(node)!} className={styles.dirGroupLink}>
-                        {node.label}
-                      </Link>
-                      <ul className={styles.dirSub}>
-                        {node.items.filter(firstPage).map((child) => (
-                          <li key={child.label}>{link(child)}</li>
-                        ))}
-                      </ul>
-                    </li>
-                  ) : (
-                    <li key={node.label}>{link(node)}</li>
-                  ),
-                )}
-              </ul>
-            </nav>
-          ))}
+    <aside className={styles.sidebar}>
+      <div className={styles.sidebarFrame}>
+        <div ref={ref} className={styles.sidebarScroll}>
+          <DocsTree />
         </div>
       </div>
-    </section>
+    </aside>
   );
 }
 
 export default function Home(): ReactNode {
   return (
     <Layout title="Home" description="Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.">
-      <Head>
-        <html data-home="" />
-      </Head>
-      <main className={styles.home}>
-        <Hero />
-        <DocsDirectory />
-      </main>
+      <div className={styles.layout}>
+        <HomeSidebar />
+        <div className={styles.content}>
+          <main className={styles.main}>
+            <header className={styles.intro}>
+              <h1 className={styles.title}>Fortanix Documentation</h1>
+              <p className={styles.lead}>
+                Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.
+              </p>
+              <p className={styles.notice}>
+                <strong>Proof of concept.</strong> Not official Fortanix documentation, and not reviewed or approved by
+                Fortanix. Confirm anything here with Fortanix before you rely on it.
+              </p>
+            </header>
+
+            <Section id="start-heading" title="Start here">
+              <ul className={styles.startGrid}>
+                {startHere.map((set) => (
+                  <li key={set.href}>
+                    <PageCard set={set} />
+                  </li>
+                ))}
+              </ul>
+            </Section>
+
+            {docGroups.map((group, k) => (
+              <Section key={group.title} id={`group-${k}`} title={group.title}>
+                <ul className={group.sets.some((s) => s.links?.length) ? styles.setGrid : styles.pageGrid}>
+                  {group.sets.map((set) => (
+                    <li key={set.href}>{set.links?.length ? <SetCard set={set} /> : <PageCard set={set} />}</li>
+                  ))}
+                </ul>
+              </Section>
+            ))}
+
+            <Section id="reference-heading" title="Reference">
+              <ul className={styles.startGrid}>
+                {reference.map((set) => (
+                  <li key={set.href}>
+                    <PageCard set={set} />
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          </main>
+          <aside className={styles.rail}>
+            <RecentlyViewed />
+          </aside>
+        </div>
+      </div>
     </Layout>
   );
 }

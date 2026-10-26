@@ -1,76 +1,99 @@
 /**
- * Products and solutions in the home page's hero (ux-spec.md, Home): every
- * one with equal weight, in the order of the docs tree.
+ * The home page's paths into the docs (ux-spec.md, Home): where to start,
+ * every doc set grouped by topic, and reference pages. Each doc set links to
+ * its overview and to its main parts. Every href is a page in the docs tree
+ * (the build fails on a broken link).
  */
-export type FeaturedIcon = 'ai' | 'key' | 'token' | 'chip' | 'folder' | 'atom' | 'users' | 'insight';
+export type DocIcon = 'ai' | 'key' | 'token' | 'chip' | 'folder' | 'atom' | 'users' | 'compass' | 'notes' | 'alert' | 'download';
 
-export type FeaturedItem = {
-  icon: FeaturedIcon;
+export type DocLink = {label: string; href: string};
+
+export type DocSet = {
+  icon: DocIcon;
   title: string;
   line: string;
-  /** A page in the docs tree; none for a product with no pages yet. */
-  href?: string;
+  href: string;
+  /** Its main parts, beyond the overview. */
+  links?: DocLink[];
 };
 
-export type FeaturedGroup = {
-  title: string;
-  /** What the group is, in one line. */
-  line: string;
-  items: FeaturedItem[];
-};
+export type DocGroup = {title: string; sets: DocSet[]};
 
-// TODO(verify): item lines come from the N5 prototype; product claims need review.
-export const featured: FeaturedGroup[] = [
+const CAI = '/solutions/confidential-ai';
+const CC = '/products/fortanix-armor/confidential-computing';
+
+export const startHere: DocSet[] = [
   {
-    title: 'Products',
-    line: 'Fortanix Armor and its parts.',
-    items: [
+    icon: 'compass',
+    title: 'What Fortanix does',
+    line: 'What each product is for.',
+    href: '/get-familiar/what-fortanix-does',
+  },
+  {
+    icon: 'chip',
+    title: 'TEE technologies',
+    line: 'How TEEs keep code and data private.',
+    href: '/get-familiar/concepts/tee-technologies/intel-sgx',
+  },
+  {
+    icon: 'users',
+    title: 'Identity and access',
+    line: 'Accounts and groups in Armor.',
+    href: '/products/fortanix-armor/platform/identity-and-access-management/create-a-group',
+  },
+];
+
+// TODO(verify): set lines come from the N5 prototype; product claims need review.
+export const docGroups: DocGroup[] = [
+  {
+    title: 'Confidential computing and AI',
+    sets: [
       {
-        icon: 'users',
-        title: 'Platform',
-        line: 'Accounts, groups and access in Armor.',
-        href: '/products/fortanix-armor/platform/identity-and-access-management/create-a-group',
+        icon: 'ai',
+        title: 'Confidential AI',
+        line: 'Run AI models in TEEs and release keys only to attested workloads.',
+        href: `${CAI}/overview`,
+        links: [
+          {label: 'Use cases', href: `${CAI}/use-cases/proprietary-model`},
+          {label: 'Deploy and operate', href: `${CAI}/how-to-guides/overview`},
+          {label: 'Plan a deployment', href: `${CAI}/how-to-guides/day-0-plan-and-prepare/plan-a-deployment`},
+          {label: 'Support matrix', href: `${CAI}/support-matrix`},
+        ],
       },
       {
         icon: 'chip',
         title: 'Confidential Computing',
-        line: 'Verify workloads in TEEs before they get secrets.',
-        href: '/products/fortanix-armor/confidential-computing/overview',
+        line: 'Verify workloads in TEEs with CCM before they get secrets.',
+        href: `${CC}/overview`,
+        links: [
+          {label: 'CCM concepts', href: `${CC}/ccm/concepts`},
+          {label: 'Enrol an Intel TDX node', href: `${CC}/ccm/compute-nodes/enrol-an-intel-tdx-node`},
+          {label: 'Confidential Containers', href: `${CC}/workload-runtimes/confidential-containers/overview`},
+          {label: 'Enclave OS', href: `${CC}/workload-runtimes/enclave-os/overview`},
+        ],
       },
-      {
-        icon: 'insight',
-        title: 'Key Insight',
-        line: 'No pages yet.',
-      },
+    ],
+  },
+  {
+    title: 'Keys and data protection',
+    sets: [
       {
         icon: 'key',
         title: 'Data Security Manager',
         line: 'Generate, store and control keys.',
         href: '/products/fortanix-armor/data-security-manager/overview',
       },
-    ],
-  },
-  {
-    title: 'Solutions',
-    line: 'Built on the products, for one problem each.',
-    items: [
       {
-        icon: 'ai',
-        title: 'Confidential AI',
-        line: 'Protect models and data while they run on CPUs and GPUs.',
-        href: '/solutions/confidential-ai/overview',
+        icon: 'token',
+        title: 'Tokenization',
+        line: 'Replace sensitive fields with format-preserving tokens.',
+        href: '/solutions/tokenization/overview',
       },
       {
         icon: 'folder',
         title: 'File system encryption',
         line: 'Encrypt files on Linux and Windows with keys in DSM.',
         href: '/solutions/file-system-encryption/overview',
-      },
-      {
-        icon: 'token',
-        title: 'Tokenization',
-        line: 'Replace sensitive fields with format-preserving tokens.',
-        href: '/solutions/tokenization/overview',
       },
       {
         icon: 'atom',
@@ -80,4 +103,10 @@ export const featured: FeaturedGroup[] = [
       },
     ],
   },
+];
+
+export const reference: DocSet[] = [
+  {icon: 'notes', title: 'Release notes', line: 'What changed in each release.', href: '/release-notes'},
+  {icon: 'alert', title: 'Advisories', line: 'Security advisories.', href: '/advisories'},
+  {icon: 'download', title: 'Downloads', line: 'Software and tools to download.', href: '/downloads'},
 ];

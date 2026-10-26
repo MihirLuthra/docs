@@ -39,20 +39,23 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 ## Home
 
-D17: a landing page without the docs tree beside it. The first screen answers "what is here". Two full-width bands, each with its content centred (max 1200px, 48px gutters, 16px below 997px).
+D17: a page of the docs, in the same theme and layout as a doc page, so a reader lands in the documentation, not on a website. The first screen shows the paths into the docs.
 
-- **Header on Home:** the menu button shows at every width and opens the tree in the drawer (wide screens: without the header links, which the header already shows).
-- **One search box at a time.** The header's search is hidden while the hero's search box is in view, and fades in once it scrolls under the header. Hidden, not removed, so the header never shifts. **/** and **Ctrl K** work as everywhere.
-- **Colours:** the brand's only (dark grey, purple, blue and their gradient). No colour per item or per section.
-- Every product and solution has the same weight.
-- Everything is static CSS and inline SVG: no images to load, no layout shift.
+- **Grid:** sidebar (the docs tree with Home and "Go to page", as on doc pages) | main column (max 960px) | right column (248px, from 1280px wide) with Recently viewed, where a doc page has its table of contents. The main and right columns are centred together beside the sidebar. Narrower than 1280px, Recently viewed comes after the main column, in columns.
+- **Search:** the header's, as on every page. No second search box.
+- **Colours:** the docs' own tokens, light and dark. Icons sit on tiles in the selected tint with the brand purple; on hover the tile fills with purple.
+- Doc sets are grouped by topic, not as "products" and "solutions". Every doc set in a group looks the same.
+- No layout shift: Recently viewed fills in where nothing is below it (or last on the page).
 
-1. **Hero**, dark in both themes (#0e0b14 with a purple glow top left, a blue glow right, a fine grid fading out, a hairline of the brand gradient along the bottom). A slim **proof-of-concept notice** pill (amber on dark) above two columns:
-   - **Left:** the title, "Fortanix Documentation", up to 48px, white with "Fortanix" in the brand gradient; one lead line; a **large white search box** (56px, a soft purple ring) that opens the search panel, with its `/` key chip; **Recently viewed**; then **"New to Fortanix? Start here →"**, a text link to *What Fortanix does*.
-   - **Recently viewed** (localStorage, newest first, max 12): one row of chips after a small "Recently viewed" label, as many as fit (the rest wrap out of sight). Each chip is the page title (the full path in the tooltip) with a **×** to remove it; no "clear all". Empty: "Pages you open show up here." The row has a fixed height (30px), so it never moves the page as it fills in. Stored pages that no longer exist are dropped.
-   - **Right:** a translucent panel with two columns, **Products** ("Fortanix Armor and its parts") and **Solutions** ("Built on the products, for one problem each"), in the docs tree's order. Each item: a 36px icon tile in the brand gradient, the name, and one line (up to two lines, never cut with "…"); rows are at least 64px, so both columns line up. An arrow comes in on hover. A product with no pages yet (Key Insight) shows dimmed, "No pages yet", and isn't a link. The items come from `apps/docs/src/data/featured.ts`.
-   - Below 1101px the panel goes under the search; below 681px its columns stack. Phones: tighter padding, 32px title.
-2. **Browse all docs**: a band in a faint grey with the whole docs tree as a directory, built from the tree. One column per top-level section with pages (small capitals title); in it, its pages and folders, each folder with its own pages and folders listed under it. A folder links to its first page; a folder whose only content is one page shows as that page; folders with no pages yet are left out.
+1. **Title**: "Fortanix Documentation" (36px, 28px on phones), one lead line, then the **proof-of-concept notice** as a caution callout (amber bar on the left).
+2. **Start here**: three page cards (What Fortanix does, TEE technologies, Identity and access). A page card is one link: an icon tile, the title, one line; an arrow comes in on hover and the card lifts slightly. Three columns, fewer when narrow.
+3. **One section per topic** ("Confidential computing and AI", "Keys and data protection"), two columns:
+   - A doc set with main parts is a **set card**: its head (icon tile, title, one line) links to its overview; under a divider, on a faint grey, its main parts as links with a chevron (Confidential AI: Use cases, Deploy and operate, Plan a deployment, Support matrix. Confidential Computing: CCM concepts, Enrol an Intel TDX node, Confidential Containers, Enclave OS).
+   - A doc set with one page so far is a page card.
+4. **Reference**: Release notes, Advisories, Downloads as page cards.
+5. **Recently viewed** (right column; localStorage, newest first, max 12): a small capitals heading, then each page with a page icon, its title and its closest section (full path in the tooltip). The pages slide in one after another once read. Hover tints the row and nudges it right; a **×** shows on hover (always, faintly, on touch screens) to remove it; no "clear all". Empty: "Pages you open show up here." Stored pages that no longer exist are dropped.
+
+All the links come from `apps/docs/src/data/featured.ts`; each is a page in the tree (the build fails on a broken link).
 
 ## Search bar
 

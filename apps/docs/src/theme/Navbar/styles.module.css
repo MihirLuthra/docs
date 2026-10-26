@@ -72,20 +72,6 @@
   border-color: var(--fx-card-hover-border);
 }
 
-/* The home page has its own large search box: the header's shows only once
-   that one has scrolled out of view (pages/index.tsx). Hidden, not removed,
-   so the header never shifts. */
-:global(html[data-home]:not([data-hero-search-gone])) .searchTrigger {
-  visibility: hidden;
-  opacity: 0;
-}
-
-:global(html[data-home]) .searchTrigger {
-  transition:
-    opacity var(--fx-duration-fast) var(--fx-ease),
-    visibility var(--fx-duration-fast) var(--fx-ease);
-}
-
 /* Clicked before the page finished loading; search opens once it has. */
 :global(html[data-search-pending]) .searchTrigger {
   border-color: var(--fx-focus);
@@ -181,18 +167,6 @@
 
 .menuButton {
   display: none;
-}
-
-/* The home page has no docs tree beside it (D17): the menu opens it at any
-   width. Wide, the header shows its links, so the drawer doesn't repeat them. */
-:global(html[data-home]) .menuButton {
-  display: flex;
-}
-
-@media (min-width: 997px) {
-  .drawerLinks {
-    display: none;
-  }
 }
 
 @media (max-width: 996px) {

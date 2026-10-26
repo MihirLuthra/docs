@@ -1,27 +1,138 @@
-/* The home page (index.tsx; D17): full-width bands with the content centred
-   in them. 996px is Docusaurus's desktop breakpoint (media queries can't use
+/* The home page (index.tsx; D17): laid out like a doc page, in the same
+   theme. 996px is Docusaurus's desktop breakpoint (media queries can't use
    vars). */
 
-.home {
+.layout {
+  display: flex;
+  /* Fills the page down to the footer, so the sidebar column does too. */
   flex: 1 0 auto;
   width: 100%;
 }
 
-/* The content of a band, centred. */
-.inner {
+.sidebar {
+  position: relative;
+  flex: none;
+  width: var(--fx-sidebar-width);
+  border-right: var(--fx-border-width) solid var(--fx-border);
+}
+
+.sidebarFrame {
+  position: absolute;
+  inset: 0;
+}
+
+.sidebarScroll {
+  position: sticky;
+  top: var(--fx-header-height);
+  max-height: min(100%, calc(100vh - var(--fx-header-height) - var(--fx-footer-overlap, 0px)));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* The page and the right column, centred together beside the sidebar. */
+.content {
+  display: flex;
+  gap: var(--fx-rail-gap);
   box-sizing: border-box;
-  width: 100%;
-  max-width: calc(var(--fx-home-max) + 2 * var(--fx-home-gutter));
+  flex: 1;
+  min-width: 0;
+  max-width: calc(var(--fx-home-max) + var(--fx-rail-gap) + var(--fx-rail-width) + 2 * var(--fx-space-12));
   margin: 0 auto;
-  padding: 0 var(--fx-home-gutter);
+  padding: var(--fx-content-top) var(--fx-space-12) var(--fx-space-12);
+}
+
+.main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.rail {
+  flex: none;
+  width: var(--fx-rail-width);
+}
+
+/* ---------- Title ---------- */
+
+.intro {
+  margin-bottom: var(--fx-space-6);
+}
+
+.title {
+  margin: 0 0 var(--fx-space-2);
+  font-size: var(--fx-home-title-size);
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.lead {
+  margin: 0 0 var(--fx-space-4);
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-xl);
+  line-height: 1.55;
+}
+
+/* The proof-of-concept notice, as a caution callout. */
+.notice {
+  margin: 0;
+  padding: var(--fx-space-2) var(--fx-space-3);
+  border-left: 3px solid var(--fx-notice-accent);
+  border-radius: var(--fx-radius-md);
+  background-color: var(--fx-notice-bg);
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-sm);
+  line-height: 1.5;
+}
+
+.notice strong {
+  color: var(--fx-text);
+}
+
+/* ---------- Sections ---------- */
+
+.section {
+  margin-bottom: var(--fx-space-8);
 }
 
 .heading {
-  margin: 0 0 var(--fx-space-4);
-  font-size: var(--fx-text-home-heading);
+  margin: 0 0 var(--fx-space-3);
+  font-size: var(--fx-text-lg);
   font-weight: 700;
-  letter-spacing: -0.01em;
   line-height: 1.3;
+}
+
+.startGrid,
+.pageGrid,
+.setGrid,
+.setLinks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.startGrid li,
+.pageGrid li,
+.setGrid li,
+.setLinks li {
+  margin: 0;
+}
+
+.startGrid,
+.pageGrid,
+.setGrid {
+  display: grid;
+  gap: var(--fx-space-3);
+}
+
+/* At most 3 columns; fewer when narrower. */
+.startGrid {
+  grid-template-columns: repeat(auto-fit, minmax(max(min(100%, 15rem), calc((100% - 2 * var(--fx-space-3)) / 3)), 1fr));
+}
+
+/* At most 2 columns. */
+.pageGrid,
+.setGrid {
+  grid-template-columns: repeat(auto-fit, minmax(max(min(100%, 17rem), calc((100% - var(--fx-space-3)) / 2)), 1fr));
 }
 
 .arrow {
@@ -30,393 +141,71 @@
   height: var(--fx-space-4);
 }
 
-/* ---------- Hero: dark in both themes, like fortanix.com ---------- */
-
-.hero {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  padding: var(--fx-space-5) 0 var(--fx-home-hero-pb);
-  background:
-    radial-gradient(50% 80% at 8% 0%, var(--fx-home-hero-glow-a), transparent 70%),
-    radial-gradient(45% 70% at 92% 40%, var(--fx-home-hero-glow-b), transparent 70%),
-    var(--fx-home-hero-bg);
-  color: var(--fx-home-hero-text);
-}
-
-/* A fine grid that fades out towards the edges. */
-.hero::before {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--fx-home-hero-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--fx-home-hero-grid) 1px, transparent 1px);
-  background-size: var(--fx-space-10) var(--fx-space-10);
-  content: '';
-  mask-image: radial-gradient(70% 90% at 40% 30%, #000 20%, transparent 80%);
-}
-
-/* A hairline of the brand gradient along its bottom edge. */
-.hero::after {
-  position: absolute;
-  inset: auto 0 0;
-  height: 1px;
-  background: var(--fx-gradient);
-  content: '';
-  opacity: 0.6;
-}
-
-/* The proof-of-concept notice: a slim strip at the top. */
-.notice {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--fx-space-2);
-  width: fit-content;
-  max-width: 100%;
-  box-sizing: border-box;
-  margin: 0 0 var(--fx-space-8);
-  padding: var(--fx-space-1) var(--fx-space-3);
-  border: var(--fx-border-width) solid var(--fx-home-notice-border);
-  border-radius: var(--fx-radius-pill);
-  background-color: var(--fx-home-notice-bg);
-  color: var(--fx-home-hero-muted);
-  font-size: var(--fx-text-xs-plus);
-  line-height: 1.45;
-}
-
-.notice strong {
-  color: var(--fx-home-notice-accent);
-}
-
-.noticeIcon {
-  flex: none;
-  width: var(--fx-space-4);
-  height: var(--fx-space-4);
-  margin-top: 1px;
-  color: var(--fx-home-notice-accent);
-}
-
-/* The text and search on the left, the products and solutions on the right. */
-.heroBody {
+/* An icon on a tinted tile, in the brand's purple. */
+.icon {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr);
-  align-items: center;
-  gap: var(--fx-space-12);
-}
-
-.heroText {
-  min-width: 0;
-}
-
-.title {
-  margin: 0 0 var(--fx-space-3);
-  color: var(--fx-home-hero-text);
-  font-size: var(--fx-text-hero);
-  font-weight: 750;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-}
-
-.titleBrand {
-  background: var(--fx-gradient);
-  background-clip: text;
-  color: transparent;
-}
-
-.lead {
-  margin: 0 0 var(--fx-space-6);
-  color: var(--fx-home-hero-muted);
-  font-size: var(--fx-text-lead);
-  line-height: 1.55;
-}
-
-/* Search, as a large box: opens the site's search panel. */
-.search {
-  display: flex;
-  align-items: center;
-  gap: var(--fx-space-3);
-  box-sizing: border-box;
-  width: 100%;
-  height: var(--fx-hero-search-h);
-  padding: 0 var(--fx-space-2) 0 var(--fx-space-4);
-  border: var(--fx-border-width) solid transparent;
-  border-radius: var(--fx-radius-xl);
-  background: var(--fx-home-search-bg);
-  box-shadow: var(--fx-home-search-shadow);
-  color: var(--fx-home-search-text);
-  font: inherit;
-  font-size: var(--fx-text-md);
-  cursor: text;
-  transition: box-shadow var(--fx-duration-fast) var(--fx-ease);
-}
-
-.search:hover {
-  box-shadow: var(--fx-home-search-shadow-hover);
-}
-
-.search:focus-visible {
-  outline: var(--fx-focus-width) solid var(--fx-home-hero-focus);
-  outline-offset: 3px;
-}
-
-.searchIcon {
   flex: none;
-  width: var(--fx-space-5);
-  height: var(--fx-space-5);
-  color: var(--fx-purple);
-}
-
-.searchText {
-  flex: 1;
-  text-align: left;
-}
-
-.searchKey {
-  padding: 0 var(--fx-space-2);
-  border: var(--fx-border-width) solid var(--fx-home-search-key-border);
-  border-radius: var(--fx-radius-sm);
-  background: transparent;
-  box-shadow: none;
-  color: var(--fx-home-search-text);
-  font-family: var(--fx-font-mono);
-  font-size: var(--fx-text-xs);
-  line-height: 1.7;
-}
-
-/* Recently viewed: one row of chips of fixed height, as many as fit (the
-   rest wrap out of sight), so nothing moves when it fills in. */
-.recent {
-  display: flex;
-  align-items: center;
-  gap: var(--fx-space-3);
-  height: var(--fx-home-recent-h);
-  margin-top: var(--fx-space-4);
-  overflow: hidden;
-}
-
-.recentLabel {
-  flex: none;
-  color: var(--fx-home-hero-dim);
-  font-size: var(--fx-text-xs);
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.recentLabel:focus {
-  outline: none;
-}
-
-.recentEmpty {
-  color: var(--fx-home-hero-dim);
-  font-size: var(--fx-text-sm);
-}
-
-.recentList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--fx-space-2);
-  min-width: 0;
-  height: var(--fx-home-recent-h);
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  list-style: none;
-}
-
-.recentChip {
-  display: flex;
-  align-items: center;
-  height: var(--fx-home-recent-h);
-  box-sizing: border-box;
-  margin: 0;
-  border: var(--fx-border-width) solid var(--fx-home-hero-line);
-  border-radius: var(--fx-radius-pill);
-  background: var(--fx-home-hero-chip);
+  place-items: center;
+  width: var(--fx-home-icon-size);
+  height: var(--fx-home-icon-size);
+  border-radius: var(--fx-radius-lg);
+  background: var(--fx-selected-bg);
+  color: var(--fx-brand-text);
   transition:
     background-color var(--fx-duration-fast) var(--fx-ease),
-    border-color var(--fx-duration-fast) var(--fx-ease);
+    color var(--fx-duration-fast) var(--fx-ease);
 }
 
-.recentChip:hover {
-  border-color: var(--fx-home-hero-line-strong);
-  background: var(--fx-home-hero-chip-hover);
-}
-
-.recentLink {
-  max-width: 14rem;
-  overflow: hidden;
-  padding: 0 var(--fx-space-1) 0 var(--fx-space-3);
-  color: var(--fx-home-hero-text);
-  font-size: var(--fx-text-sm);
-  font-weight: 500;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.recentLink:hover {
-  color: var(--fx-home-hero-text);
-  text-decoration: none;
-}
-
-.remove {
-  display: grid;
-  place-items: center;
-  width: var(--fx-space-6);
-  height: var(--fx-space-6);
-  margin-right: var(--fx-space-1);
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--fx-home-hero-dim);
-  cursor: pointer;
-}
-
-.remove:hover {
-  background: var(--fx-home-hero-chip-hover);
-  color: var(--fx-home-hero-text);
-}
-
-.start {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--fx-space-2);
-  margin-top: var(--fx-space-5);
-  color: var(--fx-home-hero-text);
-  font-size: var(--fx-text-sm);
-  font-weight: 600;
-}
-
-.start:hover {
-  color: var(--fx-home-hero-text);
-}
-
-.start .arrow {
-  transition: transform var(--fx-duration-fast) var(--fx-ease);
-}
-
-.start:hover .arrow {
-  transform: translateX(3px);
-}
-
-/* ---------- Products and solutions, in the hero ---------- */
-
-.catalog {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--fx-space-6);
-  padding: var(--fx-space-6);
-  border: var(--fx-border-width) solid var(--fx-home-panel-border);
-  border-radius: var(--fx-radius-2xl);
-  background: var(--fx-home-panel-bg);
-  box-shadow: var(--fx-home-panel-shadow);
-  backdrop-filter: blur(12px);
-}
-
-.group {
-  min-width: 0;
-}
-
-.groupTitle {
-  margin: 0 0 var(--fx-space-1);
-  color: var(--fx-home-hero-text);
-  font-size: var(--fx-text-md);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.groupLine {
-  margin: 0 0 var(--fx-space-3);
-  color: var(--fx-home-hero-dim);
-  font-size: var(--fx-text-xs-plus);
-  line-height: 1.45;
-}
-
-.items {
-  margin: 0 calc(-1 * var(--fx-space-2));
-  padding: 0;
-  list-style: none;
-}
-
-.items li {
-  margin: 0;
-}
-
-/* One product or solution: its icon, its name and one line. */
-.item {
-  display: flex;
-  align-items: center;
-  gap: var(--fx-space-3);
-  box-sizing: border-box;
-  /* Room for a name and two lines, so the two columns' rows line up. */
-  min-height: var(--fx-home-item-h);
-  padding: var(--fx-space-2);
-  border-radius: var(--fx-radius-lg);
-  color: var(--fx-home-hero-text);
-  transition: background-color var(--fx-duration-fast) var(--fx-ease);
-}
-
-a.item:hover {
-  background: var(--fx-home-item-hover);
-  color: var(--fx-home-hero-text);
-  text-decoration: none;
-}
-
-.item[data-empty] {
-  opacity: 0.5;
-}
-
-.itemIcon {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: var(--fx-home-item-icon);
-  height: var(--fx-home-item-icon);
-  border-radius: var(--fx-radius-lg);
-  background: var(--fx-home-icon-bg);
-  box-shadow: var(--fx-home-icon-shadow);
-  color: var(--fx-white);
-}
-
-.item[data-empty] .itemIcon {
-  background: var(--fx-home-hero-chip-hover);
-  box-shadow: none;
-}
-
-.itemIcon svg {
+.icon svg {
   width: var(--fx-space-5);
   height: var(--fx-space-5);
 }
 
-.itemText {
+.cardText {
   display: flex;
   flex: 1;
   flex-direction: column;
+  gap: 2px;
   min-width: 0;
 }
 
-.itemTitle {
-  font-size: var(--fx-text-md);
-  font-weight: 600;
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-2);
+  color: var(--fx-text);
+  font-size: var(--fx-text-body);
+  font-weight: 650;
   line-height: 1.35;
 }
 
-/* Up to two lines, so a line never ends in "…" at usual widths. */
-.itemLine {
-  display: -webkit-box;
-  overflow: hidden;
-  color: var(--fx-home-hero-muted);
-  font-size: var(--fx-text-xs-plus);
-  line-height: 1.45;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+.cardLine {
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-md);
+  line-height: 1.5;
 }
 
-.item > .arrow {
-  color: var(--fx-home-hero-muted);
+/* ---------- A page card: one link ---------- */
+
+.pageCard {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-3);
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--fx-space-3) var(--fx-space-4);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-card);
+  background: var(--fx-bg);
+  color: var(--fx-text);
+  transition:
+    border-color var(--fx-duration-fast) var(--fx-ease),
+    box-shadow var(--fx-duration-fast) var(--fx-ease),
+    transform var(--fx-duration-fast) var(--fx-ease);
+}
+
+.pageCard > .arrow {
+  color: var(--fx-brand-text);
   opacity: 0;
   transform: translateX(-4px);
   transition:
@@ -424,43 +213,118 @@ a.item:hover {
     transform var(--fx-duration-fast) var(--fx-ease);
 }
 
-a.item:hover > .arrow,
-a.item:focus-visible > .arrow {
+.pageCard:hover {
+  border-color: var(--fx-card-hover-border);
+  box-shadow: var(--fx-shadow-card);
+  color: var(--fx-text);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.pageCard:hover > .arrow,
+.pageCard:focus-visible > .arrow {
   opacity: 1;
   transform: none;
 }
 
-.search:focus-visible,
-.start:focus-visible,
-.recentLink:focus-visible,
-.remove:focus-visible,
-a.item:focus-visible {
-  outline: var(--fx-focus-width) solid var(--fx-home-hero-focus);
-  outline-offset: 2px;
+.pageCard:hover .icon,
+.setHead:hover .icon {
+  background: var(--fx-brand-text);
+  color: var(--fx-bg);
 }
 
-/* ---------- Browse all docs: the tree as a directory ---------- */
+/* ---------- A doc set: its overview, then its main parts ---------- */
 
-.directory {
-  padding: var(--fx-home-section-gap) 0;
+.setCard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-card);
+  background: var(--fx-bg);
+  transition: border-color var(--fx-duration-fast) var(--fx-ease);
+}
+
+.setCard:hover {
+  border-color: var(--fx-border-strong);
+}
+
+.setHead {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fx-space-3);
+  padding: var(--fx-space-4);
+  color: var(--fx-text);
+}
+
+.setHead:hover {
+  color: var(--fx-text);
+  text-decoration: none;
+}
+
+.setHead .arrow {
+  color: var(--fx-brand-text);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity var(--fx-duration-fast) var(--fx-ease),
+    transform var(--fx-duration-fast) var(--fx-ease);
+}
+
+.setHead:hover .arrow,
+.setHead:focus-visible .arrow {
+  opacity: 1;
+  transform: none;
+}
+
+.setLinks {
+  flex: 1;
+  padding: var(--fx-space-2);
   border-top: var(--fx-border-width) solid var(--fx-border);
-  background: var(--fx-home-band-bg);
+  background: var(--fx-surface);
 }
 
-.dirGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
-  gap: var(--fx-space-8) var(--fx-space-10);
+.setLink {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-2);
+  padding: var(--fx-space-1) var(--fx-space-2);
+  border-radius: var(--fx-radius-md);
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-md);
+  line-height: 1.6;
 }
 
-.dirColumn {
-  min-width: 0;
+.setLink:hover {
+  background: var(--fx-hover);
+  color: var(--fx-link);
+  text-decoration: none;
 }
 
-.dirTitle {
-  margin: 0 0 var(--fx-space-3);
-  padding-bottom: var(--fx-space-2);
-  border-bottom: var(--fx-border-width) solid var(--fx-border);
+.chevron {
+  flex: none;
+  width: var(--fx-space-3);
+  height: var(--fx-space-3);
+  color: var(--fx-text-muted);
+  transition: transform var(--fx-duration-fast) var(--fx-ease);
+}
+
+.setLink:hover .chevron {
+  color: var(--fx-link);
+  transform: translateX(2px);
+}
+
+/* ---------- Recently viewed, in the right column ---------- */
+
+.recent {
+  position: sticky;
+  top: calc(var(--fx-header-height) + var(--fx-content-top));
+}
+
+.railHeading {
+  margin: 0 0 var(--fx-space-2);
   color: var(--fx-text-muted);
   font-size: var(--fx-text-xs);
   font-weight: 700;
@@ -468,110 +332,185 @@ a.item:focus-visible {
   text-transform: uppercase;
 }
 
-.dirList,
-.dirSub {
+.railHeading:focus {
+  outline: none;
+}
+
+.recentEmpty {
   margin: 0;
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-sm);
+}
+
+.recentList {
+  display: grid;
+  gap: 2px;
+  margin: 0 calc(-1 * var(--fx-space-2));
   padding: 0;
   list-style: none;
 }
 
-.dirList > li + li {
-  margin-top: var(--fx-space-2);
+/* Each page slides in, one after another, once they are read from storage. */
+.recentItem {
+  position: relative;
+  margin: 0;
+  animation: fx-recent-in var(--fx-duration-panel) var(--fx-ease-out) backwards;
 }
 
-.dirGroup {
-  padding-top: var(--fx-space-1);
+@keyframes fx-recent-in {
+  from {
+    opacity: 0;
+    transform: translateX(6px);
+  }
 }
 
-.dirGroupLink {
+/* A page icon, then the title over its section. */
+.recentLink {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: var(--fx-space-2);
+  padding: var(--fx-space-2) var(--fx-space-8) var(--fx-space-2) var(--fx-space-2);
+  border-radius: var(--fx-radius-lg);
   color: var(--fx-text);
+  transition:
+    background-color var(--fx-duration-fast) var(--fx-ease),
+    transform var(--fx-duration-fast) var(--fx-ease);
+}
+
+.recentLink:hover {
+  background: var(--fx-hover);
+  color: var(--fx-text);
+  text-decoration: none;
+  transform: translateX(2px);
+}
+
+.pageIcon {
+  grid-row: 1 / 3;
+  box-sizing: border-box;
+  width: var(--fx-space-8);
+  height: var(--fx-space-8);
+  padding: 6px;
+  border-radius: var(--fx-radius-md);
+  background: var(--fx-selected-bg);
+  color: var(--fx-brand-text);
+}
+
+.recentTitle,
+.recentPath {
+  overflow: hidden;
+  line-height: 1.35;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.recentTitle {
   font-size: var(--fx-text-md);
   font-weight: 600;
 }
 
-.dirSub {
-  margin: var(--fx-space-1) 0 var(--fx-space-2);
-  padding-left: var(--fx-space-3);
-  border-left: var(--fx-border-width) solid var(--fx-border);
+.recentPath {
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-xs);
 }
 
-.dirSub li + li {
-  margin-top: var(--fx-space-1);
-}
-
-.dirLink {
+.remove {
+  position: absolute;
+  top: 50%;
+  right: var(--fx-space-2);
+  display: grid;
+  place-items: center;
+  width: var(--fx-space-6);
+  height: var(--fx-space-6);
+  padding: 0;
+  border: 0;
+  border-radius: var(--fx-radius-md);
+  background: transparent;
   color: var(--fx-text-secondary);
-  font-size: var(--fx-text-md);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity var(--fx-duration-fast) var(--fx-ease);
 }
 
-.dirList > li > .dirLink {
-  color: var(--fx-text);
-  font-weight: 600;
+.recentItem:hover .remove,
+.remove:focus-visible {
+  opacity: 1;
 }
 
-.dirLink:hover,
-.dirGroupLink:hover {
-  color: var(--fx-link);
+.remove:hover {
+  background: var(--fx-chip);
 }
 
-.dirLink:focus-visible,
-.dirGroupLink:focus-visible {
+/* Touch screens have no hover: the × always shows, faintly. */
+@media (hover: none) {
+  .remove {
+    opacity: 0.6;
+  }
+}
+
+.pageCard:focus-visible,
+.setHead:focus-visible,
+.setLink:focus-visible,
+.recentLink:focus-visible,
+.remove:focus-visible {
   outline: var(--fx-focus-width) solid var(--fx-focus);
   outline-offset: 2px;
 }
 
 /* ---------- Narrower screens ---------- */
 
-/* The products and solutions go under the search. */
-@media (max-width: 1100px) {
-  .heroBody {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--fx-space-8);
+/* No room for the right column: recently viewed comes last, after the page,
+   in columns. */
+@media (max-width: 1279px) {
+  .content {
+    display: block;
   }
 
-  .heroText {
-    max-width: 40rem;
+  .rail {
+    width: auto;
+  }
+
+  .recent {
+    position: static;
+  }
+
+  .recentList {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
   }
 }
 
 @media (max-width: 996px) {
-  .inner {
-    padding: 0 var(--fx-space-4);
+  .sidebar {
+    display: none;
   }
-}
 
-@media (max-width: 680px) {
-  .catalog {
-    grid-template-columns: minmax(0, 1fr);
-    padding: var(--fx-space-4);
+  .content {
+    padding: var(--fx-content-top) var(--fx-space-4) var(--fx-space-8);
   }
 }
 
 @media (max-width: 575px) {
-  .hero {
-    padding: var(--fx-space-4) 0 var(--fx-space-8);
-  }
-
-  .notice {
-    margin-bottom: var(--fx-space-6);
-    border-radius: var(--fx-radius-lg);
-  }
-
   .title {
-    font-size: var(--fx-text-hero-sm);
+    font-size: var(--fx-title-size);
   }
 
   .lead {
-    font-size: var(--fx-text-md);
+    font-size: var(--fx-text-body);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .search,
-  .recentChip,
-  .item,
-  .item > .arrow,
-  .start .arrow {
+  .recentItem {
+    animation: none;
+  }
+
+  .icon,
+  .pageCard,
+  .pageCard > .arrow,
+  .setHead .arrow,
+  .chevron,
+  .recentLink {
     transition: none;
   }
 }
