@@ -75,7 +75,7 @@ export const SCENARIOS: Scenario[] = [
       "The customer's data, from the host software and its administrators.",
     ],
     keyRelease: "required",
-    keyNote: "The vendor keeps the model encryption key in DSM. DSM releases it into the TEE only for the vendor's approved model.",
+    keyNote: "The vendor keeps the model encryption key in DSM. DSM releases it only into the TEE of an attested workload running the vendor's approved model, so the customer's administrators never see the key or the weights.",
   },
   {
     id: "vendor-ncp-enterprise",
@@ -94,7 +94,7 @@ export const SCENARIOS: Scenario[] = [
       "The customer's prompts and data, from the NCP's hosts and administrators.",
     ],
     keyRelease: "required",
-    keyNote: "The vendor keeps the model encryption key in DSM. DSM releases it into the TEE only for the approved model, so neither the NCP nor the enterprise can get it.",
+    keyNote: "The vendor keeps the model encryption key in DSM. DSM releases it only into the TEE of an attested workload running the vendor's approved model. The key and the decrypted weights exist only inside the TEE, so neither the NCP nor the vendor's customer can read them.",
   },
   {
     id: "inhouse-own",
@@ -130,7 +130,7 @@ export const SCENARIOS: Scenario[] = [
       "The model weights and the data, from the cloud or NCP's hosts and administrators.",
     ],
     keyRelease: "required",
-    keyNote: "The weights stay encrypted, so the cloud or NCP only ever stores ciphertext. DSM releases the key into the TEE only for the approved model.",
+    keyNote: "The weights stay encrypted, so the cloud or NCP only ever stores ciphertext. DSM releases the key only into the TEE of an attested workload running the approved model.",
   },
   {
     id: "oss-ncp",

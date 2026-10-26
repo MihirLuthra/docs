@@ -203,13 +203,13 @@ const STEPS: StepDef[] = [
   {
     id: "evidence", phase: "day1", actor: "consumer", title: "Attest to CCM",
     from: "infra", to: "ccm:consumer", carries: "Evidence",
-    text: () => "Inside the TEE, the workload sends signed evidence from the CPU and the GPU to CCM. CCM checks the hardware and compares the measurements with the approved build.",
+    text: () => "Inside the TEE, the workload generates a key pair and sends CCM a certificate signing request for it, with composite attestation evidence from the CPU TEE and each GPU. CCM checks the hardware and compares the measurements with the approved build.",
     task: `${GUIDES}/day-1-deploy/deploy-and-verify#verify-attestation`,
   },
   {
     id: "certificate", phase: "day1", actor: "consumer", title: "Get the certificate",
     from: "ccm:consumer", to: "infra", carries: "Certificate",
-    text: () => "CCM issues the workload a TLS certificate for its approved domain, signed by the zone CA. A workload with other measurements gets none.",
+    text: () => "CCM verifies the composite attestation of the CPU TEE and the GPUs, then issues the workload a TLS certificate for its approved domain. A workload with other measurements gets none.",
     task: `${GUIDES}/day-1-deploy/deploy-and-verify#verify-attestation`,
   },
   {

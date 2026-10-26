@@ -3,8 +3,9 @@ import "./styles.css";
 import { charsFor, fit, textWidth, wrap } from "./scene";
 
 // How Confidential AI works, as a scene in the style of DeploymentFlow:
-// run in a TEE, get a certificate from CCM for an approved workload and,
-// when the workload needs one, get the model key from DSM over mutual TLS.
+// run in a TEE, attest to CCM (composite: the CPU TEE and the GPUs) and get
+// a certificate and, when the workload needs one, get a key from DSM over
+// mutual TLS.
 // An intro, so it stays simple: one workload, two services, short steps.
 //
 // CCM and DSM are on the top row. The host is below, untrusted, with the TEE
@@ -16,6 +17,9 @@ import { charsFor, fit, textWidth, wrap } from "./scene";
 // Props
 //   keyRelease: "toggle" (default) lets the reader choose; "required" or "optional" fixes the path.
 //   initialKey: the starting choice when keyRelease="toggle" (default true).
+//   keyFor: what the key from DSM opens: "model" (default), the model
+//     weights; "storage", encrypted storage the workload reads, such as
+//     documents for retrieval (an open model's weights need no key).
 
 type Spot = "ccm" | "dsm" | "tee" | "workload";
 
@@ -34,34 +38,50 @@ const MEASUREMENT = "9c2e…41a7";
 const COMMON: Step[] = [
   {
     id: "run", focus: "tee", title: "Run inside a TEE",
-    text: "The model workload starts in a trusted execution environment, with the GPU in confidential computing mode. The TEE records its measurement, a fingerprint of exactly what is running. The host cannot read or change anything inside it.",
+    text: "The model workload starts in a trusted execution environment, with its GPUs in confidential computing mode. The TEE records its measurement, a fingerprint of exactly what is running. The host cannot read or change anything inside it.",
   },
   {
     id: "evidence", focus: "ccm", from: "workload", carries: "Evidence", title: "Ask CCM for a certificate",
-    text: "The workload creates a key pair inside the TEE and asks CCM to certify it. With the request, it sends signed evidence from the CPU and GPU that includes its measurement.",
+    text: "The workload generates a key pair inside the TEE and sends CCM a certificate signing request for it. The request carries composite attestation evidence, signed by the CPU TEE and by each GPU, that includes the workload's measurement.",
   },
   {
-    id: "verify", focus: "ccm", title: "CCM verifies",
-    text: "CCM checks that the hardware is genuine, that the platform is up to date, and that the measurement matches an approved model.",
+    id: "verify", focus: "ccm", title: "CCM verifies the attestation",
+    text: "CCM checks the evidence from the CPU TEE and every GPU together. The hardware must be genuine, the platform up to date and configured as policy requires, and the measurement must match an approved workload.",
   },
   {
     id: "cert", focus: "workload", from: "ccm", carries: "Certificate", title: "CCM issues a certificate",
-    text: "If every check passes, CCM signs the workload's certificate with its zone CA. A modified workload has a different measurement and gets no certificate.",
+    text: "If every check passes, CCM issues the workload a certificate for its key pair. A modified workload, or a GPU outside confidential computing mode, fails the checks and gets no certificate.",
   },
 ];
 
-const WITH_KEY: Step[] = [
+type KeyFor = "model" | "storage";
+
+// What the key opens, in each place the scene names it.
+const KEY_TEXT = {
+  model: {
+    name: "Model encryption key", short: "Model key", choose: "Gets the model key from DSM",
+    locked: "Model weights encrypted", open: "Model weights decrypted, serving requests",
+    serve: "The workload decrypts the model weights inside the TEE and serves requests.",
+  },
+  storage: {
+    name: "Storage encryption key", short: "Storage key", choose: "Gets a storage key from DSM",
+    locked: "Storage encrypted", open: "Storage opened, serving requests",
+    serve: "The workload opens the encrypted storage inside the TEE, for example the documents it retrieves from, and serves requests.",
+  },
+} satisfies Record<KeyFor, Record<string, string>>;
+
+const withKey = (k: KeyFor): Step[] => [
   {
     id: "present", focus: "dsm", from: "workload", carries: "Mutual TLS", title: "Connect to DSM",
-    text: "The workload connects to DSM over mutual TLS with its certificate. DSM trusts the CCM zone CA, so it knows this is an approved workload.",
+    text: "The workload connects to DSM over mutual TLS with its certificate. DSM trusts certificates that CCM issues, so it knows this is an attested, approved workload.",
   },
   {
-    id: "key", focus: "workload", from: "dsm", carries: "Model key", title: "DSM releases the key",
-    text: "DSM sends the model key straight into the TEE. No other workload can get it.",
+    id: "key", focus: "workload", from: "dsm", carries: KEY_TEXT[k].short, title: "DSM releases the key",
+    text: `DSM sends the ${KEY_TEXT[k].short.toLowerCase()} straight into the TEE. No other workload can get it.`,
   },
   {
-    id: "serve", focus: "workload", title: "Decrypt and serve",
-    text: "The workload decrypts the model weights inside the TEE and serves requests.",
+    id: "serve", focus: "workload", title: k === "model" ? "Decrypt and serve" : "Open and serve",
+    text: KEY_TEXT[k].serve,
   },
 ];
 
@@ -72,8 +92,8 @@ const WITHOUT_KEY: Step[] = [
   },
 ];
 
-const CHIPS = ["Memory encrypted", "CPU TEE", "GPU in confidential computing mode", "CPU to GPU traffic encrypted"];
-const CHECKS = ["Genuine TEE hardware", "Platform up to date", "Approved model measurement"];
+const CHIPS = ["Memory encrypted", "CPU TEE", "GPUs in confidential computing mode", "CPU to GPU traffic encrypted"];
+const CHECKS = ["Genuine CPU TEE and GPUs", "Platform up to date", "Approved measurement"];
 const HOST = "The host operating system, hypervisor and administrators cannot read or change what runs inside the TEE";
 
 // ---------- Layout ----------
@@ -186,13 +206,16 @@ const Icon = ({ name, x, y, size = 15, className = "" }: { name: keyof typeof IC
 export function AttestationFlow({
   keyRelease = "toggle",
   initialKey = true,
+  keyFor = "model",
 }: {
   keyRelease?: "toggle" | "required" | "optional";
   initialKey?: boolean;
+  keyFor?: KeyFor;
 }) {
+  const kt = KEY_TEXT[keyFor];
   const uid = useId().replace(/:/g, "");
   const [needsKey, setNeedsKey] = useState(keyRelease === "toggle" ? initialKey : keyRelease === "required");
-  const variants = useMemo(() => ({ key: [...COMMON, ...WITH_KEY], none: [...COMMON, ...WITHOUT_KEY] }), []);
+  const variants = useMemo(() => ({ key: [...COMMON, ...withKey(keyFor)], none: [...COMMON, ...WITHOUT_KEY] }), [keyFor]);
   const steps = needsKey ? variants.key : variants.none;
   const [index, setIndex] = useState(0);
   const i = Math.min(index, steps.length - 1);
@@ -261,7 +284,7 @@ export function AttestationFlow({
   };
 
   const ccmBody = (r: R) => {
-    const status = certified ? "Certificate issued" : verified ? "Matches an approved model" : sent ? "Received the evidence" : "";
+    const status = certified ? "Certificate issued" : verified ? "Attestation verified" : sent ? "Received the evidence" : "";
     return (
       <>
         {CHECKS.map((c, k) => {
@@ -285,7 +308,7 @@ export function AttestationFlow({
     needsKey ? (
       <>
         <Icon name={keyed ? "unlock" : "lock"} x={r.x + 11} y={r.y + 35} size={14} className="is-dsm" />
-        <text x={r.x + 32} y={r.y + 46} className="cai-s-item">Model encryption key</text>
+        <text x={r.x + 32} y={r.y + 46} className="cai-s-item">{kt.name}</text>
         <text x={r.x + 32} y={r.y + 62} className="cai-s-muted" {...fit("Released only to approved workloads", 11.5, r.w - 44)}>Released only to approved workloads</text>
         {/* What has happened, in order. */}
         {authed && <text key="authed" x={r.x + 12} y={r.y + r.h - 29} className="cai-s-done" {...fit("✓ Workload authenticated over mutual TLS", 11.5, r.w - 24, true)}>✓ Workload authenticated over mutual TLS</text>}
@@ -293,7 +316,7 @@ export function AttestationFlow({
       </>
     ) : (
       <>
-        <text x={r.x + 12} y={r.y + 46} className="cai-s-item">No model key needed</text>
+        <text x={r.x + 12} y={r.y + 46} className="cai-s-item">{keyFor === "model" ? "No model key needed" : "No key needed"}</text>
         {wrap("The workload can still get any key it needs, the same way.", charsFor(r.w - 24, 11.5)).slice(0, 2).map((t, k) => (
           <text key={k} x={r.x + 12} y={r.y + 64 + k * 15} className="cai-s-muted">{t}</text>
         ))}
@@ -302,9 +325,9 @@ export function AttestationFlow({
 
   const workloadCard = (r: R, narrow: boolean) => {
     const sub = needsKey
-      ? serving ? "Model weights decrypted, serving requests" : "Model weights encrypted"
+      ? serving ? kt.open : kt.locked
       : serving ? "Serving requests" : "Model weights loaded";
-    const creds = [certified && "✓ Certificate", keyed && "✓ Model key"].filter(Boolean) as string[];
+    const creds = [certified && "✓ Certificate", keyed && `✓ ${kt.short}`].filter(Boolean) as string[];
     // Wide: the credentials at the card's right end. Narrow: on a row of their own.
     let cx = narrow ? r.x + 48 : r.x + r.w - 12 - creds.reduce((a, t) => a + credWidth(t) + 8, -8);
     const cy = narrow ? r.y + 52 : r.y + r.h / 2 - 11;
@@ -358,8 +381,8 @@ export function AttestationFlow({
           </marker>
         </defs>
 
-        {service(ccm, "ccm", "CCM", "Checks the workload", ccmBody(ccm))}
-        {service(dsm, "dsm", "DSM", "Keeps the model key", dsmBody(dsm), !needsKey)}
+        {service(ccm, "ccm", "CCM", "Verifies attestation", ccmBody(ccm))}
+        {service(dsm, "dsm", "DSM", `Keeps the ${kt.short.toLowerCase()}`, dsmBody(dsm), !needsKey)}
 
         <g className="cai-s-host">
           <rect x={l.host.x} y={l.host.y} width={l.host.w} height={l.host.h} rx="14" />
@@ -454,7 +477,7 @@ export function AttestationFlow({
                 <div className="cai-runtime-choice" role="radiogroup" aria-label="Does the workload need a key from DSM">
                   {[true, false].map((x) => (
                     <button key={String(x)} type="button" role="radio" aria-checked={x === needsKey} tabIndex={active ? 0 : -1} onClick={() => choose(x)}>
-                      {x ? "Gets the model key from DSM" : "Needs no key"}
+                      {x ? kt.choose : "Needs no key"}
                     </button>
                   ))}
                 </div>
@@ -466,7 +489,7 @@ export function AttestationFlow({
 
       <p className="cai-deploy-accounts">
         {keyRelease === "toggle" && step.id !== "run" && (
-          <>{needsKey ? "The workload gets the model key from DSM." : "The workload needs no key from DSM."} <button type="button" className="cai-link" onClick={() => setIndex(0)}>Change</button></>
+          <>{needsKey ? `The workload ${kt.choose.charAt(0).toLowerCase()}${kt.choose.slice(1)}.` : "The workload needs no key from DSM."} <button type="button" className="cai-link" onClick={() => setIndex(0)}>Change</button></>
         )}
       </p>
     </figure>

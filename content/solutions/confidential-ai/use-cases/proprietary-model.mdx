@@ -1,12 +1,12 @@
 ---
 title: Proprietary model
-description: Let your customers run your model, on their own infrastructure or an NCP's, without exposing the weights. DSM releases the model encryption key only for your approved model.
+description: Let your customers run your model, on their own infrastructure or an NCP's, without exposing the weights. DSM releases the model encryption key only to an attested workload running your approved model.
 doc_type: concept
 keywords: [proprietary model, model owner, model vendor, model ip, ncp, weights]
 sidebar_position: 1
 ---
 
-A model vendor wants others to run its model without giving away the weights. With Confidential AI, the weights stay encrypted until they are inside a TEE. DSM releases the model encryption key directly into the TEE, and only for the vendor's approved model. Only the approved code around the model can use it.
+A model vendor wants others to run its model without giving away the weights. With Confidential AI, the weights stay encrypted until they are inside a TEE. DSM releases the model encryption key directly into the TEE, and only to an attested workload running the vendor's approved model. Only the approved code around the model can use it.
 
 ## Who is involved
 
@@ -26,8 +26,8 @@ A vendor that serves its own model to users, on an NCP or a cloud, holds both th
 ## How the model encryption key is released
 
 1. The vendor encrypts the model weights and keeps the model encryption key in DSM.
-2. The workload starts inside a TEE and attests to CCM.
-3. CCM checks the hardware, its settings and the workload's measurement. If they match an approved model, CCM issues a certificate.
+2. The workload starts inside a TEE and attests to CCM, with composite evidence from the CPU TEE and its GPUs.
+3. CCM verifies the composite attestation of the CPU TEE and the GPUs, the platform's configuration and the workload's measurement. If they match policy, CCM issues a certificate.
 4. The workload authenticates to DSM over mutual TLS with the certificate. DSM releases the key directly into the TEE.
 5. The approved code around the model decrypts the weights inside the TEE.
 

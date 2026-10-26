@@ -17,13 +17,13 @@ Your organization runs a public open-source model. The weights are already publi
 ## What is protected
 
 - **Prompts, data and answers.** The hosts and administrators of the NCP, or of your own infrastructure, cannot read them while the model processes them.
-- **The integrity of the workload.** CCM issues a certificate only when the measurement matches an approved model. Your organization, and any service that checks the certificate, know exactly which model and code are running.
+- **The integrity of the workload.** CCM issues a certificate only when the composite attestation of the CPU TEE and the GPUs passes and the measurement matches an approved workload. Your organization, and any service that checks the certificate, know exactly which model and code are running.
 
 ## Keys
 
 The workload always attests to CCM and gets a certificate. There is no model encryption key, but the workload can get a key from DSM whenever it needs one, for example to open encrypted storage that holds documents for retrieval.
 
-<AttestationFlow keyRelease="toggle" initialKey={false} />
+<AttestationFlow keyRelease="toggle" initialKey={false} keyFor="storage" />
 
 ## Trust assumptions
 
