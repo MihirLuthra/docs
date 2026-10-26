@@ -12,6 +12,7 @@ import {
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import {useLocation} from '@docusaurus/router';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import type {TreeNode} from './types';
 import {ancestors, findKey, normalize, useTree} from './tree';
 import GoToPage from './GoToPage';
@@ -107,6 +108,7 @@ function CollapseAllIcon(): ReactNode {
 export default function DocsTree({onNavigate}: {onNavigate?: () => void}): ReactNode {
   const tree = useTree();
   const pathname = normalize(useLocation().pathname);
+  const home = normalize(useBaseUrl('/'));
   const currentKey = useMemo(() => findKey(tree, pathname), [tree, pathname]);
 
   const [open, setOpen] = useState(() => new Set(ancestors(currentKey)));
@@ -256,8 +258,8 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
     <nav ref={navRef} className={styles.nav} aria-label="Documentation">
       <Link
         to="/"
-        className={clsx(styles.row, styles.top, styles.home, pathname === '/' && styles.selected)}
-        aria-current={pathname === '/' ? 'page' : undefined}
+        className={clsx(styles.row, styles.top, styles.home, pathname === home && styles.selected)}
+        aria-current={pathname === home ? 'page' : undefined}
         aria-keyshortcuts="h"
         onClick={() => {
           resetNav();

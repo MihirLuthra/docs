@@ -1,0 +1,48 @@
+# Builds the site and publishes it to GitHub Pages on every push to main.
+# Settings → Pages → Source must be "GitHub Actions".
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # the contributors plugin reads each page's git log
+      - uses: pnpm/action-setup@v4 # version from packageManager in package.json
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+        env:
+          DOCS_URL: https://mihirluthra.github.io
+          DOCS_BASE_URL: /docs/
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: apps/docs/build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

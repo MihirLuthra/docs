@@ -64,6 +64,35 @@
   }
 }
 
+/* Proof-of-concept notice */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fx-space-3);
+  margin-bottom: var(--fx-space-4);
+  padding: var(--fx-space-3) var(--fx-space-4);
+  border: var(--fx-border-width) solid var(--fx-notice-border);
+  border-radius: var(--fx-radius-lg);
+  background-color: var(--fx-notice-bg);
+}
+
+.noticeIcon {
+  display: flex;
+  flex: none;
+  color: var(--fx-notice-accent);
+}
+
+.noticeText {
+  margin: 0;
+  color: var(--fx-text);
+  font-size: var(--fx-text-sm);
+  line-height: 1.45;
+}
+
+.noticeText strong {
+  color: var(--fx-notice-accent);
+}
+
 /* Get familiar banner */
 .banner {
   display: flex;

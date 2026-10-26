@@ -195,6 +195,10 @@
   --fx-diagram-secure-soft: var(--fx-kind-solution-tint);
   --fx-diagram-insecure: #b42318;
   --fx-diagram-insecure-soft: #fff5f4;
+  /* Proof-of-concept notice on the home page */
+  --fx-notice-bg: #fff8e6;
+  --fx-notice-border: #f0d48a;
+  --fx-notice-accent: var(--fx-kind-concept);
   --fx-diagram-party: var(--fx-blue);
   --fx-diagram-party-soft: #e8f9ff;
 
@@ -297,6 +301,9 @@
   --fx-kind-section-tint: #26262c;
   --fx-diagram-insecure: #ff8a80;
   --fx-diagram-insecure-soft: #2a1515;
+  --fx-notice-bg: #2a2210;
+  --fx-notice-border: #5c4a1e;
+  --fx-notice-accent: var(--fx-kind-concept);
   --fx-diagram-party: #1a9fd1;
   --fx-diagram-party-soft: #0d2630;
 

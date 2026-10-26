@@ -7,10 +7,14 @@ import contributors from './plugins/contributors';
 import versions from './plugins/versions';
 import prismTheme from './src/lib/prism-theme';
 import {recentsHeadScript} from './src/lib/recents';
-import {FONT_URL, fontFaceCss} from './src/lib/fonts';
+import {fontFaceCss, fontUrl} from './src/lib/fonts';
 import {searchEarlyScript} from './src/lib/search-early';
 
 const GITHUB_REPO = 'MihirLuthra/docs';
+
+// Where the site is served. The GitHub Pages workflow sets both
+// (.github/workflows/pages.yml); local builds serve from the root.
+const BASE_URL = process.env.DOCS_BASE_URL ?? '/';
 
 // Edit links open GitHub's editor (D12).
 const EDIT_BASE = `https://github.com/${GITHUB_REPO}/edit/main`;
@@ -21,8 +25,8 @@ const config: Config = {
   favicon: 'img/favicon.svg',
 
   // TODO(verify): production URL not decided yet.
-  url: 'https://docs.fortanix.com',
-  baseUrl: '/',
+  url: process.env.DOCS_URL ?? 'https://docs.fortanix.com',
+  baseUrl: BASE_URL,
 
   onBrokenLinks: 'throw',
   onBrokenAnchors: 'throw',
@@ -42,7 +46,7 @@ const config: Config = {
   },
 
   headTags: [
-    {tagName: 'style', attributes: {}, innerHTML: fontFaceCss},
+    {tagName: 'style', attributes: {}, innerHTML: fontFaceCss(BASE_URL)},
     // Keeps search clicks/shortcuts made before hydration (lib/search-early.ts).
     {tagName: 'script', attributes: {}, innerHTML: searchEarlyScript},
     // Lets the home page reserve space for Recently viewed before hydration.
@@ -51,7 +55,7 @@ const config: Config = {
       tagName: 'link',
       attributes: {
         rel: 'preload',
-        href: FONT_URL,
+        href: fontUrl(BASE_URL),
         as: 'font',
         type: 'font/woff2',
         crossorigin: 'anonymous',

@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState, type KeyboardEvent, type ReactNode} from 'react';
 import Link from '@docusaurus/Link';
 import {useHistory, useLocation} from '@docusaurus/router';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import NavbarColorModeToggle from '@theme/Navbar/ColorModeToggle';
 import DocsTree from '@site/src/components/DocsTree';
@@ -164,19 +165,20 @@ export default function Navbar(): ReactNode {
 
   // "h" (when not typing) does what the Home row does: home, sidebar reset.
   const history = useHistory();
+  const home = useBaseUrl('/');
   useEffect(() => {
     const onKeyDown = (e: globalThis.KeyboardEvent) => {
       if (!isPlainShortcut(e, 'h')) return;
       e.preventDefault();
       resetNav();
       setDrawerOpen(false);
-      if (window.location.pathname !== '/') history.push('/');
+      if (window.location.pathname !== home) history.push(home);
     };
     document.addEventListener('keydown', onKeyDown);
     return () => {
       document.removeEventListener('keydown', onKeyDown);
     };
-  }, [history]);
+  }, [history, home]);
 
   const closeDrawer = () => {
     setDrawerOpen(false);

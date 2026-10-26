@@ -30,6 +30,37 @@ function CloseIcon(): ReactNode {
   );
 }
 
+function WarningIcon(): ReactNode {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 3.5L2.5 20h19zM12 10v4.5M12 17.2v.3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+// The site is published before Fortanix has reviewed it; says so first.
+function PocNotice(): ReactNode {
+  return (
+    <aside className={styles.notice} aria-label="About this site">
+      <span className={styles.noticeIcon}>
+        <WarningIcon />
+      </span>
+      <p className={styles.noticeText}>
+        <strong>Proof of concept.</strong> This site is not official Fortanix documentation.
+        Fortanix has not reviewed or approved its content, so confirm anything here with Fortanix
+        before you rely on it.
+      </p>
+    </aside>
+  );
+}
+
 function GetFamiliarBanner(): ReactNode {
   return (
     <Link to="/get-familiar/what-fortanix-does" className={styles.banner}>
@@ -187,6 +218,7 @@ export default function Home(): ReactNode {
         <div className={styles.content}>
           <main className={styles.main}>
             <h1 className="sr-only">Fortanix Documentation</h1>
+            <PocNotice />
             <GetFamiliarBanner />
             <RecentlyViewed />
             <ExploreFortanix />
