@@ -11,11 +11,22 @@
   height: var(--fx-header-height);
   padding: 0 var(--fx-space-5);
   border-bottom: var(--fx-border-width) solid var(--fx-border);
-  /* Slightly see-through: the page shows faintly as it scrolls under. */
-  background-color: var(--fx-header-bg);
+  background-color: transparent;
   box-shadow: none;
-  backdrop-filter: var(--fx-glass-filter);
   color: var(--fx-text);
+}
+
+/* Slightly see-through: the page shows faintly as it scrolls under. The
+   blur sits on this layer, not on the header: backdrop-filter on the header
+   would make it the containing block of the drawer (position: fixed), and
+   trap the drawer inside the header's 56px. */
+.header::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-color: var(--fx-header-bg);
+  content: '';
+  backdrop-filter: var(--fx-glass-filter);
 }
 
 .brand {
