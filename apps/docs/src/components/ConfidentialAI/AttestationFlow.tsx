@@ -3,20 +3,21 @@ import "./styles.css";
 import { charsFor, fit, textWidth, wrap } from "./scene";
 
 // How Confidential AI works, as a scene in the style of DeploymentFlow:
-// run in a TEE, attest to CCM, get a certificate for an approved model and,
-// when the workload needs one, get the model key from DSM.
+// run in a TEE, get a certificate from CCM for an approved workload and,
+// when the workload needs one, get the model key from DSM over mutual TLS.
+// An intro, so it stays simple: one workload, two services, short steps.
 //
 // CCM and DSM are on the top row. The host is below, untrusted, with the TEE
-// inside it. In the TEE, the Fortanix Attestation Client sits under CCM and the model
-// under DSM, so every exchange is a short vertical arrow that crosses nothing.
-// One fixed shape for wide screens and one for narrow ones, so nothing around
-// the scene moves.
+// inside it and the workload in the TEE. The workload spans both columns, so
+// each exchange is a short vertical arrow under its service that crosses
+// nothing. One fixed shape for wide screens and one for narrow ones, so
+// nothing around the scene moves.
 //
 // Props
 //   keyRelease: "toggle" (default) lets the reader choose; "required" or "optional" fixes the path.
 //   initialKey: the starting choice when keyRelease="toggle" (default true).
 
-type Spot = "ccm" | "dsm" | "tee" | "client" | "model";
+type Spot = "ccm" | "dsm" | "tee" | "workload";
 
 interface Step {
   id: string;
@@ -33,41 +34,41 @@ const MEASUREMENT = "9c2e…41a7";
 const COMMON: Step[] = [
   {
     id: "run", focus: "tee", title: "Run inside a TEE",
-    text: "The model workload starts inside a trusted execution environment, with the GPU in confidential computing mode. As it starts, the TEE records its measurement, a fingerprint of exactly what is running. Its memory is encrypted and isolated, so the host operating system, the hypervisor and their administrators cannot read or change it.",
+    text: "The model workload starts in a trusted execution environment, with the GPU in confidential computing mode. The TEE records its measurement, a fingerprint of exactly what is running. The host cannot read or change anything inside it.",
   },
   {
-    id: "evidence", focus: "ccm", from: "client", carries: "Signed evidence", title: "Send evidence to CCM",
-    text: "The Fortanix Attestation Client inside the workload collects signed evidence from the CPU and GPU and sends it to CCM. The evidence includes the workload's measurement.",
+    id: "evidence", focus: "ccm", from: "workload", carries: "Evidence", title: "Ask CCM for a certificate",
+    text: "The workload creates a key pair inside the TEE and asks CCM to certify it. With the request, it sends signed evidence from the CPU and GPU that includes its measurement.",
   },
   {
     id: "verify", focus: "ccm", title: "CCM verifies",
-    text: "CCM checks that the hardware is genuine, that the platform is up to date, for example its firmware and TDX module versions, and that the measurement matches an approved model.",
+    text: "CCM checks that the hardware is genuine, that the platform is up to date, and that the measurement matches an approved model.",
   },
   {
-    id: "cert", focus: "client", from: "ccm", carries: "Certificate", title: "CCM issues a certificate",
-    text: "When every check passes, CCM issues the workload a certificate for that approved model. A modified workload has a different measurement, so it gets no certificate.",
+    id: "cert", focus: "workload", from: "ccm", carries: "Certificate", title: "CCM issues a certificate",
+    text: "If every check passes, CCM signs the workload's certificate with its zone CA. A modified workload has a different measurement and gets no certificate.",
   },
 ];
 
 const WITH_KEY: Step[] = [
   {
-    id: "present", focus: "dsm", from: "model", carries: "Mutual TLS", title: "Authenticate to DSM over mutual TLS",
-    text: "The workload connects to DSM over mutual TLS, with its certificate as its client certificate, and asks for the model encryption key. The certificate stays with the workload. The TLS handshake proves the workload holds it.",
+    id: "present", focus: "dsm", from: "workload", carries: "Mutual TLS", title: "Connect to DSM",
+    text: "The workload connects to DSM over mutual TLS with its certificate. DSM trusts the CCM zone CA, so it knows this is an approved workload.",
   },
   {
-    id: "key", focus: "model", from: "dsm", carries: "Model key", title: "DSM releases the key",
-    text: "DSM trusts certificates from CCM. It checks that the client certificate is for the approved model, then releases the key directly into the TEE over that connection. No other workload can get it.",
+    id: "key", focus: "workload", from: "dsm", carries: "Model key", title: "DSM releases the key",
+    text: "DSM sends the model key straight into the TEE. No other workload can get it.",
   },
   {
-    id: "serve", focus: "model", title: "Decrypt and serve",
-    text: "Only the approved code around the model can use the key. It decrypts the weights inside the TEE and serves requests.",
+    id: "serve", focus: "workload", title: "Decrypt and serve",
+    text: "The workload decrypts the model weights inside the TEE and serves requests.",
   },
 ];
 
 const WITHOUT_KEY: Step[] = [
   {
-    id: "serve", focus: "model", title: "Serve",
-    text: "The workload serves requests. Whenever it needs a key, or needs to prove itself to another service, it authenticates with its certificate over mutual TLS.",
+    id: "serve", focus: "workload", title: "Serve",
+    text: "The workload serves requests. Whenever it needs a key from DSM, or to prove itself to another service, it uses its certificate over mutual TLS.",
   },
 ];
 
@@ -92,6 +93,7 @@ interface Layout {
 
 const SERVICE_H = 108;
 const CARD_H = 58;
+const CARD_H_NARROW = 84; // the credentials go on their own row
 const CHIP_H = 22;
 const chipWidth = (t: string) => textWidth(t, 11.5) + 20;
 const MEASURE_LABEL = `Measurement ${MEASUREMENT}`;
@@ -129,10 +131,10 @@ function wideLayout(): Layout {
   const dsm = { x: M + half + 16, y: M, w: half, h: SERVICE_H };
   const hostY = M + SERVICE_H + 56;
   const tee = { x: 20, y: hostY + 24, w: W - 40, h: 0 };
-  const cardW = 280;
   const cardY = tee.y + 24;
-  const client = { x: ccm.x + ccm.w / 2 - cardW / 2, y: cardY, w: cardW, h: CARD_H };
-  const model = { x: dsm.x + dsm.w / 2 - cardW / 2, y: cardY, w: cardW, h: CARD_H };
+  // From under CCM to under DSM, so both arrows meet its top edge.
+  const left = ccm.x + ccm.w / 2 - 150;
+  const workload = { x: left, y: cardY, w: dsm.x + dsm.w / 2 + 150 - left, h: CARD_H };
   const measurement = { x: W / 2 - MEASURE_W / 2, y: cardY + CARD_H + 12, w: MEASURE_W, h: CHIP_H };
   const { chips, bottom } = placeChips(tee.x + 12, measurement.y + CHIP_H + 10, tee.w - 24);
   tee.h = bottom + 14 - tee.y;
@@ -140,7 +142,7 @@ function wideLayout(): Layout {
   const host = { x: M, y: hostY, w: W - 2 * M, h: textY + 12 - hostY };
   return {
     w: W, h: host.y + host.h + M,
-    spots: { ccm, dsm, tee, client, model }, host, measurement,
+    spots: { ccm, dsm, tee, workload }, host, measurement,
     hostText: { x: W / 2, y: textY, lines: [HOST] },
     chips, pillY: (ccm.y + ccm.h + hostY) / 2,
   };
@@ -153,16 +155,15 @@ function narrowLayout(): Layout {
   const hostY = dsm.y + SERVICE_H + 18;
   const lines = wrap(HOST, charsFor(W - 40, 11.5));
   const tee = { x: 16, y: hostY + 24, w: W - 32, h: 0 };
-  const client = { x: tee.x + 12, y: tee.y + 24, w: tee.w - 24, h: CARD_H };
-  const model = { x: client.x, y: client.y + CARD_H + 12, w: client.w, h: CARD_H };
-  const measurement = { x: W / 2 - MEASURE_W / 2, y: model.y + CARD_H + 12, w: MEASURE_W, h: CHIP_H };
+  const workload = { x: tee.x + 12, y: tee.y + 24, w: tee.w - 24, h: CARD_H_NARROW };
+  const measurement = { x: W / 2 - MEASURE_W / 2, y: workload.y + CARD_H_NARROW + 12, w: MEASURE_W, h: CHIP_H };
   const { chips, bottom } = placeChips(tee.x + 10, measurement.y + CHIP_H + 10, tee.w - 20);
   tee.h = bottom + 14 - tee.y;
   const textY = tee.y + tee.h + 20;
   const host = { x: M, y: hostY, w: W - 2 * M, h: textY + (lines.length - 1) * 15 + 12 - hostY };
   return {
     w: W, h: host.y + host.h + M,
-    spots: { ccm, dsm, tee, client, model }, host, measurement,
+    spots: { ccm, dsm, tee, workload }, host, measurement,
     hostText: { x: W / 2, y: textY, lines },
     chips,
   };
@@ -170,10 +171,9 @@ function narrowLayout(): Layout {
 
 // ---------- Drawing ----------
 
-const ICON: Record<"ccm" | "dsm" | "client" | "lock" | "unlock" | "check", React.ReactNode> = {
+const ICON: Record<"ccm" | "dsm" | "lock" | "unlock" | "check", React.ReactNode> = {
   ccm: <><path d="M8 1.5 2.5 3.5v4c0 3.4 2.3 5.9 5.5 7 3.2-1.1 5.5-3.6 5.5-7v-4z" /><path d="m5.5 8 1.8 1.8L10.8 6" /></>,
   dsm: <><circle cx="5" cy="8" r="3" /><path d="M8 8h6.5M12 8v2.5M14 8v2" /></>,
-  client: <><path d="M3.5 1.5h6L13 5v9.5H3.5z" /><path d="m6 9.5 1.6 1.6L10.8 8" /></>,
   lock: <><rect x="3" y="7" width="10" height="7.5" rx="1.5" /><path d="M5 7V5a3 3 0 0 1 6 0v2" /></>,
   unlock: <><rect x="3" y="7" width="10" height="7.5" rx="1.5" /><path d="M5 7V5a3 3 0 0 1 5.8-1" /></>,
   check: <path d="m4 8.5 2.6 2.6L12 5.5" />,
@@ -224,16 +224,17 @@ export function AttestationFlow({
     );
   };
 
-  /** A badge on a card's top right edge: what the card now holds. */
-  const badge = (r: R, text: string) => {
-    const w = textWidth(text, 11, true) + 18;
+  /** A credential the workload now holds: a filled pill. */
+  const credential = (x: number, y: number, text: string) => {
+    const w = textWidth(text, 11, true) + 22;
     return (
-      <g className="cai-s-tee">
-        <rect x={r.x + r.w - w - 10} y={r.y - 10} width={w} height="20" rx="10" />
-        <text x={r.x + r.w - w / 2 - 10} y={r.y + 4} textAnchor="middle" className="cai-s-badge">{text}</text>
+      <g className="cai-s-tee cai-s-fade" key={text}>
+        <rect x={x} y={y} width={w} height="22" rx="11" />
+        <text x={x + w / 2} y={y + 15} textAnchor="middle" className="cai-s-badge">{text}</text>
       </g>
     );
   };
+  const credWidth = (text: string) => textWidth(text, 11, true) + 22;
 
   const service = (r: R, id: "ccm" | "dsm", title: string, sub: string, body: React.ReactNode, idle = false) => {
     const subX = r.x + 31 + title.length * 9.5 + 8; // the title is in capitals, wider than average text
@@ -250,7 +251,7 @@ export function AttestationFlow({
   };
 
   const ccmBody = (r: R) => {
-    const status = certified ? "Certificate issued" : verified ? "Matches an approved model" : sent ? `Received measurement ${MEASUREMENT}` : "";
+    const status = certified ? "Certificate issued" : verified ? "Matches an approved model" : sent ? "Received the evidence" : "";
     return (
       <>
         {CHECKS.map((c, k) => {
@@ -275,9 +276,9 @@ export function AttestationFlow({
       <>
         <Icon name={keyed ? "unlock" : "lock"} x={r.x + 11} y={r.y + 35} size={14} className="is-dsm" />
         <text x={r.x + 32} y={r.y + 46} className="cai-s-item">Model encryption key</text>
-        <text x={r.x + 32} y={r.y + 62} className="cai-s-muted" {...fit("Only for the approved model's certificate", 11.5, r.w - 44)}>Only for the approved model's certificate</text>
+        <text x={r.x + 32} y={r.y + 62} className="cai-s-muted" {...fit("Released only to approved workloads", 11.5, r.w - 44)}>Released only to approved workloads</text>
         {/* What has happened, in order. */}
-        {authed && <text key="authed" x={r.x + 12} y={r.y + r.h - 29} className="cai-s-done" {...fit("✓ Client authenticated over mutual TLS", 11.5, r.w - 24, true)}>✓ Client authenticated over mutual TLS</text>}
+        {authed && <text key="authed" x={r.x + 12} y={r.y + r.h - 29} className="cai-s-done" {...fit("✓ Workload authenticated over mutual TLS", 11.5, r.w - 24, true)}>✓ Workload authenticated over mutual TLS</text>}
         {keyed && <text key="keyed" x={r.x + 12} y={r.y + r.h - 12} className="cai-s-done">✓ Key released into the TEE</text>}
       </>
     ) : (
@@ -289,34 +290,40 @@ export function AttestationFlow({
       </>
     );
 
-  const card = (r: R, id: "client" | "model") => {
-    const title = id === "client" ? "Fortanix Attestation Client" : "Model";
-    const sub = id === "client"
-      ? certified ? "Holds the workload's certificate" : "Proves the workload to CCM"
-      : needsKey ? (serving ? "Weights decrypted inside the TEE" : keyed ? "Key received, weights encrypted" : "Weights encrypted") : serving ? "Serving requests" : "Weights loaded in the TEE";
-    const icon = id === "client" ? "client" : needsKey && !serving ? "lock" : "unlock";
+  const workloadCard = (r: R, narrow: boolean) => {
+    const sub = needsKey
+      ? serving ? "Model weights decrypted, serving requests" : "Model weights encrypted"
+      : serving ? "Serving requests" : "Model weights loaded";
+    const creds = [certified && "✓ Certificate", keyed && "✓ Model key"].filter(Boolean) as string[];
+    // Wide: the credentials at the card's right end. Narrow: on a row of their own.
+    let cx = narrow ? r.x + 48 : r.x + r.w - 12 - creds.reduce((a, t) => a + credWidth(t) + 8, -8);
+    const cy = narrow ? r.y + 52 : r.y + r.h / 2 - 11;
     return (
-      <g className="cai-s-asset is-infra" data-state={state(id)}>
+      <g className="cai-s-asset is-infra" data-state={state("workload")}>
         <rect className="cai-s-halo" x={r.x - 4} y={r.y - 4} width={r.w + 8} height={r.h + 8} rx="13" />
         <rect className="cai-s-card" x={r.x} y={r.y} width={r.w} height={r.h} rx="10" />
-        <Icon name={icon} x={r.x + 14} y={r.y + r.h / 2 - 11} size={22} />
-        <text x={r.x + 48} y={r.y + 25} className="cai-s-title">{title}</text>
+        <Icon name={needsKey && !serving ? "lock" : "unlock"} x={r.x + 14} y={narrow ? r.y + 14 : r.y + r.h / 2 - 11} size={22} />
+        <text x={r.x + 48} y={r.y + 25} className="cai-s-title">Model workload</text>
         <text key={sub} x={r.x + 48} y={r.y + 42} className="cai-s-muted cai-s-fade" {...fit(sub, 11.5, r.w - 58)}>{sub}</text>
-        {id === "client" && certified && badge(r, "Certificate")}
-        {id === "model" && keyed && badge(r, "Model key")}
+        {creds.map((t) => {
+          const el = credential(cx, cy, t);
+          cx += credWidth(t) + 8;
+          return el;
+        })}
       </g>
     );
   };
 
   const renderScene = (l: Layout, cls: string) => {
-    const { ccm, dsm, tee, client, model } = l.spots;
+    const { ccm, dsm, tee, workload } = l.spots;
     const to = l.spots[step.focus];
     const from = step.from ? l.spots[step.from] : undefined;
     let arrow: React.ReactNode = null;
     let target: React.ReactNode = null;
     if (from && step.carries) {
       if (l.pillY !== undefined) {
-        const x = from.x + from.w / 2;
+        const service = step.focus === "ccm" || step.focus === "dsm" ? to : from;
+        const x = service.x + service.w / 2;
         const up = from.y > to.y;
         const y1 = up ? from.y : from.y + from.h;
         const y2 = up ? to.y + to.h : to.y;
@@ -327,11 +334,11 @@ export function AttestationFlow({
           </g>
         );
       } else if (step.focus === "ccm" || step.focus === "dsm") {
-        // Narrow: no arrows. The label goes under the card that receives it; the TEE's cards show a badge instead.
+        // Narrow: no arrows. The label goes under the service that receives it; the workload shows what it got.
         target = pill(to.x + to.w / 2, to.y + to.h, step.carries);
       }
     }
-    const teeLabel = "TEE · model workload";
+    const teeLabel = "Trusted execution environment";
     const tw = textWidth(teeLabel, 11.5, true) + 22;
     return (
       <svg className={`cai-scene ${cls}`} viewBox={`0 0 ${l.w} ${l.h}`} role="img" aria-label={`How Confidential AI works, ${step.title}`}>
@@ -371,8 +378,7 @@ export function AttestationFlow({
           </g>
         </g>
 
-        {card(client, "client")}
-        {card(model, "model")}
+        {workloadCard(workload, l.pillY === undefined)}
         {arrow}
         {target}
       </svg>
