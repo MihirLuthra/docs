@@ -13,6 +13,7 @@ import {
   type ReactNode,
 } from 'react';
 import {createPortal} from 'react-dom';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
 
 /** A highlighted area of a screenshot, in percent of its width and height: [left, top, width, height]. */
@@ -46,6 +47,8 @@ const SWIPE = 48;
 
 /** One screenshot with its marks, fitted inside its slide. */
 export function Shot({step, n, eager, whole}: {step: StepProps; n: number; eager?: boolean; whole?: boolean}): ReactNode {
+  // A required image's URL lacks the site's base (/docs/ on GitHub Pages); this adds it once.
+  const src = useBaseUrl(step.image);
   return (
     <div
       className={styles.frame}
@@ -60,7 +63,7 @@ export function Shot({step, n, eager, whole}: {step: StepProps; n: number; eager
       }>
       <img
         className={styles.image}
-        src={step.image}
+        src={src}
         width={step.width}
         height={step.height}
         alt={step.alt ?? step.title}

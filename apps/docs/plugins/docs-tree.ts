@@ -136,7 +136,7 @@ export default function docsTreePlugin(context: LoadContext): Plugin {
           return [];
         });
 
-      const tree = withEmptyFolders(toNodes(version.sidebars.docs, []), version.contentPath, version.contentPath);
+      const tree = withEmptyFolders(toNodes(version.sidebars.docs, []), version.contentPath, version.contentPath, context.baseUrl);
       actions.setGlobalData({tree});
       // Loaded on demand by the search modal, not shipped with every page.
       await actions.createData('search-index.json', index);
@@ -158,7 +158,7 @@ type Category = {label?: string; position?: number; customProps?: {badge?: strin
  * there keep their order; empty folders go before the first node that sorts
  * after them. They have no href, so they aren't in the search index.
  */
-function withEmptyFolders(nodes: TreeNode[], dir: string, contentPath: string): TreeNode[] {
+function withEmptyFolders(nodes: TreeNode[], dir: string, contentPath: string, baseUrl: string): TreeNode[] {
   const readCategory = (folder: string): Category | null => {
     const file = path.join(folder, '_category_.json');
     return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as Category) : null;
@@ -180,10 +180,10 @@ function withEmptyFolders(nodes: TreeNode[], dir: string, contentPath: string): 
       const existing = nodes.find((n) => n.items && n.label === label);
       const position = category.position ?? Infinity;
       if (existing) {
-        existing.items = withEmptyFolders(existing.items!, full, contentPath);
+        existing.items = withEmptyFolders(existing.items!, full, contentPath, baseUrl);
         entries.push({position, name: item.name, node: existing});
       } else {
-        const items = withEmptyFolders([], full, contentPath);
+        const items = withEmptyFolders([], full, contentPath, baseUrl);
         const empty: TreeNode = {
           label,
           items,
@@ -192,7 +192,8 @@ function withEmptyFolders(nodes: TreeNode[], dir: string, contentPath: string): 
         entries.push({position, name: item.name, empty});
       }
     } else if (/\.mdx?$/.test(item.name)) {
-      const route = `/${path.relative(contentPath, full).replace(/\.mdx?$/, '')}`;
+      // Permalinks carry the site's base (/docs/ on GitHub Pages).
+      const route = `${baseUrl}${path.relative(contentPath, full).replace(/\.mdx?$/, '')}`;
       const node = nodes.find((n) => !n.items && n.href?.replace(/\/+$/, '') === route);
       if (node) entries.push({position: docPosition(full) ?? Infinity, name: item.name, node});
     }
