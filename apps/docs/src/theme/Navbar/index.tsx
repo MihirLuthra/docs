@@ -6,7 +6,6 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import NavbarColorModeToggle from '@theme/Navbar/ColorModeToggle';
 import DocsTree from '@site/src/components/DocsTree';
 import Logo from '@site/src/components/Logo';
-import HistoryNav from '@site/src/components/HistoryNav';
 import {useOverlays} from '@site/src/components/Overlays/context';
 import {SparkleIcon} from '@site/src/components/AskAI/SparkleIcon';
 import {SEARCH_TRIGGER_ATTR} from '@site/src/lib/search-early';
@@ -205,7 +204,6 @@ export default function Navbar(): ReactNode {
           Documentation
         </span>
       </Link>
-      <HistoryNav />
       <div className={styles.center}>
         <SearchTrigger />
         <AskAIButton />

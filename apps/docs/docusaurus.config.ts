@@ -88,7 +88,7 @@ const config: Config = {
   ],
 
   plugins: [docsTree, versions, [contributors, {repo: GITHUB_REPO, branch: GITHUB_BRANCH}]],
-  clientModules: ['./src/clientModules/recents.ts', './src/clientModules/nav-history.ts'],
+  clientModules: ['./src/clientModules/recents.ts'],
 
   themeConfig: {
     // Default for pages without their own description (stubs); pages that
