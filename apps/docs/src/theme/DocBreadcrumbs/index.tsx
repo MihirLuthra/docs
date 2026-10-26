@@ -5,7 +5,7 @@ import Menu, {menuStyles} from '@site/src/components/Menu';
 import {findKey, nodesAlong, normalize, useTree} from '@site/src/components/DocsTree/tree';
 import type {TreeNode} from '@site/src/components/DocsTree/types';
 import {revealInTree} from '@site/src/lib/tree-reveal';
-import CopyPath from '@site/src/components/CopyPath';
+import CopyLink from '@site/src/components/CopyLink';
 import Listen from '@site/src/components/Listen';
 import styles from './styles.module.css';
 
@@ -132,7 +132,7 @@ function FolderCrumb({tree, folderKey, currentHref}: {tree: TreeNode[]; folderKe
 /**
  * The path above a doc's title (ux-spec.md, Doc pages): Home, then each
  * folder as a menu of its contents, then the page itself, then a button that
- * copies the page's path (components/CopyPath). Pages with audio have
+ * copies a link to the page (components/CopyLink). Pages with audio have
  * "Listen" at the right end (components/Listen).
  */
 export default function DocBreadcrumbs(): ReactNode {
@@ -163,7 +163,7 @@ export default function DocBreadcrumbs(): ReactNode {
             {along[along.length - 1].label}
           </span>
           {/* In the last crumb, so it stays on the same line as the page's name when the path wraps. */}
-          <CopyPath label="Copy page path" />
+          <CopyLink label="Copy link to this page" />
         </li>
       </ul>
       {along[along.length - 1].listen && <Listen />}
