@@ -1,0 +1,15 @@
+{/* Shared flow (D16): the consumer creates a workflow with a placeholder for
+    the publisher's application, the publisher fills it in, and both approve.
+    Text steps for now.
+    TODO: a walkthrough with the captured screenshots (img/todo). */}
+
+1. **Consumer.** Go to **Workflows** and click **ADD WORKFLOW**. Enter a **Name**, select the group, and click **ADD WORKFLOW**.
+2. **Consumer.** Drag the **Application** icon onto the graph and click **ADD APPLICATION** on the node. Under **View by**, select **Groups**, then **Publisher group**, select the publisher's group, and click **ADD APPLICATION**. The node is a placeholder for the publisher's application. Click **SAVE DRAFT**.
+3. **Publisher.** Go to **Workflows** > **Draft**. The workflow is marked **Shared**. Click **VIEW DETAILS**, click **ADD APPLICATION** on the placeholder, select the application, its build and its configuration, and click **ADD APPLICATION**. Click **SAVE DRAFT**.
+4. **Consumer.** Open the draft, click **SAVE AND REQUEST APPROVAL**, and confirm with **REQUEST APPROVAL**.
+5. **Publisher.** Go to **Workflows** > **Pending Approval**, click the workflow, and click **APPROVE**.
+6. **Consumer.** Go to **Workflows** > **Pending Approval**, click the workflow, and click **APPROVE**. It moves to **Approved**.
+
+The publisher approves first. Each side can change only its own part of the workflow. The publisher chooses which application, build and configuration runs, so the consumer can't swap in another application.
+
+{/* TODO(verify): these steps were checked with an Enclave OS application on Intel TDX; confirm they are the same for Confidential Containers applications. */}

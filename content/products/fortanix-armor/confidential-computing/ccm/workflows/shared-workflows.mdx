@@ -3,46 +3,32 @@ title: Run another account's application in a shared workflow
 description: Link two CCM accounts as collaborating groups, so one runs the other's application through a workflow both approve.
 doc_type: how-to
 keywords: [shared workflow, collaborating groups, collaboration token, publisher, consumer, placeholder, approve workflow, revoke]
-sidebar_position: 1
+sidebar_position: 2
 ---
+
+import LinkGroups from '../../../../../_flows/ccm/link-groups.mdx';
+import SharedWorkflow from '../../../../../_flows/ccm/shared-workflow.mdx';
 
 A shared workflow lets one CCM account run an application that another account owns, without the owner handing over the application. The **publisher** owns the application, and the **consumer** runs it on its own infrastructure. The two link their groups as collaborating groups, and both approve the workflow.
 
-Collaborating groups link two accounts. Within one account, use a normal workflow.
+Collaborating groups link two accounts. Within one account, [create a workflow](create-a-workflow.mdx).
 
 ## Before you begin
 
 - Each side has its own CCM account and a group.
-- The publisher has [registered the application](../applications/register-an-application.mdx) and its builds are approved.
+- The publisher has [registered the application](../applications/register-an-application.mdx), its build is approved, and it has an [application configuration](../concepts.md#application-configurations) for the build.
 
 ## Link the groups
 
-| Step | Publisher | Consumer |
-|---|---|---|
-| 1 | Open the group and click **COLLABORATE**, then **+ GENERATE**, then **COPY**. Send the token to the consumer. | |
-| 2 | | Open the group, click **ACCEPT TOKEN**, paste the token and click **PROCEED**. |
-| 3 | Go to **COLLABORATION GROUPS**, open the **PUBLISHER** tab, and in the row's menu click **ACCEPT**. | |
-
-Under **Groups** > **COLLABORATION GROUPS** > **CONSUMER**, the consumer sees the link as **Pending** until the publisher accepts, then **Accepted**.
+<LinkGroups />
 
 ## Create and approve the workflow
 
-| Step | Publisher | Consumer |
-|---|---|---|
-| 1 | | Go to **Workflows** and click **+ ADD WORKFLOW**. Enter a **Name**, select the group, and click **SAVE**. |
-| 2 | | Add an application placeholder, assign it to the publisher's group, and click **SAVE AS DRAFT**. |
-| 3 | Go to **Workflows** > **Draft**, select the workflow, click the placeholder, select the application image, and click **SAVE DRAFT**. | |
-| 4 | | Open the draft, click **SAVE AND REQUEST APPROVAL**, and confirm with **REQUEST APPROVAL**. |
-| 5 | Go to **Workflows** > **Pending**, select the workflow, click **VIEW REQUEST**, then **APPROVE**. | |
-| 6 | | Approve the workflow. It moves to **Approved**. |
-
-The publisher approves first, and the consumer can't approve until it has. Each side can change only its own part of the workflow.
-
-{/* TODO(verify): these steps are documented for Intel TDX (Enclave OS and confidential VM) applications; confirm they apply to Confidential Containers applications. */}
+<SharedWorkflow />
 
 ## Change or end the collaboration
 
-- An approved workflow can't be edited. **EDIT WORKFLOW** creates a new version, which replaces the old one once both sides approve it.
+- An approved workflow can't be edited. **EDIT AS DRAFT** creates a new version, which replaces the old one once both sides approve it.
 - Either side can end the collaboration from **COLLABORATION GROUPS** with **REVOKE**. The workflow then stops.
 
 ## Verify

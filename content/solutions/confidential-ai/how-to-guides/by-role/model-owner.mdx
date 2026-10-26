@@ -11,18 +11,33 @@ As the model owner, you make sure only your approved workload, inside a TEE, can
 
 ## Your tasks
 
-{/* TODO: group these by day (day 0, day 1, day 2), and day 2 by kind of operation. */}
+### Day 0 · Plan and prepare
 
-| Day | Task |
-|---|---|
-| 0 | [Plan the deployment](../day-0-plan-and-prepare/plan-a-deployment.mdx) with the consumer |
-| 0 | [Set up CCM](../day-0-plan-and-prepare/set-up-ccm.mdx#model-owner). Add the application and note its application ID. |
-| 0 | [Set up DSM](../day-0-plan-and-prepare/set-up-dsm.mdx) with the consumer's zone CA |
-| 0 | [Protect the model](../day-0-plan-and-prepare/protect-the-model.mdx). Encrypt it, take measurements, register and approve the build. |
-| 1 | [Share the model](../day-1-deploy/share-the-model.mdx) through a shared workflow, as the publisher |
-| 2 | [Update the model](../day-2-operate/update-the-model.mdx) |
-| 2 | [Update the workload TCB](../day-2-operate/update-the-workload-tcb.mdx). Take measurements again and approve them before the upgrade. |
-| 2 | [Audit and revoke access](../day-2-operate/audit-and-revoke-access.mdx) |
+1. [Plan the deployment](../day-0-plan-and-prepare/plan-a-deployment.mdx) with the consumer.
+2. [Set up CCM](../day-0-plan-and-prepare/set-up-ccm.mdx#model-owner). Add the application and note its application ID.
+3. [Set up DSM](../day-0-plan-and-prepare/set-up-dsm.mdx). Create the encryption app, and the Trusted CA app with the consumer's zone CA.
+4. [Protect the model](../day-0-plan-and-prepare/protect-the-model.mdx). Encrypt it, take measurements, add and approve the build.
+
+### Day 1 · Deploy
+
+1. [Share the model](../day-1-deploy/share-the-model.mdx) through a shared workflow, as the publisher. Skip this when you also run the model.
+
+### Day 2 · Operate
+
+**Update the model**
+
+1. [Build the new version](../day-2-operate/update-the-model.mdx#build-the-new-version).
+2. [Add and approve it as a new build](../day-2-operate/update-the-model.mdx#register-and-approve-the-build).
+3. [Approve the new workflow version](../day-2-operate/update-the-model.mdx#update-the-shared-workflow), when the model is shared.
+
+**Update the workload TCB**
+
+1. [Take measurements again](../day-2-operate/update-the-workload-tcb.mdx#take-measurements-again) for the new runtime release.
+2. [Approve the new build before the upgrade](../day-2-operate/update-the-workload-tcb.mdx#approve-before-the-upgrade).
+
+**Audit and revoke access**
+
+1. [Audit and revoke access](../day-2-operate/audit-and-revoke-access.mdx).
 
 ## Where they fit
 

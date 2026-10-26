@@ -1,8 +1,8 @@
 ---
 title: Register an application and its builds
-description: Add a confidential container application to CCM, then add a build with the measurements CCM checks before it issues the workload's certificate.
+description: Add a confidential container application to CCM, add a build with the measurements CCM checks before it issues the workload's certificate, and add its application configuration.
 doc_type: how-to
-keywords: [application, build, measurements, mrtd, rtmr, mr_config_id, certificate domain, coprocessors, confidential containers, enclave os]
+keywords: [application, build, measurements, mrtd, rtmr, mr_config_id, certificate domain, coprocessors, application id, application configuration, confidential containers, enclave os]
 sidebar_position: 1
 ---
 
@@ -12,68 +12,42 @@ CCM issues a workload's certificate only when the workload attests with the meas
 
 - A CCM account and a group for the application.
 - The measurements of the build, from [Confidential Containers](../../workload-runtimes/confidential-containers/take-measurements.mdx) or the [Enclave OS converter](../../workload-runtimes/enclave-os/convert-an-image.mdx).
-- Choose the runtime. Every tab set on this page follows your choice.
+
+{/* TODO: show these steps as walkthroughs with the captured screenshots (content/_flows/img/todo), shared with the Confidential AI guides. */}
 
 ## Add the application
 
-<Tabs groupId="runtime">
-<Tab label="Confidential Containers">
+The steps are the same for both runtimes, apart from the type.
 
 1. Go to **Applications** and click **ADD APPLICATION**.
-2. Select **Confidential Container - CoCo** and **Intel TDX**, and click **NEXT**.
-3. Enter the **Application name**, a **Description** if you like, and the **Group**.
-4. Under **Certificate Configuration**, enter the **Domain** of the workload's certificate. Click **ADD DOMAIN** for more. Leave **Type** as **Certificate Issued by Confidential Computing Manager**.
-5. Click **Add Application**.
+2. Under **Select application type**, select **Confidential Container - CoCo** or **Confidential Container - Enclave OS**. Under **Select platform type**, select the platform, such as **Intel TDX**. Click **NEXT**.
+3. Enter the **Application name**, a **Description** if you like, and select the **Group**.
+4. Under **Certificate Configuration**, click **ADD CERTIFICATE** and enter the **Domain** of the workload's certificate. Click **ADD DOMAIN** for more. Leave **Type** as **Certificate Issued by Confidential Computing Manager**.
+5. Click **ADD APPLICATION**.
 
-<Screenshots>
-<Screenshot caption="Choose the type and platform">
+The new domain is a request on the **Tasks** page. See [Approve builds and domains](approve-builds-and-domains.mdx).
 
-![The Add Application dialog, with the Confidential Containers type and Intel TDX selected](../img/add-application-type.jpg)
-
-</Screenshot>
-<Screenshot caption="Enter the details">
-
-![The application details form, with the name llama-chat, the group llm-serving, and the certificate domain chat.northwind.example](../img/add-application-details.jpg)
-
-</Screenshot>
-</Screenshots>
-
-</Tab>
-<Tab label="Enclave OS">
-
-1. Go to **Applications** and click **ADD APPLICATION**.
-2. Select **Confidential Container - Enclave OS** and **Intel TDX**, and click **NEXT**.
-3. Create the application image from the converter's measurements. If you converted with GPU passthrough, set **NVIDIA GPU Attestation** to **Required**.
-4. Go to **CONFIGURATION** and click **+ ADD CONFIGURATION**. Select **Add new configuration**, choose the image, enter a name, and select your group. Leave **Ports** and **Configuration items** empty. Click **SAVE**.
-
-{/* TODO(verify): steps 3 and 4 come from the source, which starts from the group's APPLICATIONS page; check them against the current Add Application dialog. */}
-
-</Tab>
-</Tabs>
-
-A new application needs approval. See [Approve builds and domains](approve-builds-and-domains.mdx).
+The application's **application ID** is the UUID at the end of its address in CCM (`…/applications/<APPLICATION_ID>`). CCM adds `<APPLICATION_ID>.app.fortanix.cloud` to the workload's certificate, after verifying its attestation.
 
 ## Add a build
 
-<Tabs groupId="runtime">
-<Tab label="Confidential Containers">
+1. Open the application and, on **BUILDS**, click **ADD BUILD**.
+2. Enter a unique **Build version**, then the measurements. For Intel TDX, these are MRTD and RTMR0 to RTMR3, and for Confidential Containers also MR_CONFIG_ID, the hash of the workload's InitData.
+3. Under **Coprocessors**, set **NVIDIA GPU attestation** to **Required** for a workload with a GPU, so that CCM also checks the GPU's evidence. Set it to **Ignored** for one without.
+4. Click **ADD BUILD**.
 
-1. Open the application and click **ADD BUILD**.
-2. Enter a unique **Build Version**, then MRTD, RTMR0 to RTMR3, and MR_CONFIG_ID (the hash of the workload's InitData).
-3. Set **Coprocessors** to **Required** for a workload with a GPU, so that CCM also checks the GPU's evidence through NVIDIA NRAS. Set it to **Ignored** for one without.
-4. Click **Add Build**.
+The build is listed on **BUILDS** with its approval **Pending**, and is a request on the **Tasks** page. CCM certifies a workload with its measurements only once it is approved.
 
-</Tab>
-<Tab label="Enclave OS">
+## Add an application configuration
 
-Each converted image is a build, and the measurements you enter with the application image identify it.
+An [application configuration](../concepts.md#application-configurations) holds the application's runtime configuration, kept in CCM. A workflow runs a build with one, so add one for each build, even with no configuration items.
 
-{/* TODO(verify): how to add a further build to an existing Enclave OS application. */}
+1. Open the application and go to **CONFIGURATIONS**. Click **ADD CONFIGURATION**.
+2. Select **Add new configuration**. Enter the **Configuration name**, select the **Group** and the **Build**.
+3. Add **Ports** and configuration items if the application needs them.
+4. Click **ADD CONFIGURATION**.
 
-</Tab>
-</Tabs>
-
-The build is listed on the application's **Builds** tab, and needs approval before CCM certifies a workload with its measurements.
+You can also create the configuration while you add the application to a workflow, with **CREATE NEW CONFIGURATION**.
 
 ## Verify
 

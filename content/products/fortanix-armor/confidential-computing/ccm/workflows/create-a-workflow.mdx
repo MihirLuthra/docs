@@ -1,0 +1,45 @@
+---
+title: Create a workflow
+description: Create a workflow in one CCM account. Add the application with its build and configuration, request approval, and find the application configuration ID.
+doc_type: how-to
+keywords: [workflow, add workflow, application node, build, application configuration, request approval, approve workflow, runtime configuration hash, application configuration id]
+sidebar_position: 1
+---
+
+A workflow sets which build of an application runs, and with which [application configuration](../concepts.md#application-configurations). This page is for one account. To run another account's application, see [Run another account's application in a shared workflow](shared-workflows.mdx).
+
+{/* TODO: show these steps as a walkthrough with the captured screenshots. */}
+
+## Before you begin
+
+- The application, with an approved build. See [Register an application and its builds](../applications/register-an-application.mdx).
+- An application configuration for the build, or create one while you add the application below.
+
+## Create the workflow
+
+1. Go to **Workflows** and click **ADD WORKFLOW**.
+2. Enter a **Name**, such as `llama-chat-serving`, select the **Group**, and click **ADD WORKFLOW**. The workflow opens as a draft.
+3. Drag the **Application** icon from the bar under the graph onto the graph, and click **ADD APPLICATION** on the new node.
+4. Select the application and click **PROCEED**.
+5. Select the build and click **PROCEED**.
+6. Select the configuration, or click **CREATE NEW CONFIGURATION**, and click **ADD APPLICATION**.
+7. Click **SAVE DRAFT**. Without it, the node isn't saved, and requesting approval fails with "can't create empty workflow".
+
+## Request and give approval
+
+1. Click **SAVE AND REQUEST APPROVAL**, and confirm with **REQUEST APPROVAL**. The workflow moves to **Pending Approval**, and can't be edited while it is there.
+2. A reviewer goes to **Workflows** > **Pending Approval**, clicks the workflow, checks the graph, and clicks **APPROVE**.
+
+The **REVIEWER APPROVAL** column shows how many approvals are pending.
+
+{/* TODO(verify): how many approvals a workflow needs. In the test account it listed five reviewers, and one approval was enough. */}
+
+## Find the application configuration ID
+
+1. Go to **Workflows** > **Approved** and click **VIEW DETAILS** on the workflow.
+2. Click the information icon on the application's node.
+3. Copy the **Application configuration ID**, the runtime configuration hash. The application passes it when it starts.
+
+## Verify
+
+- The workflow is listed under **Workflows** > **Approved**.

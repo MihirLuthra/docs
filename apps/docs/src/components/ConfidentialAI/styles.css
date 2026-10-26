@@ -226,3 +226,5 @@
 .cai-link { padding: 0; border: 0; background: none; color: var(--fx-link); text-decoration: underline; text-underline-offset: var(--fx-link-underline-offset); }
 
 .cai-steps-table small { color: var(--fx-text-muted); }
+.cai-steps-group + .cai-steps-group { margin-top: var(--fx-space-6); }
+.cai-steps-title { margin: 0 0 var(--fx-space-2); font-size: var(--fx-h3-size); }

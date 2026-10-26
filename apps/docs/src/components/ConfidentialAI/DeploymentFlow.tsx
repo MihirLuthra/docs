@@ -504,33 +504,48 @@ export function DeploymentSteps({ scenario }: { scenario: string }) {
   const rows: { s: Step; only?: Runtime }[] = [];
   for (const s of d.steps.cc) rows.push({ s, only: d.steps.eos.some((e) => e.id === s.id) ? undefined : "cc" });
   for (const s of d.steps.eos) if (!d.steps.cc.some((c) => c.id === s.id)) rows.push({ s, only: "eos" });
-  const rank = (s: Step) => PHASES.findIndex((p) => p.id === s.phase) * 100 + (s.op ? OPERATIONS.findIndex((o) => o.id === s.op) * 20 : 0);
-  rows.sort((a, b) => rank(a.s) - rank(b.s));
+  // One table per day, and day 2 one per operation, in the order of the steps.
+  const groups: { key: string; title: string; rows: typeof rows }[] = [];
+  for (const phase of PHASES) {
+    const inPhase = rows.filter((r) => r.s.phase === phase.id);
+    if (phase.id !== "day2") {
+      if (inPhase.length) groups.push({ key: phase.id, title: phase.label, rows: inPhase });
+      continue;
+    }
+    for (const op of OPERATIONS) {
+      const inOp = inPhase.filter((r) => r.s.op === op.id);
+      if (inOp.length) groups.push({ key: `${phase.id}-${op.id}`, title: `${phase.label} · ${op.label}`, rows: inOp });
+    }
+  }
   return (
-    <table className="cai-steps-table">
-      <thead>
-        <tr><th>#</th><th>Day</th><th>Who</th><th>Task</th></tr>
-      </thead>
-      <tbody>
-        {rows.map(({ s, only }, n) => {
-          const eos = d.steps.eos.find((e) => e.id === s.id);
-          const title = eos && eos.title !== s.title ? `${s.title}, or with Enclave OS, ${eos.title.toLowerCase()}` : s.title;
-          const day = PHASES.find((p) => p.id === s.phase)!.day;
-          return (
-            <tr key={`${s.phase}-${s.op ?? ""}-${s.id}`}>
-              <td>{n + 1}</td>
-              <td>{day}</td>
-              <td>{s.party ? <>{s.party.name} <small>· {ROLES[s.actor as RoleId].name}</small></> : "All parties"}</td>
-              <td>
-                <Link to={s.task}>{title}</Link>
-                {s.op && <small> · {OPERATIONS.find((o) => o.id === s.op)!.label}</small>}
-                {only && <small> · {RUNTIMES.find((r) => r.id === only)!.label} only</small>}
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+    <div className="cai-steps">
+      {groups.map((g) => (
+        <section key={g.key} className="cai-steps-group">
+          <h3 className="cai-steps-title">{g.title}</h3>
+          <table className="cai-steps-table">
+            <thead>
+              <tr><th>#</th><th>Who</th><th>Task</th></tr>
+            </thead>
+            <tbody>
+              {g.rows.map(({ s, only }, n) => {
+                const eos = d.steps.eos.find((e) => e.id === s.id);
+                const title = eos && eos.title !== s.title ? `${s.title}, or with Enclave OS, ${eos.title.toLowerCase()}` : s.title;
+                return (
+                  <tr key={`${s.phase}-${s.op ?? ""}-${s.id}`}>
+                    <td>{n + 1}</td>
+                    <td>{s.party ? <>{s.party.name} <small>· {ROLES[s.actor as RoleId].name}</small></> : "All parties"}</td>
+                    <td>
+                      <Link to={s.task}>{title}</Link>
+                      {only && <small> · {RUNTIMES.find((r) => r.id === only)!.label} only</small>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </section>
+      ))}
+    </div>
   );
 }
 

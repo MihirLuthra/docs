@@ -114,10 +114,9 @@ Save the measurements from the converter's response, under `config.measurements`
 
 ## Add and approve the build
 
-1. [Add a build](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application#add-a-build) to the application from [Set up CCM](set-up-ccm.mdx), with the measurements.
-   - For Confidential Containers, set **Coprocessors** to **Required**, so CCM also checks the GPU's evidence through NVIDIA NRAS.
-   - For Enclave OS, set **NVIDIA GPU Attestation** to **Required**.
+1. [Add a build](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application#add-a-build) to the application from [Set up CCM](set-up-ccm.mdx), with the measurements. Under **Coprocessors**, set **NVIDIA GPU attestation** to **Required**, so CCM checks the GPU evidence along with the CPU's.
 2. [Approve the build and the domain](/products/fortanix-armor/confidential-computing/ccm/applications/approve-builds-and-domains) on the **Tasks** page.
+3. [Add an application configuration](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application#add-an-application-configuration) for the build, even when the model needs no configuration items. The workflow on day 1 runs the build with it.
 
 Until the build and its domain are approved, CCM refuses the workload's certificate, and DSM releases no key.
 

@@ -23,7 +23,7 @@ export const pick = <T,>(v: V<T>, rt: Runtime): T =>
 
 export type PhaseId = "day0" | "day1" | "day2";
 export const PHASES: { id: PhaseId; label: string; day: string }[] = [
-  { id: "day0", label: "Day 0 · Prepare", day: "0" },
+  { id: "day0", label: "Day 0 · Plan and prepare", day: "0" },
   { id: "day1", label: "Day 1 · Deploy", day: "1" },
   { id: "day2", label: "Day 2 · Operate", day: "2" },
 ];
@@ -160,6 +160,12 @@ const STEPS: StepDef[] = [
     task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#add-and-approve-the-build`,
   },
   {
+    id: "config", phase: "day0", actor: "builder", title: "Add the application configuration",
+    to: "ccm:owner",
+    text: (c) => `${c.Name("builder")} adds an application configuration for build 1 in CCM, even with no settings. It holds the workload's runtime configuration, kept in CCM rather than on the host, and the workflow runs the build with it.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#add-and-approve-the-build`,
+  },
+  {
     id: "prepare", phase: "day0", actor: "infra", title: "Prepare the infrastructure",
     to: "infra",
     text: (c) => `${c.Name("infra")} turns on the TEE in each host's BIOS, for example Intel TDX, registers the platform with the CPU vendor, and sets the NVIDIA GPUs up for confidential computing.`,
@@ -197,6 +203,12 @@ const STEPS: StepDef[] = [
     from: "ccm:consumer", to: "ccm:owner", carries: "Workflow", when: separate,
     text: (c) => `${c.Name("consumer")} creates a workflow with a placeholder for the application of ${c.name("owner")}. The owner fills it in and approves first, then the consumer approves.`,
     task: `${GUIDES}/day-1-deploy/share-the-model`,
+  },
+  {
+    id: "own-workflow", phase: "day1", actor: "consumer", title: "Approve a workflow",
+    to: "ccm:consumer", when: (c) => !c.separate,
+    text: (c) => `${c.Name("consumer")} creates a workflow that runs build 1 of llama-chat with its application configuration, and approves it. The workload passes the configuration's ID when it starts.`,
+    task: "/products/fortanix-armor/confidential-computing/ccm/workflows/create-a-workflow",
   },
   {
     id: "deploy", phase: "day1", actor: "consumer", title: "Deploy the workload",
@@ -251,7 +263,7 @@ const STEPS: StepDef[] = [
   {
     id: "new-workflow", phase: "day2", op: "update-model", actor: "owner", title: "Approve a new workflow version",
     from: "ccm:owner", to: "ccm:consumer", carries: "Workflow version", when: separate,
-    text: () => "An approved workflow can't be edited. Edit workflow creates a new version, which replaces the old one once both sides approve it.",
+    text: () => "An approved workflow can't be edited. Edit as draft creates a new version, which replaces the old one once both sides approve it.",
     task: `${GUIDES}/day-2-operate/update-the-model#update-the-shared-workflow`,
   },
   {

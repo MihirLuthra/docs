@@ -1,34 +1,43 @@
 ---
 title: Share the model with the consumer
-description: Let the model consumer run the owner's approved model from its own CCM account, through collaborating groups and a shared workflow.
+description: Let the model consumer run the owner's approved model from its own CCM account, through collaborating groups and a shared workflow both approve.
 doc_type: how-to
-keywords: [shared workflow, collaborating groups, collaboration token, publisher, consumer, model owner, model consumer]
+keywords: [shared workflow, collaborating groups, collaboration token, publisher, consumer, model owner, model consumer, application configuration, runtime configuration hash]
 sidebar_position: 1
 ---
 
-Skip this when one organization both owns and runs the model. Otherwise the consumer runs the owner's application through a shared workflow between their two CCM accounts. The model owner is the **publisher**, the model consumer the **consumer**.
+import LinkGroups from '../../../../_flows/ccm/link-groups.mdx';
+import SharedWorkflow from '../../../../_flows/ccm/shared-workflow.mdx';
+
+Skip this when one organization both owns and runs the model. Otherwise the consumer runs the owner's application from its own CCM account, through a shared workflow. The model owner is the **publisher**, and the model consumer the **consumer**.
+
+A workflow sets which build of the application runs, with which application configuration. The configuration lives in CCM, not on the host, so a host administrator can't change it unseen. The workload fetches it from CCM when it starts, using its application configuration ID, which also tells CCM which workflow the workload runs in. In a shared workflow, the owner picks the application, build and configuration, and both sides approve. See [CCM concepts](/products/fortanix-armor/confidential-computing/ccm/concepts) for more.
+
+The shared workflow also protects the key. The consumer's CCM account can issue a certificate with the owner's application name, `<APPLICATION_ID>.app.fortanix.cloud`, only for the application in a workflow the owner approved. That is the name DSM's Trusted CA app expects ([Set up DSM](../day-0-plan-and-prepare/set-up-dsm.mdx#create-the-trusted-ca-app)).
 
 ## Before you begin
 
-- The model owner has [protected the model](../day-0-plan-and-prepare/protect-the-model.mdx), and its build is approved.
+- The model owner has [protected the model](../day-0-plan-and-prepare/protect-the-model.mdx): its build is approved, and it has an application configuration for the build.
 - The consumer has a group in its CCM account, from [Set up CCM](../day-0-plan-and-prepare/set-up-ccm.mdx#model-consumer).
 
-## Link the accounts and approve the workflow
+## Link the accounts
 
-{/* TODO: show the steps inline as shared walkthroughs (collaboration token, accept token, accept the link, the consumer's placeholder, the publisher filling it, both approvals); screenshots are captured. Explain what workflows and application configurations are (the application configuration ID is the runtime configuration hash the workload passes). */}
+<LinkGroups />
 
-Follow [Run another account's application in a shared workflow](/products/fortanix-armor/confidential-computing/ccm/workflows/shared-workflows). In short, these are the steps.
+## Create and approve the shared workflow
 
-1. The owner generates a collaboration token and sends it to the consumer, who accepts it. The owner then accepts the link.
-2. The consumer creates a workflow with a placeholder for the owner's group.
-3. The owner fills the placeholder with the model's application image.
-4. The consumer requests approval. The owner approves first, then the consumer.
+<SharedWorkflow />
 
-{/* TODO(verify): the shared-workflow steps are documented for Intel TDX (Enclave OS / confidential VM) applications; confirm they apply to Confidential Containers applications. */}
+## Find the application configuration ID
+
+The consumer runs the workload with it.
+
+1. Go to **Workflows** > **Approved** and click **VIEW DETAILS** on the workflow.
+2. Click the information icon on the application's node, and copy the **Application configuration ID**.
 
 ## Verify
 
-- The workflow is under **Workflows** > **Approved**.
+- The workflow is under **Workflows** > **Approved**, in both accounts.
 
 ## Next steps
 

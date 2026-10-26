@@ -1,0 +1,11 @@
+{/* Shared flow (D16): link a publisher's group and a consumer's group in two
+    CCM accounts (collaborating groups). Text steps for now.
+    TODO: a walkthrough with the captured screenshots (img/todo). */}
+
+Collaboration links a group of the publisher's account with a group of the consumer's. Group settings are in Armor's **Identity & Access Management**, under **Groups**.
+
+1. **Publisher.** Open the group and click **COLLABORATE**, then **GENERATE TOKEN**, then **COPY**. Send the token to the consumer over a channel you trust.
+2. **Consumer.** Open the group and click **ACCEPT TOKEN**. Paste the token under **Paste token** and click **PROCEED**.
+3. **Publisher.** Go to **COLLABORATION GROUPS** > **PUBLISHER**. The consumer's group is listed as **Pending**. In the row's menu, click **Accept**.
+
+The link is now **Accepted**. The consumer sees it under **COLLABORATION GROUPS** > **CONSUMER**.
