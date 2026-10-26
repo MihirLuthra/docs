@@ -107,9 +107,7 @@
   --fx-content-top: 22px;
   /* The sidebar starts a little lower; +8px keeps that grid. */
   --fx-sidebar-top: calc(var(--fx-content-top) + 8px);
-  --fx-home-max: 1080px; /* home main column */
-  --fx-rail-width: 260px; /* home right rail */
-  --fx-rail-gap: var(--fx-space-8);
+  --fx-home-max: 1080px; /* home main column */ /* home right rail */
   --fx-section-gap: 28px;
   --fx-banner-py: 10px; /* two 1.3 lines (or the 40px icon) + 2 x 10 + border = ~64px banner */
   --fx-recent-card-h: 56px;
@@ -226,14 +224,13 @@
   --fx-notice-accent: var(--fx-kind-concept);
   --fx-diagram-party: var(--fx-blue);
   --fx-diagram-party-soft: #e8f9ff;
-  /* Home page hero and spotlight (pages/index.module.css) */
+  /* Home page hero (pages/index.module.css) */
   --fx-text-hero: clamp(2rem, 1.4rem + 2vw, 2.75rem);
   --fx-text-hero-sm: 1.75rem;
   --fx-text-lead: 1.0625rem;
   --fx-radius-hero: 20px;
   --fx-hero-search-h: 52px;
   --fx-hero-art-w: 260px;
-  --fx-spot-art-w: 300px;
   --fx-hero-bg: #fbf9ff;
   --fx-hero-border: #ece3fb;
   --fx-hero-glow-a: rgb(153 23 255 / 0.12);
@@ -246,9 +243,6 @@
   --fx-hero-tee: rgb(153 23 255 / 0.08);
   --fx-shadow-hero-search: 0 8px 24px rgb(100 0 179 / 0.08), 0 1px 2px rgb(19 19 19 / 0.06);
   --fx-shadow-card-lift: 0 10px 28px rgb(19 19 19 / 0.08), 0 2px 6px rgb(19 19 19 / 0.04);
-  --fx-spot-bg: var(--fx-bg);
-  --fx-spot-border: var(--fx-accent-border);
-  --fx-spot-glow: rgb(153 23 255 / 0.08);
 
   /* Infima mapping */
   --ifm-font-family-base: var(--fx-font-sans);
@@ -367,8 +361,6 @@
   --fx-hero-tee: rgb(208 166 255 / 0.1);
   --fx-shadow-hero-search: 0 8px 24px rgb(0 0 0 / 0.4);
   --fx-shadow-card-lift: 0 10px 28px rgb(0 0 0 / 0.5);
-  --fx-spot-bg: #17141d;
-  --fx-spot-glow: rgb(153 23 255 / 0.16);
 
   --ifm-color-primary-darkest: var(--fx-purple);
   --ifm-color-primary-light: var(--fx-purple-light);

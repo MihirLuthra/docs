@@ -40,16 +40,17 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 ## Home
 
-- **Grid:** sidebar | content. The content (max 1080px main column + 260px right column, from 1280px wide) is centred in the space beside the sidebar. The hero spans both columns; below it the main column and the right column sit side by side. Narrower than 1280px, the right column's content follows the main column's.
+- **Grid:** sidebar | content. The content (max 1080px) is centred in the space beside the sidebar: the hero, then Recently viewed, then Explore Fortanix. No right column.
+- No one solution or product gets more weight than the others on the home page: they are all equal cards in Explore Fortanix.
 - Everything is static CSS and inline SVG: no images to load, no layout shift (recents reserve their height before hydration, below).
 
 1. **Hero**: a rounded panel (20px radius) with a soft purple and blue wash over a fine grid that fades out.
    - A slim **proof-of-concept notice** strip at its top (amber).
    - A visible title, "Fortanix Documentation", with "Fortanix" in the brand gradient; one lead line under it.
    - A **large search box** (52px tall, up to ~544px wide) that opens the site's search panel, with its `/` key chip.
-   - Under it, **"New to Fortanix? Start here"** (a dark pill button to *What Fortanix does*), then quick-link chips (from `featured.ts`, `quickLinks`).
+   - Under it, **"New to Fortanix? Start here"** (a dark pill button to *What Fortanix does*).
    - On the right, a decorative picture: a chip with a lock inside a dashed TEE outline, a slowly turning orbit with a search and a key badge. Hidden below 900px. Nothing moves with reduced motion.
-   - Phones: tighter padding, 28px title, the chips wrap.
+   - Phones: tighter padding, 28px title.
 2. **Recently viewed** (stored in localStorage, max 12):
    - Cards in a 3-column grid (2 below 768px, 1 below 576px), each with a page icon, a title and its closest parent section (the full path is in the tooltip).
    - Each card has its own **×** to remove it. There is **no "clear all"**.
@@ -57,14 +58,13 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
    - Shows 2 rows (6 cards). A "View more (n)" / "Show less" toggle sits below the cards.
    - Empty state: "Pages you open show up here."
    - Stored pages that no longer exist (moved or removed) are dropped when the home page loads, so the reserved height matches what shows.
-3. **Spotlight: Confidential AI**: a wide card with a "Solution" eyebrow, the title, one line, a primary "Overview" button and two text links (Deploy and operate, Use cases). On the right a small picture: CCM and DSM above a dashed TEE holding the model workload. The picture is hidden below 768px.
-4. **Explore Fortanix**: the other curated cards (Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness). The cards come from one data file (`apps/docs/src/data/featured.ts`).
+3. **Explore Fortanix**: 6 curated cards (Confidential AI, Key management→DSM, Tokenization, Confidential Computing, File system encryption, PQC readiness). The cards come from one data file (`apps/docs/src/data/featured.ts`).
    - Each card has an icon tile and a kind label (Product blue, Solution purple), then a mono path, a title, one line, and tags.
    - On hover the card lifts, the brand gradient shows along its top, and an arrow replaces the kind label.
    - The path is one line (ellipsis if too long, never wraps), so titles in a row line up. Paths say "Armor" for "Fortanix Armor".
-   - At most 3 columns; fewer on narrow screens.
+   - At most 3 columns (6 cards = 2 rows); fewer on narrow screens.
    - Tags: 11px text, padding 1px 6px, radius 4px, the chip background, 4px apart.
-5. **Popular tasks** (right column, sticky under the header): a list of task pages, each a title over its section with an arrow (from `featured.ts`, `popularTasks`). Narrower than 1280px it follows Explore Fortanix, in two columns where they fit.
+
 ## Search bar
 
 A search bar in the header. Clicking it (or ⌘K / Ctrl+K or `/`) opens a larger search panel near the top of the page, over a dimmed page.

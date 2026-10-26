@@ -4,7 +4,7 @@ import Layout from '@theme/Layout';
 import DocsTree from '@site/src/components/DocsTree';
 import {locate, useTree} from '@site/src/components/DocsTree/tree';
 import {useOverlays} from '@site/src/components/Overlays/context';
-import {featured, popularTasks, quickLinks, type FeaturedIcon} from '@site/src/data/featured';
+import {featured, type FeaturedIcon} from '@site/src/data/featured';
 import {RECENTS_VISIBLE, readRecents, setRecentsLayout, writeRecents} from '@site/src/lib/recents';
 import {SEARCH_TRIGGER_ATTR} from '@site/src/lib/search-early';
 import {useFooterOverlap} from '@site/src/lib/footer-overlap';
@@ -193,15 +193,6 @@ function Hero(): ReactNode {
               New to Fortanix? Start here
               <ArrowIcon />
             </Link>
-            <ul className={styles.quick} aria-label="Popular pages">
-              {quickLinks.map((q) => (
-                <li key={q.href}>
-                  <Link to={q.href} className={styles.quickLink}>
-                    {q.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
         <HeroArt />
@@ -313,76 +304,14 @@ function HomeSidebar(): ReactNode {
   );
 }
 
-/** Confidential AI, featured: what it is, its main pages, and a small picture of the flow. */
-function Spotlight(): ReactNode {
-  return (
-    <section className={styles.spotlight} aria-labelledby="spotlight-title">
-      <div className={styles.spotText}>
-        <span className={styles.eyebrow}>Solution</span>
-        <h2 id="spotlight-title" className={styles.spotTitle}>
-          Confidential AI
-        </h2>
-        <p className={styles.spotLine}>
-          Run models in a TEE on the CPU and the GPU, prove what runs before it gets a secret, and release the model
-          key only to approved workloads.
-        </p>
-        <ul className={styles.spotLinks}>
-          <li>
-            <Link to="/solutions/confidential-ai/overview" className={styles.spotPrimary}>
-              Overview
-              <ArrowIcon />
-            </Link>
-          </li>
-          <li>
-            <Link to="/solutions/confidential-ai/how-to-guides/overview" className={styles.spotSecondary}>
-              Deploy and operate
-            </Link>
-          </li>
-          <li>
-            <Link to="/solutions/confidential-ai/use-cases/proprietary-model" className={styles.spotSecondary}>
-              Use cases
-            </Link>
-          </li>
-        </ul>
-      </div>
-      {/* A model in a TEE; CCM checks it, DSM sends the key. Decorative. */}
-      <svg className={styles.spotArt} viewBox="0 0 300 180" aria-hidden="true">
-        <rect x="8" y="14" width="96" height="44" rx="10" className={styles.spotCard} />
-        <text x="56" y="42" textAnchor="middle" className={styles.spotLabel}>
-          CCM
-        </text>
-        <rect x="196" y="14" width="96" height="44" rx="10" className={styles.spotCard} />
-        <text x="244" y="42" textAnchor="middle" className={styles.spotLabel}>
-          DSM
-        </text>
-        <rect x="58" y="96" width="184" height="72" rx="16" className={styles.spotTee} />
-        <text x="150" y="120" textAnchor="middle" className={styles.spotTeeLabel}>
-          TEE
-        </text>
-        <rect x="98" y="130" width="104" height="26" rx="8" className={styles.spotCard} />
-        <text x="150" y="148" textAnchor="middle" className={styles.spotSmall}>
-          Model workload
-        </text>
-        <path d="M56 58v38" className={styles.spotFlow} />
-        <path d="M244 58v38" className={styles.spotFlow} style={{animationDelay: '0.9s'}} />
-        <circle cx="56" cy="77" r="9" className={styles.spotDot} />
-        <path d="M52 77l3 3 5-6" className={styles.spotTick} />
-        <circle cx="244" cy="77" r="9" className={styles.spotDot} />
-        <path d="M240 77a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0M245 77h4" className={styles.spotTick} />
-      </svg>
-    </section>
-  );
-}
-
 function ExploreFortanix(): ReactNode {
-  const cards = featured.filter((c) => c.title !== 'Confidential AI');
   return (
     <section className={styles.section} aria-labelledby="explore-heading">
       <h2 id="explore-heading" className={styles.heading}>
         Explore Fortanix
       </h2>
       <ul className={styles.exploreGrid}>
-        {cards.map((card) => (
+        {featured.map((card) => (
           <li key={card.href}>
             <Link to={card.href} className={styles.exploreCard} data-kind={card.kind}>
               <span className={styles.cardTop}>
@@ -414,30 +343,6 @@ function ExploreFortanix(): ReactNode {
   );
 }
 
-/** How-tos people come back for: in the right column on wide screens, after the cards otherwise. */
-function PopularTasks(): ReactNode {
-  return (
-    <section className={styles.tasks} aria-labelledby="tasks-heading">
-      <h2 id="tasks-heading" className={styles.heading}>
-        Popular tasks
-      </h2>
-      <ul className={styles.taskList}>
-        {popularTasks.map((t) => (
-          <li key={t.href}>
-            <Link to={t.href} className={styles.task}>
-              <span className={styles.taskText}>
-                <span className={styles.taskTitle}>{t.title}</span>
-                <span className={styles.taskSection}>{t.section}</span>
-              </span>
-              <ArrowIcon />
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
 export default function Home(): ReactNode {
   return (
     <Layout title="Home" description="Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.">
@@ -445,17 +350,10 @@ export default function Home(): ReactNode {
         <HomeSidebar />
         <div className={styles.content}>
           <Hero />
-          {/* Main column and right column under the hero. */}
-          <div className={styles.columns}>
-            <main className={styles.main}>
-              <RecentlyViewed />
-              <Spotlight />
-              <ExploreFortanix />
-            </main>
-            <aside className={styles.rail} aria-label="Popular tasks">
-              <PopularTasks />
-            </aside>
-          </div>
+          <main className={styles.main}>
+            <RecentlyViewed />
+            <ExploreFortanix />
+          </main>
         </div>
       </div>
     </Layout>
