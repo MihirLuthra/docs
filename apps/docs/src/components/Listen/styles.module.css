@@ -114,6 +114,57 @@
   background-color: var(--fx-tooltip-hover);
 }
 
+/* "Listen from here" in the margin left of the paragraph or list item
+   pointed at, centred on its first line. Mouse only. */
+.fromBlock {
+  position: absolute;
+  z-index: var(--fx-z-listen);
+  display: inline-grid;
+  place-items: center;
+  width: var(--fx-space-6);
+  height: var(--fx-space-6);
+  padding: 0;
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: 50%;
+  background: var(--fx-bg);
+  box-shadow: var(--fx-shadow-menu);
+  color: var(--fx-text-muted);
+  cursor: pointer;
+  transform: translate(calc(-100% - var(--fx-space-2)), -50%);
+  animation: fx-listen-in var(--fx-duration-fast) var(--fx-ease-out);
+}
+
+.fromBlock:hover {
+  border-color: var(--fx-card-hover-border);
+  color: var(--fx-brand-text);
+}
+
+.fromBlock:focus-visible {
+  outline: var(--fx-focus-width) solid var(--fx-focus);
+  outline-offset: 2px;
+}
+
+.fromBlockTip {
+  position: absolute;
+  bottom: calc(100% + var(--fx-space-1));
+  left: 50%;
+  padding: var(--fx-space-1) var(--fx-space-2);
+  border-radius: var(--fx-radius-sm);
+  background-color: var(--fx-tooltip-bg);
+  color: var(--fx-tooltip-text);
+  font-size: var(--fx-text-xs);
+  line-height: 1.3;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity var(--fx-duration-fast) var(--fx-ease);
+}
+
+.fromBlock:hover .fromBlockTip {
+  opacity: 1;
+}
+
 /* "Listen from here" in a section heading, beside its copy button: shown
    while the heading is pointed at or the button has focus. */
 .fromHeading {
@@ -514,7 +565,8 @@
 @media (prefers-reduced-motion: reduce) {
   .selection,
   .bar,
-  .menu {
+  .menu,
+  .fromBlock {
     animation: none;
   }
 
