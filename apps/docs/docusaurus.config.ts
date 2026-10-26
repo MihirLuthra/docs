@@ -11,13 +11,15 @@ import {fontFaceCss, fontUrl} from './src/lib/fonts';
 import {searchEarlyScript} from './src/lib/search-early';
 
 const GITHUB_REPO = 'MihirLuthra/docs';
+// The branch the site is published from (.github/workflows/pages.yml).
+const GITHUB_BRANCH = 'mihir/initial-setup';
 
 // Where the site is served. The GitHub Pages workflow sets both
 // (.github/workflows/pages.yml); local builds serve from the root.
 const BASE_URL = process.env.DOCS_BASE_URL ?? '/';
 
 // Edit links open GitHub's editor (D12).
-const EDIT_BASE = `https://github.com/${GITHUB_REPO}/edit/main`;
+const EDIT_BASE = `https://github.com/${GITHUB_REPO}/edit/${GITHUB_BRANCH}`;
 
 const config: Config = {
   title: 'Fortanix Documentation',
@@ -85,7 +87,7 @@ const config: Config = {
     ],
   ],
 
-  plugins: [docsTree, versions, [contributors, {repo: GITHUB_REPO, branch: 'main'}]],
+  plugins: [docsTree, versions, [contributors, {repo: GITHUB_REPO, branch: GITHUB_BRANCH}]],
   clientModules: ['./src/clientModules/recents.ts', './src/clientModules/nav-history.ts'],
 
   themeConfig: {
