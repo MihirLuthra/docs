@@ -33,8 +33,7 @@ function CheckIcon(): ReactNode {
  * is the path alone.
  *
  * After the page's name in the path (DocBreadcrumbs), and in each heading in
- * place of Docusaurus's "#" link (theme/Heading), where it also puts the
- * section in the address bar.
+ * place of Docusaurus's "#" link (theme/Heading).
  */
 export default function CopyPath({hash, label}: {hash?: string; label: string}): ReactNode {
   const base = useBaseUrl('/');
@@ -51,7 +50,6 @@ export default function CopyPath({hash, label}: {hash?: string; label: string}):
     const fragment = hash ? `#${hash}` : '';
     const text = `${PATH_ROOT}/${page}${fragment}`;
     const url = `${origin}${pathname}${fragment}`;
-    if (hash) window.history.replaceState(window.history.state, '', `${pathname}${window.location.search}${fragment}`);
     try {
       if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
         await navigator.clipboard.write([
