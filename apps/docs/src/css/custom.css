@@ -80,6 +80,17 @@
   --fx-listen-play-touch: 48px;
   --fx-listen-width: 640px; /* the player bar */
   --fx-z-listen: 300; /* the player and the selection's Listen, over the page */
+  --fx-z-lightbox: 400; /* a walkthrough's screenshots full screen */
+  /* Walkthrough screenshots (components/Walkthrough). The product's UI is
+     dark in both themes, so these don't change with the theme. */
+  --fx-shot-bg: #1b1934; /* around a screenshot narrower than its frame */
+  --fx-shot-mark: #c58bff; /* the ring around the control a step uses */
+  --fx-shot-mark-glow: rgb(197 139 255 / 0.35);
+  --fx-shot-mark-text: #1b0636;
+  --fx-lightbox-bg: #0b0a18;
+  --fx-lightbox-text: #f4f2ff;
+  --fx-lightbox-muted: #b8b4d6;
+  --fx-lightbox-line: rgb(255 255 255 / 0.18);
   --fx-menu-min: 200px; /* small menus (Back / Forward, path) fit their items */
   --fx-menu-max: 280px;
   --fx-tree-home-h: 40px;

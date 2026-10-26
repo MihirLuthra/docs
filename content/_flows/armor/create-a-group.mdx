@@ -1,0 +1,38 @@
+{/* Shared flow (D16): create a group in Armor's Identity & Access Management.
+    Props: group, the name to suggest (default llm-serving). */}
+
+<Walkthrough label="Create a group">
+<Step
+  title="Open Groups"
+  image={require('../img/iam-groups.webp').default}
+  width={1903}
+  height={858}
+  marks={[[89.5, 37.6, 8.9, 5.2]]}
+  alt="The Groups page of Identity & Access Management, with the ADD GROUP button outlined">
+
+In Armor, open **Identity & Access Management** from the account's home page, go to **Groups**, and click **ADD GROUP**.
+
+</Step>
+<Step
+  title="Name the group"
+  image={require('../img/iam-create-group.webp').default}
+  width={831}
+  height={702}
+  marks={[[9, 30.4, 81.9, 5.2], [27.3, 80.8, 24.5, 6.4]]}
+  alt="The Create group dialog, with the Name field and the CREATE GROUP button outlined">
+
+Enter a **Name**, such as <code>{props.group ?? 'llm-serving'}</code>, and click **CREATE GROUP**. A description and labels are optional.
+
+</Step>
+<Step
+  title="Check the group"
+  image={require('../img/iam-group-created.webp').default}
+  width={1903}
+  height={858}
+  marks={[[20.6, 70.3, 77.8, 10.4]]}
+  alt="The Groups page with the new group listed">
+
+The group is listed under **Groups**, ready to choose when you register an application.
+
+</Step>
+</Walkthrough>

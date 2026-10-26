@@ -1,0 +1,39 @@
+{/* Shared flow (D16): get a join token, and the zone CA, from CCM.
+    Props: zoneCa, false to leave out the zone CA step. */}
+
+<Walkthrough label="Get a join token">
+<Step
+  title="Open the Intel TDX compute nodes"
+  image={require('../img/ccm-compute-nodes.webp').default}
+  width={1903}
+  height={858}
+  marks={[[90.4, 38.9, 6.6, 4.2], [16.5, 60.2, 14.8, 5.4]]}
+  alt="CCM's Infrastructure page on COMPUTE NODES, with Intel TDX selected and the ADD NODE button outlined">
+
+In CCM, go to **Infrastructure** > **COMPUTE NODES**, select **Intel TDX**, and click **ADD NODE**.
+
+</Step>
+<Step
+  title="Copy the join token"
+  image={require('../img/ccm-enroll-node.webp').default}
+  width={1409}
+  height={712}
+  marks={[[4.4, 53.1, 4.5, 6.7], [4.4, 43.4, 79.4, 5.5]]}
+  alt="The Enroll Compute Node dialog, with the hidden join token and the COPY button outlined">
+
+In **Enroll Compute Node**, click **COPY**, or **DOWNLOAD** to save it as a file. Anyone with the join token can enrol a host in your account, so send it only over a channel you trust.
+
+</Step>
+<Step
+  hidden={props.zoneCa === false}
+  title="Download the zone CA"
+  image={require('../img/ccm-enroll-node.webp').default}
+  width={1409}
+  height={712}
+  marks={[[22.8, 53, 17.4, 7]]}
+  alt="The Enroll Compute Node dialog, with the DOWNLOAD ZONE CA button outlined">
+
+Click **DOWNLOAD ZONE CA** to save the zone CA certificate. A relying party, such as a DSM app, uses it to trust your workloads' certificates.
+
+</Step>
+</Walkthrough>

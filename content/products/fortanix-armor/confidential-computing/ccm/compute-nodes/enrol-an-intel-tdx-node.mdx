@@ -6,6 +6,8 @@ keywords: [compute node, intel tdx, node agent, join token, enroll, em-agent, sg
 sidebar_position: 1
 ---
 
+import JoinToken from '../../../../../_flows/ccm/join-token-and-zone-ca.mdx';
+
 A node enrolled in CCM can attest, so the workloads on it can get certificates. The node agent attests the host to CCM and passes attestation requests and certificates between the workloads and CCM.
 
 ## Before you begin
@@ -52,24 +54,9 @@ A node enrolled in CCM can attest, so the workloads on it can get certificates. 
 
 ## Get a join token
 
-1. In CCM, go to **Infrastructure** > **COMPUTE NODES** > **Intel TDX** and click **ADD NODE**.
-2. In **Enroll Compute Node**, click **COPY** or **DOWNLOAD** to get the join token.
-3. Click **DOWNLOAD ZONE CA** if a relying party, such as a DSM app, needs to trust your workloads' certificates.
+<JoinToken />
 
-<Screenshots>
-<Screenshot caption="Get the join token">
-
-![The Enroll Compute Node dialog, with the join token hidden and the COPY, DOWNLOAD and DOWNLOAD ZONE CA buttons below it](../img/enroll-compute-node.jpg)
-
-</Screenshot>
-<Screenshot caption="See the enrolled node">
-
-![The Intel TDX compute node list, with six nodes, their status, labels, CPUs and last attestation](../img/compute-nodes-intel-tdx.jpg)
-
-</Screenshot>
-</Screenshots>
-
-Anyone with the join token can enrol a node in your account. If someone else runs the host, send it to them over a channel you trust.
+If someone else runs the host, send them the join token over a channel you trust.
 
 ## Install the node agent
 

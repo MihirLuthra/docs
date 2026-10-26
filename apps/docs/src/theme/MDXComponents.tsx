@@ -7,6 +7,7 @@ import AttestationFlow from '@site/src/components/ConfidentialAI/AttestationFlow
 import {DeploymentFlow, DeploymentSteps, DeploymentsTable} from '@site/src/components/ConfidentialAI/DeploymentFlow';
 import RolesExplorer from '@site/src/components/ConfidentialAI/RolesExplorer';
 import {Screenshot, Screenshots} from '@site/src/components/Screenshots';
+import {Step, Walkthrough} from '@site/src/components/Walkthrough';
 import {CurrentVersions, SupportedTees, SupportMatrix, Version} from '@site/src/components/Versions';
 
 // Components MDX pages in content/ use without importing them (content/ holds
@@ -76,4 +77,6 @@ export default {
   Callout,
   Screenshots,
   Screenshot,
+  Walkthrough,
+  Step,
 };

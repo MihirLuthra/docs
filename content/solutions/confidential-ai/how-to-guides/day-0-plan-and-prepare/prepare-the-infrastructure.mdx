@@ -6,6 +6,9 @@ keywords: [infrastructure, hosts, intel tdx, nvidia gpu, confidential computing,
 sidebar_position: 2
 ---
 
+import CreateGroup from '../../../../_flows/armor/create-a-group.mdx';
+import JoinToken from '../../../../_flows/ccm/join-token-and-zone-ca.mdx';
+
 The model runs on infrastructure of TEE hosts, with CPUs and NVIDIA GPUs in confidential computing mode. The model consumer creates the join token, and the infrastructure provider uses it to enrol the hosts. When one organization is both, one team can do it all.
 
 ## Before you begin
@@ -17,11 +20,15 @@ The model runs on infrastructure of TEE hosts, with CPUs and NVIDIA GPUs in conf
 
 ## Set up CCM
 
-The model consumer does this.
+The model consumer does this, in its Armor account.
 
-1. In CCM, go to **Groups** and click **+ ADD GROUP**, or use an existing group, such as `llm-serving`. Enter a **Name** and click **SAVE**.
-2. [Get a join token](/products/fortanix-armor/confidential-computing/ccm/compute-nodes/enrol-an-intel-tdx-node#get-a-join-token), and give it to the infrastructure provider.
-3. In the same dialog, click **DOWNLOAD ZONE CA**, and give the certificate to the model owner. Their DSM app uses it to trust your workload's certificate.
+Create a group for the deployment, such as `llm-serving`, or use one you already have.
+
+<CreateGroup group="llm-serving" />
+
+Get the join token and the zone CA. Give the join token to the infrastructure provider, who enrols the hosts with it, and the zone CA certificate to the model owner, whose DSM app uses it to trust your workload's certificate.
+
+<JoinToken />
 
 ## Prepare the hosts
 

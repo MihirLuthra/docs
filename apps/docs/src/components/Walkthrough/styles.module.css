@@ -1,0 +1,448 @@
+/* Walkthrough (index.tsx) and its full-screen view (Lightbox.tsx). 575px
+   matches the site's phone breakpoint (media queries can't use vars). */
+
+.walkthrough {
+  margin: var(--fx-space-6) 0;
+  overflow: hidden;
+  border: var(--fx-border-width) solid var(--fx-border-strong);
+  border-radius: var(--fx-radius-xl);
+  background: var(--fx-surface);
+}
+
+/* The screenshot of the step chosen. A fixed shape, so moving between
+   screenshots never moves the page; each is fitted inside it. */
+.viewer {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  /* Never taller than most of the screen, so the steps show too. */
+  max-height: 62vh;
+  width: 100%;
+  background: var(--fx-shot-bg);
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.viewer:focus-visible {
+  outline: var(--fx-focus-width) solid var(--fx-focus);
+  outline-offset: calc(-1 * var(--fx-focus-width));
+}
+
+.track {
+  display: flex;
+  height: 100%;
+  transition: transform var(--fx-duration-panel) var(--fx-ease-out);
+}
+
+.track[data-dragging] {
+  transition: none;
+}
+
+.slide {
+  display: grid;
+  overflow: hidden;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: var(--fx-space-3);
+  container-type: size;
+}
+
+/* The screenshot at its own shape, as large as fits: the marks are placed in
+   percent of it. */
+.frame {
+  position: relative;
+  width: min(100cqw, 100cqh * var(--ratio));
+  aspect-ratio: var(--ratio);
+  border-radius: var(--fx-radius-md);
+  box-shadow: var(--fx-shadow-popover);
+  cursor: zoom-in;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+/* A control the step uses: a bright ring, with the step's number just
+   outside its left edge, clear of what it outlines and of the labels above. */
+.mark {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid var(--fx-shot-mark);
+  border-radius: var(--fx-radius-sm);
+  box-shadow:
+    0 0 0 3px var(--fx-shot-mark-glow),
+    0 0 18px var(--fx-shot-mark-glow);
+  pointer-events: none;
+  animation: fx-mark-in 400ms var(--fx-ease-out) backwards;
+}
+
+.badge {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 50%;
+  background: var(--fx-shot-mark);
+  color: var(--fx-shot-mark-text);
+  font-size: var(--fx-text-xs);
+  font-weight: 700;
+  transform: translate(calc(-100% - 6px), -50%);
+}
+
+@keyframes fx-mark-in {
+  from {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+/* Previous and next, at the sides; the zoom button and the count in the corners. */
+.nav,
+.zoom {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: var(--fx-space-8);
+  height: var(--fx-space-8);
+  padding: 0;
+  border: var(--fx-border-width) solid var(--fx-glass-border);
+  border-radius: 50%;
+  background: var(--fx-glass-bg);
+  box-shadow: var(--fx-shadow-menu);
+  color: var(--fx-text);
+  cursor: pointer;
+  backdrop-filter: var(--fx-glass-filter);
+  transition: opacity var(--fx-duration-fast) var(--fx-ease);
+}
+
+.nav svg,
+.zoom svg {
+  width: var(--fx-space-4);
+  height: var(--fx-space-4);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nav {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.prev {
+  left: var(--fx-space-2);
+}
+
+.next {
+  right: var(--fx-space-2);
+}
+
+.nav:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.zoom {
+  top: var(--fx-space-2);
+  right: var(--fx-space-2);
+}
+
+.nav:focus-visible,
+.zoom:focus-visible,
+.stepHead:focus-visible {
+  outline: var(--fx-focus-width) solid var(--fx-focus);
+  outline-offset: 2px;
+}
+
+.counter {
+  position: absolute;
+  bottom: var(--fx-space-2);
+  left: 50%;
+  padding: 0 var(--fx-space-2);
+  border-radius: var(--fx-radius-pill);
+  background: var(--fx-glass-bg);
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.6;
+  transform: translateX(-50%);
+  backdrop-filter: var(--fx-glass-filter);
+}
+
+/* With a mouse, the arrows show while the screenshot is pointed at. */
+@media (hover: hover) {
+  .viewer:not(:hover, :focus-within) .nav {
+    opacity: 0;
+  }
+}
+
+/* The steps, numbered, under the screenshot. */
+.steps {
+  margin: 0;
+  padding: var(--fx-space-2);
+  list-style: none;
+  counter-reset: none;
+}
+
+.step {
+  margin: 0;
+  padding: var(--fx-space-2) var(--fx-space-3);
+  border-radius: var(--fx-radius-lg);
+  cursor: pointer;
+  transition: background-color var(--fx-duration-fast) var(--fx-ease);
+}
+
+.step:hover {
+  background-color: var(--fx-hover);
+}
+
+.step[data-active='true'] {
+  background-color: var(--fx-selected-bg);
+}
+
+.stepHead {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-3);
+  border-radius: var(--fx-radius-sm);
+}
+
+.number {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border: var(--fx-border-width) solid var(--fx-border-strong);
+  border-radius: 50%;
+  background: var(--fx-bg);
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.step[data-active='true'] .number {
+  border-color: var(--fx-brand-text);
+  background: var(--fx-brand-text);
+  color: var(--fx-bg);
+}
+
+.title {
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.step[data-active='true'] .title {
+  color: var(--fx-selected-text);
+}
+
+/* What to do: lined up under the title. */
+.text {
+  margin-top: var(--fx-space-1);
+  padding-left: calc(1.625rem + var(--fx-space-3));
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-sm);
+}
+
+.text > :last-child {
+  margin-bottom: 0;
+}
+
+.text p {
+  margin-bottom: var(--fx-space-2);
+}
+
+/* A narrow frame: a wide screenshot (a whole page) zooms in around the
+   control the step uses, so it reads without opening it full screen. */
+@container (max-width: 520px) {
+  .frame[data-wide] {
+    transform: scale(1.9);
+    transform-origin: var(--focus-x) var(--focus-y);
+  }
+
+  /* Zoomed in, the number would crowd the control; the step's number is right below. */
+  .frame[data-wide] .badge {
+    display: none;
+  }
+}
+
+@media (max-width: 575px) {
+  .viewer {
+    aspect-ratio: 4 / 3;
+  }
+
+  .slide {
+    padding: var(--fx-space-2);
+  }
+}
+
+/* ---------- Full screen ---------- */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--fx-z-lightbox);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--fx-lightbox-bg);
+  color: var(--fx-lightbox-text);
+  animation: fx-lightbox-in var(--fx-duration-panel) var(--fx-ease-out);
+}
+
+.lightbox:focus {
+  outline: none;
+}
+
+.lbBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fx-space-3);
+  padding: var(--fx-space-3) var(--fx-space-4);
+}
+
+.lbTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-2);
+  min-width: 0;
+  font-weight: 600;
+}
+
+.lbNumber {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 50%;
+  background: var(--fx-shot-mark);
+  color: var(--fx-shot-mark-text);
+  font-size: var(--fx-text-sm);
+}
+
+.lbCount {
+  color: var(--fx-lightbox-muted);
+  font-size: var(--fx-text-sm);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.lbTools {
+  display: flex;
+  flex: none;
+  gap: var(--fx-space-1);
+}
+
+.lbTools button {
+  min-width: var(--fx-space-8);
+  height: var(--fx-space-8);
+  padding: 0 var(--fx-space-2);
+  border: var(--fx-border-width) solid var(--fx-lightbox-line);
+  border-radius: var(--fx-radius-pill);
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--fx-text-sm);
+  cursor: pointer;
+}
+
+.lbTools button:hover:not(:disabled) {
+  background: var(--fx-lightbox-line);
+}
+
+.lbTools button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.lbTools button:focus-visible {
+  outline: var(--fx-focus-width) solid var(--fx-focus);
+  outline-offset: 2px;
+}
+
+.lbLevel {
+  font-variant-numeric: tabular-nums;
+}
+
+.lbStage {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  place-items: center;
+  padding: var(--fx-space-4) var(--fx-space-12);
+  container-type: size;
+  cursor: grab;
+  touch-action: none;
+}
+
+.lbStage[data-zoomed] {
+  cursor: move;
+}
+
+.lbCanvas {
+  display: grid;
+  place-items: center;
+  width: 100cqw;
+  height: 100cqh;
+  container-type: size;
+  transition: transform var(--fx-duration-fast) var(--fx-ease-out);
+  will-change: transform;
+}
+
+.lbCanvas[data-moving] {
+  transition: none;
+}
+
+.lbCanvas .frame {
+  cursor: inherit;
+}
+
+.lbHint {
+  margin: 0;
+  padding: var(--fx-space-2) var(--fx-space-4) var(--fx-space-3);
+  color: var(--fx-lightbox-muted);
+  font-size: var(--fx-text-xs);
+  text-align: center;
+}
+
+@media (max-width: 575px) {
+  .lbStage {
+    padding: var(--fx-space-2);
+  }
+
+  .lbHint {
+    display: none;
+  }
+}
+
+@keyframes fx-lightbox-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track,
+  .lbCanvas {
+    transition: none;
+  }
+
+  .mark,
+  .lightbox {
+    animation: none;
+  }
+}
