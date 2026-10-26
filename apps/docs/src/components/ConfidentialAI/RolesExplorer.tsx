@@ -60,6 +60,15 @@ function RoleCard({ role, s }: { role: RoleId; s: Scenario }) {
   );
 }
 
+/** What "Listen" says before a deployment's caption: which it is, and who holds which role. */
+function spokenIntro(s: Scenario): string {
+  const names = (roles: RoleId[]) => {
+    const n = roles.map((r) => ROLES[r].name.toLowerCase());
+    return n.length < 2 ? n.join("") : `${n.slice(0, -1).join(", ")} and ${n[n.length - 1]}`;
+  };
+  return `Deployment shown: ${s.label}. ${s.parties.map((p) => `${p.name}, ${names(p.roles)}`).join(". ")}`;
+}
+
 export function RolesExplorer({
   useCase,
   scenarios,
@@ -147,23 +156,29 @@ export function RolesExplorer({
         ))}
       </ul>
 
+      {/* Every deployment's caption is in the page, the one picked showing, so
+          "Listen" has audio for whichever is picked (the others are skipped). */}
       <figcaption className="cai-roles-text" aria-live="polite">
-        <p className="cai-roles-summary">{sc.summary}</p>
-        <div className="cai-roles-cols">
-          <div>
-            <p className="cai-roles-label">Protected</p>
-            <ul className="cai-protected">
-              {sc.protects.map((t) => <li key={t}><Lock />{t}</li>)}
-            </ul>
+        {list.map((s) => (
+          <div key={s.id} hidden={s.id !== sc.id} data-speech-intro={spokenIntro(s)}>
+            <p className="cai-roles-summary">{s.summary}</p>
+            <div className="cai-roles-cols">
+              <div>
+                <p className="cai-roles-label">Protected</p>
+                <ul className="cai-protected">
+                  {s.protects.map((t) => <li key={t}><Lock />{t}</li>)}
+                </ul>
+              </div>
+              <div>
+                <p className="cai-roles-label">
+                  Key release{" "}
+                  <span className={`cai-pill is-${s.keyRelease}`}>{KEY_RELEASE_LABEL[s.keyRelease]}</span>
+                </p>
+                <p>{s.keyNote}</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="cai-roles-label">
-              Key release{" "}
-              <span className={`cai-pill is-${sc.keyRelease}`}>{KEY_RELEASE_LABEL[sc.keyRelease]}</span>
-            </p>
-            <p>{sc.keyNote}</p>
-          </div>
-        </div>
+        ))}
       </figcaption>
     </figure>
   );
