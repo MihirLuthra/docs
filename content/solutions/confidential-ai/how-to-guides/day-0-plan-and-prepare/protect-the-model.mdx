@@ -11,7 +11,7 @@ The model owner does this. Afterwards only the approved workload, inside a TEE, 
 ## Before you begin
 
 - The two DSM apps from [Set up DSM](set-up-dsm.mdx).
-- A CCM account, and a group for the model.
+- The application in CCM, from [Set up CCM](set-up-ccm.mdx).
 - A Linux build machine with Docker. For Confidential Containers, Ubuntu 24.04 LTS with 16 or more cores, 128 GB RAM, 100 GB free disk, `jq` and `python3`, and HTTPS access to DSM.
 - The runtime you [chose](plan-a-deployment.mdx#choose-the-runtime). Every tab set on this page follows your choice.
 
@@ -112,9 +112,9 @@ Save the measurements from the converter's response, under `config.measurements`
 </Tab>
 </Tabs>
 
-## Register and approve in CCM
+## Add and approve the build
 
-1. [Register the application and its build](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application), with the certificate domain you gave the Trusted CA app.
+1. [Add a build](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application#add-a-build) to the application from [Set up CCM](set-up-ccm.mdx), with the measurements.
    - For Confidential Containers, set **Coprocessors** to **Required**, so CCM also checks the GPU's evidence through NVIDIA NRAS.
    - For Enclave OS, set **NVIDIA GPU Attestation** to **Required**.
 2. [Approve the build and the domain](/products/fortanix-armor/confidential-computing/ccm/applications/approve-builds-and-domains) on the **Tasks** page.
@@ -127,4 +127,4 @@ Until the build and its domain are approved, CCM refuses the workload's certific
 
 ## Next steps
 
-- [Share the model with the consumer](../day-1-deploy/share-the-model.mdx), or [deploy and verify](../day-1-deploy/deploy-and-verify.mdx) when you run it yourself.
+- [Prepare the infrastructure](prepare-the-infrastructure.mdx)

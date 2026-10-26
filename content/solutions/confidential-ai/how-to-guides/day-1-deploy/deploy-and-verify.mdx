@@ -40,7 +40,14 @@ The model consumer does this. Check attestation before you send the model any da
 
 ## Connect clients
 
-The workload's CCM certificate is a TLS certificate for its approved domain, such as `chat.northwind.example`, signed by your zone CA. A client that trusts your zone CA, and connects to that domain, knows it reached the attested workload.
+The workload's CCM certificate is a TLS certificate for its approved domain, such as `chat.northwind.example`, issued by your CCM account.
+
+Whether a client can rely on it depends on who the client is.
+
+- **Clients that trust your zone CA**, such as applications and users inside your organization that care about attestation. You give them your zone CA certificate. A client that trusts it, and connects to that domain, knows it reached the attested workload.
+- **End users outside your organization** can't trust your zone CA, so the certificate proves nothing to them about attestation. Treat their TLS connection as ordinary TLS.
+
+{/* TODO(verify): how to serve end users outside the organization, for example a TLS front end with a certificate from a public CA, and whether any attestation evidence can reach them. */}
 
 {/* TODO(verify): whether inference servers serve the CCM certificate directly, and how to configure a typical one (for example vLLM or Triton) to do so. */}
 

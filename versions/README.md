@@ -7,6 +7,7 @@ The single source of truth for component versions and tested combinations. Doc p
   - `current`: the version pages show by default (at most one per component)
   - `supported`, `deprecated`, `end-of-life`
   - Optional: `date` (YYYY-MM-DD), `requires` (version ranges of other software), `notes`, `source`.
+- `runtimes.json`: each workload runtime and the TEEs it runs on, with a `source`. Rendered by `<SupportedTees runtime="…" />`. This is what the runtime supports, not what QA has tested.
 - `tested.json`: combinations QA has checked, rendered as support matrices. Each has a `status`:
   - `verified`: QA ran it (`tested_by` and `date` required)
   - `preview`: works, not yet supported

@@ -1,0 +1,17 @@
+{
+  "runtimes": [
+    {
+      "id": "confidential-containers",
+      "name": "Confidential Containers",
+      "tees": ["Intel TDX", "AMD SEV-SNP", "Intel SGX", "IBM Secure Execution"],
+      "source": "https://confidentialcontainers.org/docs/getting-started/prerequisites/hardware/",
+      "notes": "The CNCF project's hardware list. Which of these Fortanix's runtime build (ccm_as, ccm_kbc) is tested on is in tested.json."
+    },
+    {
+      "id": "enclave-os",
+      "name": "Fortanix Enclave OS",
+      "tees": ["Intel SGX", "Intel TDX", "AMD SEV-SNP", "AWS Nitro Enclaves"],
+      "source": "Fortanix product team, 2026-10-26"
+    }
+  ]
+}

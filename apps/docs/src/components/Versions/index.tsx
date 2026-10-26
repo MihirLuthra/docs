@@ -44,13 +44,14 @@ const PLATFORM_LABEL: Record<string, string> = {
  * component versions, and who tested it when.
  */
 /**
- * The TEEs a runtime runs on, from the tested combinations in versions/:
- * <SupportedTees runtime="enclave-os" />. Adding a combination adds its TEE.
+ * The TEEs a runtime runs on, from versions/runtimes.json:
+ * <SupportedTees runtime="enclave-os" />. What QA has tested is the support
+ * matrix (tested.json), not this. Unknown runtimes fail the build.
  */
 export function SupportedTees({runtime}: {runtime: string}): ReactNode {
-  const tees = [...new Set(useVersions().combinations.filter((c) => c.runtime === runtime).map((c) => c.platform.tee))].filter(Boolean);
-  if (tees.length === 0) return <>None listed yet</>;
-  return <>{tees.join(", ")}</>;
+  const found = useVersions().runtimes.find((r) => r.id === runtime);
+  if (!found) throw new Error(`<SupportedTees>: unknown runtime "${runtime}"`);
+  return <>{found.tees.join(', ')}</>;
 }
 
 export function SupportMatrix({solution, runtime}: {solution?: string; runtime?: string}): ReactNode {

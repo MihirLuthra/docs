@@ -1,6 +1,6 @@
 ---
 title: Confidential Containers
-description: Run Kubernetes pods in Intel TDX TEEs with Confidential Containers, with attestation by CCM and image keys from DSM.
+description: Run Kubernetes pods in TEEs with Confidential Containers, with attestation by CCM and image keys from DSM.
 doc_type: concept
 keywords: [confidential containers, coco, kata containers, kubernetes, intel tdx, initdata, encrypted image, ccm_kbc]
 sidebar_label: Overview
@@ -8,6 +8,10 @@ sidebar_position: 1
 ---
 
 Confidential Containers runs each Kubernetes pod in its own TEE, a confidential VM started by Kata Containers. Fortanix's build of the runtime attests the pod to CCM and gets image keys from DSM.
+
+The Confidential Containers project runs on <SupportedTees runtime="confidential-containers" /> ([hardware requirements](https://confidentialcontainers.org/docs/getting-started/prerequisites/hardware/)). The [Confidential AI support matrix](/solutions/confidential-ai/support-matrix) lists the combinations Fortanix has tested. The steps in these guides are for Intel TDX.
+
+{/* TODO(verify): which of these TEEs Fortanix's runtime build (ccm_as, ccm_kbc) supports today. */}
 
 ## How it works
 
@@ -19,6 +23,8 @@ Confidential Containers runs each Kubernetes pod in its own TEE, a confidential 
 Everything outside the TEE, including the host, kubelet, containerd and the Kubernetes control plane, is untrusted.
 
 ## What the measurements cover
+
+On Intel TDX, the measurements are these. On AMD SEV-SNP, the InitData is in HOSTDATA.
 
 | Measured | Intel TDX register | Comes from |
 |---|---|---|

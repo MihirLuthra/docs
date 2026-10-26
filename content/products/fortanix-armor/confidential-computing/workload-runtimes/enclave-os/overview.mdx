@@ -1,6 +1,6 @@
 ---
 title: Enclave OS
-description: Run an unmodified container image in an Intel TDX TEE by converting it to an Enclave OS image, with attestation by CCM.
+description: Run an unmodified container image in a TEE, on Intel SGX, Intel TDX, AMD SEV-SNP or AWS Nitro Enclaves, by converting it to an Enclave OS image, with attestation by CCM.
 doc_type: concept
 keywords: [enclave os, salmiac, tdx converter, converted image, intel tdx, gpu passthrough, open source]
 sidebar_label: Overview
@@ -9,6 +9,8 @@ sidebar_position: 1
 
 Enclave OS is a container converter. It turns an existing container image into an Enclave OS container, without changes to the application, and the converted container is what runs. It is a normal container, so it runs anywhere containers run, on a host with a supported TEE. When it starts, it starts its own TEE from within.
 
+Enclave OS runs on <SupportedTees runtime="enclave-os" />. The [Confidential AI support matrix](/solutions/confidential-ai/support-matrix) lists the combinations tested with GPUs.
+
 ## How it works
 
 1. The converter takes your image and produces a converted image, and reports the measurements that identify it.
@@ -16,7 +18,7 @@ Enclave OS is a container converter. It turns an existing container image into a
 3. You run the converted container, for example with Docker or Kubernetes. A parent process in the container, outside the TEE, launches the TEE with QEMU and carries its network and storage.
 4. Inside the TEE, the workload attests to CCM and gets its certificate. Persistent storage is encrypted with a key from DSM.
 
-The converter reports MRTD and RTMR0 to RTMR3. Unlike Confidential Containers, where every pod boots the firmware and kernel of the runtime install, each converted image carries its own.
+On Intel TDX, the converter reports MRTD and RTMR0 to RTMR3. Unlike Confidential Containers, where every pod boots the firmware and kernel of the runtime install, each converted image carries its own.
 
 ## Things to know
 

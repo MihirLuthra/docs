@@ -27,7 +27,9 @@ The model runs in a TEE with all three. They differ in what you build, where it 
 | How the model is protected | The image layers are encrypted with ocicrypt, and DSM wraps the layer keys. Inside the TEE, the layers are decrypted as the image is pulled, after attestation and before the container starts. | The model files are encrypted separately, with a key stored in DSM. The workload decrypts them when it starts, after attestation. | Your choice |
 | Supported TEEs | <SupportedTees runtime="confidential-containers" /> | <SupportedTees runtime="enclave-os" /> | Your choice |
 
-The supported TEEs come from the [support matrix](../../support-matrix.mdx), which lists the tested versions for each.
+The supported TEEs are what each runtime runs on. For Confidential Containers it is the CNCF project's hardware list. The [support matrix](../../support-matrix.mdx) lists the combinations Fortanix has tested, with their versions.
+
+{/* TODO(verify): which of the Confidential Containers TEEs Fortanix's runtime build (ccm_as, ccm_kbc) supports today. */}
 
 {/* TODO(verify): link the security architecture of each runtime here, once those pages are published. */}
 {/* TODO(verify): add the custom confidential VM guides; these guides cover Confidential Containers and Enclave OS only. */}
@@ -36,4 +38,4 @@ The guides in this section have a tab for Confidential Containers and one for En
 
 ## Next steps
 
-- [Prepare the infrastructure](prepare-the-infrastructure.mdx)
+- [Set up CCM](set-up-ccm.mdx)

@@ -1,12 +1,11 @@
 ---
 title: Prepare the infrastructure
-description: Create the join token and the zone CA, prepare TEE hosts with NVIDIA GPUs, enroll them in CCM, and install the runtime.
+description: Get the join token, prepare TEE hosts with NVIDIA GPUs, enroll them in CCM, and install the runtime.
 doc_type: how-to
 keywords: [infrastructure, hosts, intel tdx, nvidia gpu, confidential computing, join token, zone ca, enroll, node agent, runtime, infrastructure provider, model consumer]
-sidebar_position: 2
+sidebar_position: 5
 ---
 
-import CreateGroup from '../../../../_flows/armor/create-a-group.mdx';
 import JoinToken from '../../../../_flows/ccm/join-token-and-zone-ca.mdx';
 
 The model runs on infrastructure of TEE hosts, with CPUs and NVIDIA GPUs in confidential computing mode. The model consumer creates the join token, and the infrastructure provider uses it to enroll the hosts. When one organization is both, one team can do it all.
@@ -18,17 +17,11 @@ The model runs on infrastructure of TEE hosts, with CPUs and NVIDIA GPUs in conf
 
 {/* TODO(verify): AMD SEV-SNP hosts. These steps cover Intel TDX only. */}
 
-## Set up CCM
+## Get the join token
 
-The model consumer does this, in its Armor account.
+The model consumer does this, in the group from [Set up CCM](set-up-ccm.mdx). Give the join token to the infrastructure provider, who enrolls the hosts with it.
 
-Create a group for the deployment, such as `llm-serving`, or use one you already have.
-
-<CreateGroup group="llm-serving" />
-
-Get the join token and the zone CA. Give the join token to the infrastructure provider, who enrolls the hosts with it, and the zone CA certificate to the model owner, whose DSM app uses it to trust your workload's certificate.
-
-<JoinToken />
+<JoinToken zoneCa={false} />
 
 ## Prepare the hosts
 
@@ -64,4 +57,4 @@ The infrastructure provider does this on every host.
 
 ## Next steps
 
-- [Set up DSM](set-up-dsm.mdx)
+- [Share the model with the consumer](../day-1-deploy/share-the-model.mdx), or [deploy and verify](../day-1-deploy/deploy-and-verify.mdx) when you run it yourself.

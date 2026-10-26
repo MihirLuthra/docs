@@ -1,0 +1,48 @@
+---
+title: Set up CCM
+description: The model owner adds the application in CCM and notes its application ID. The model consumer creates its group and shares its zone CA.
+doc_type: how-to
+keywords: [ccm, group, application, application id, zone ca, model owner, model consumer]
+sidebar_position: 2
+---
+
+import CreateGroup from '../../../../_flows/armor/create-a-group.mdx';
+import ZoneCa from '../../../../_flows/ccm/join-token-and-zone-ca.mdx';
+
+Each party with a CCM account does its part here, in its own Armor account. When one organization both owns and runs the model, it does both parts in one account.
+
+{/* TODO: turn "Add the application" into a shared walkthrough with the new screenshots (Add Application, its details, the certificate domain). */}
+
+## Model owner
+
+### Create a group
+
+Create a group for the model's application, such as `llm-serving`, or use one you already have.
+
+<CreateGroup group="llm-serving" />
+
+### Add the application
+
+[Add the application](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application#add-the-application) `llama-chat` in the group, with the domain of its certificate, such as `chat.northwind.example`.
+
+Note its **application ID**, the UUID at the end of the application's address in CCM (`…/applications/<APPLICATION_ID>`). The DSM app that releases the model key expects the DNS name `<APPLICATION_ID>.app.fortanix.cloud`, which CCM puts in the workload's certificate only after verifying its attestation.
+
+You add builds later, once you have the measurements, in [Protect the model](protect-the-model.mdx).
+
+## Model consumer
+
+### Create the consumer's group
+
+In its own Armor account, the consumer creates a group for the deployment, such as `llm-serving`.
+
+<CreateGroup group="llm-serving" />
+
+### Share the zone CA
+
+Download the zone CA certificate and give it to the model owner, whose DSM app uses it to trust the workload's certificate.
+
+<ZoneCa joinToken={false} />
+
+## Next steps
+
+- [Set up DSM](set-up-dsm.mdx)

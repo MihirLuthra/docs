@@ -6,20 +6,24 @@ keywords: [update model, new model version, new build, build version, edit workf
 sidebar_position: 1
 ---
 
-A new model version is a new image. If it changes the workload's measurements, it needs a new approved build before it runs. Otherwise CCM refuses its certificate, and DSM releases no key.
+A new model version is a new image, and a new image changes the workload's measurements. So it is a new build, which must be registered and approved before it runs. Otherwise CCM refuses its certificate, and DSM releases no key.
 
-| Runtime | Do the measurements change? |
+| Runtime | What changes |
 |---|---|
-| Confidential Containers | Only if the InitData changes. The container image is not measured. |
-| Enclave OS | Yes. Every new image is converted again. |
+| Confidential Containers | The pod's InitData changes with the new image, and the InitData is measured, in MRCONFIGID on Intel TDX and HOSTDATA on AMD SEV-SNP. |
+| Enclave OS | The image is converted again, which gives it new measurements. |
+
+{/* TODO(verify): which InitData field changes with a new model image (for example the image reference or digest). */}
 
 ## Build the new version
+
+{/* TODO: day 2 is not reviewed yet. Group day 2 by kind of operation, and check every step against the new day 0 order. */}
 
 The model owner encrypts the new model and builds the new image, as in [Protect the model](../day-0-plan-and-prepare/protect-the-model.mdx), then pushes it.
 
 ## Register and approve the build
 
-If the measurements changed, the model owner [adds a build](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application#add-a-build) with a new **Build Version**, and [approves it](/products/fortanix-armor/confidential-computing/ccm/applications/approve-builds-and-domains).
+The model owner [adds a build](/products/fortanix-armor/confidential-computing/ccm/applications/register-an-application#add-a-build) with a new **Build Version**, and [approves it](/products/fortanix-armor/confidential-computing/ccm/applications/approve-builds-and-domains).
 
 The old build stays approved, so workloads of the old version still get certificates.
 

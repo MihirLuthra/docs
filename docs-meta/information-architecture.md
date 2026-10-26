@@ -32,7 +32,7 @@ One tree; every page has exactly one home in it. Accuracy over marketing. The si
 Overview
 Use cases: Proprietary model · In-house model · Open-source model
 Deploy and operate        Overview, with the step-by-step diagram for every deployment
-  Day 0 · Plan and prepare  Plan a deployment · Prepare the infrastructure · Set up DSM · Protect the model
+  Day 0 · Plan and prepare  Plan a deployment · Set up CCM · Set up DSM · Protect the model · Prepare the infrastructure (the model owner first)
   Day 1 · Deploy            Share the model · Deploy and verify
   Day 2 · Operate           Update the model · Update the workload TCB · Audit and revoke access
   By role                   Model owner · Infrastructure provider · Model consumer (each role's tasks)

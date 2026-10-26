@@ -81,24 +81,48 @@ const STEPS: StepDef[] = [
     task: `${GUIDES}/day-0-plan-and-prepare/plan-a-deployment#choose-the-runtime`,
   },
   {
+    id: "ccm-account", phase: "day0", actor: "builder", title: "Create a CCM account",
+    to: "ccm:owner",
+    text: (c) => c.separate
+      ? `${c.Name("owner")} gets a Fortanix CCM account and creates a group in it. The application and its approved builds will belong to this account.`
+      : `${c.Name("builder")} gets a Fortanix CCM account and creates a group in it, such as llm-serving. The application, the infrastructure and the workload's certificates will belong to this account.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/set-up-ccm#create-a-group`,
+  },
+  {
+    id: "register-app", phase: "day0", actor: "builder", title: "Add the application",
+    to: "ccm:owner",
+    text: (c) => `${c.Name("builder")} adds the application llama-chat in CCM, with its certificate domain, such as chat.northwind.example. CCM gives it an application ID.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/set-up-ccm#add-the-application`,
+  },
+  {
+    id: "ccm-consumer-account", phase: "day0", actor: "consumer", title: "Create a CCM account",
+    to: "ccm:consumer", when: separate,
+    text: (c) => `${c.Name("consumer")} gets its own Fortanix CCM account and creates a group in it, such as llm-serving. The infrastructure and the workload's certificates will belong to this account.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/set-up-ccm#create-the-consumers-group`,
+  },
+  {
+    id: "zone-ca", phase: "day0", actor: "consumer", title: "Share the zone CA",
+    from: "ccm:consumer", to: "dsm:owner", carries: "Zone CA certificate", when: model,
+    text: (c) => `${c.Name("consumer")} downloads the zone CA certificate of its CCM account${c.separate ? ` and sends it to ${c.name("owner")}` : ""}. DSM will trust workload certificates signed by this CA, and no others.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/set-up-ccm#share-the-zone-ca`,
+  },
+  {
     id: "dsm-account", phase: "day0", actor: "owner", title: "Create a DSM account",
     to: "dsm:owner", when: model,
     text: (c) => `${c.Name("owner")} gets a Fortanix DSM account and creates a group for the model, such as llama-chat-keys. The model's key will never leave it.`,
     task: `${GUIDES}/day-0-plan-and-prepare/set-up-dsm`,
   },
   {
-    id: "ccm-account", phase: "day0", actor: "builder", title: "Create a CCM account",
-    to: "ccm:owner",
-    text: (c) => c.separate
-      ? `${c.Name("owner")} gets a Fortanix CCM account and creates a group in it. The application and its approved builds will belong to this account.`
-      : `${c.Name("builder")} gets a Fortanix CCM account and creates a group in it, such as llm-serving. The application, the infrastructure and the workload's certificates will belong to this account.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#set-up-ccm`,
-  },
-  {
     id: "enc-app", phase: "day0", actor: "owner", title: "Create the encryption app",
     to: "dsm:owner", when: model,
     text: (c) => `${c.Name("owner")} creates an app with an API key in the group. It is used to encrypt the model, and its API key stays with the people who do that.`,
     task: `${GUIDES}/day-0-plan-and-prepare/set-up-dsm`,
+  },
+  {
+    id: "trust-app", phase: "day0", actor: "owner", title: "Create the Trusted CA app",
+    to: "dsm:owner", when: model,
+    text: (c) => `${c.Name("owner")} creates the app the workload authenticates as. It trusts the zone CA of ${c.name("consumer")} and expects the DNS name <application ID>.app.fortanix.cloud, from the application llama-chat. CCM puts that name in a certificate only after verifying the workload's attestation.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/set-up-dsm#create-the-trusted-ca-app`,
   },
   {
     id: "weights", phase: "day0", actor: "consumer", title: "Get the public weights",
@@ -126,20 +150,14 @@ const STEPS: StepDef[] = [
   {
     id: "measure", phase: "day0", actor: "builder", title: "Register the measurements",
     from: "build", to: "ccm:owner", carries: "Measurements",
-    text: (c, rt) => `${c.Name("builder")} takes the workload's measurements${cc(rt) ? "" : " from the converter"} and registers them in CCM as build 1 of the application llama-chat, with its certificate domain.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#take-measurements`,
+    text: (c, rt) => `${c.Name("builder")} takes the workload's measurements${cc(rt) ? "" : " from the converter"} and adds them to the application llama-chat in CCM as build 1.`,
+    task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#add-and-approve-the-build`,
   },
   {
     id: "approve", phase: "day0", actor: "builder", title: "Approve the build",
     to: "ccm:owner",
     text: (c) => `An administrator of ${c.name("builder")} approves build 1 and its domain on Tasks. Until then, CCM issues no certificate for it.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#register-and-approve-in-ccm`,
-  },
-  {
-    id: "ccm-consumer-account", phase: "day0", actor: "consumer", title: "Create a CCM account",
-    to: "ccm:consumer", when: separate,
-    text: (c) => `${c.Name("consumer")} gets its own Fortanix CCM account and creates a group in it, such as llm-serving. The infrastructure and the workload's certificates will belong to this account.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#set-up-ccm`,
+    task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#add-and-approve-the-build`,
   },
   {
     id: "prepare", phase: "day0", actor: "infra", title: "Prepare the infrastructure",
@@ -151,7 +169,7 @@ const STEPS: StepDef[] = [
     id: "join-token", phase: "day0", actor: "consumer", title: "Get a join token",
     from: "ccm:consumer", to: "infra", carries: "Join token",
     text: (c) => `${c.Name("consumer")} copies a join token from Enroll Compute Node. ${c.sameInfra ? "It keeps it for its own hosts." : `It sends it to ${c.name("infra")} over a channel it trusts. Anyone with the token can enroll a host in the account.`}`,
-    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#set-up-ccm`,
+    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#get-the-join-token`,
   },
   {
     id: "enroll", phase: "day0", actor: "infra", title: "Enroll the hosts",
@@ -166,18 +184,6 @@ const STEPS: StepDef[] = [
       ? `${c.Name("infra")} installs the NVIDIA GPU Operator and the Confidential Containers runtime on the Kubernetes cluster. The runtime brings the guest firmware and kernel that every pod's TEE boots.`
       : `${c.Name("infra")} binds the GPUs to vfio-pci so they can be passed through. Nothing else is installed for Enclave OS, since each converted container brings its own TEE.`,
     task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#install-the-runtime`,
-  },
-  {
-    id: "zone-ca", phase: "day0", actor: "consumer", title: "Share the zone CA",
-    from: "ccm:consumer", to: "dsm:owner", carries: "Zone CA certificate", when: model,
-    text: (c) => `${c.Name("consumer")} downloads the zone CA certificate of its CCM account${c.separate ? ` and sends it to ${c.name("owner")}` : ""}. DSM will trust workload certificates signed by this CA, and no others.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#set-up-ccm`,
-  },
-  {
-    id: "trust-app", phase: "day0", actor: "owner", title: "Create the Trusted CA app",
-    to: "dsm:owner", when: model,
-    text: (c) => `${c.Name("owner")} creates the app the workload authenticates as. It trusts the zone CA and expects the workload's domain, such as chat.northwind.example.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/set-up-dsm`,
   },
   // Day 1
   {
@@ -216,14 +222,14 @@ const STEPS: StepDef[] = [
     id: "key", phase: "day1", actor: "owner", title: "Release the key", when: model,
     from: "dsm:owner", to: "infra", carries: { cc: "Layer keys", eos: "Model key" },
     text: (_c, rt) => cc(rt)
-      ? "The workload authenticates to DSM over mutual TLS with its certificate. DSM checks it against the zone CA and the domain, and unwraps the layer keys into the TEE. The layers are decrypted before the container starts."
-      : "The workload authenticates to DSM over mutual TLS with its certificate. DSM checks it against the zone CA and the domain, and the workload decrypts the model files inside the TEE as it starts.",
+      ? "The workload authenticates to DSM over mutual TLS with its certificate. DSM checks that the trusted zone CA issued it, with the application's fortanix.cloud name, and unwraps the layer keys into the TEE. The layers are decrypted before the container starts."
+      : "The workload authenticates to DSM over mutual TLS with its certificate. DSM checks that the trusted zone CA issued it, with the application's fortanix.cloud name, and the workload decrypts the model files inside the TEE as it starts.",
     task: `${GUIDES}/day-1-deploy/deploy-and-verify#verify-attestation`,
   },
   {
     id: "clients", phase: "day1", actor: "user", title: "Connect clients",
     from: "clients", to: "infra", carries: "TLS",
-    text: () => "End users connect over TLS to chat.northwind.example. A client that trusts the zone CA knows it reached the attested workload.",
+    text: (c) => `End users connect over TLS to chat.northwind.example. Only a client that trusts the zone CA of ${c.name("consumer")} can tell from the certificate that it reached the attested workload, for example an application inside that organization. End users outside it can't trust that zone CA, so for them the certificate proves nothing about attestation.`,
     task: `${GUIDES}/day-1-deploy/deploy-and-verify#connect-clients`,
   },
 
@@ -236,9 +242,9 @@ const STEPS: StepDef[] = [
   },
   {
     id: "new-build", phase: "day2", op: "update-model", actor: "builder", title: "Register and approve build 2",
-    from: { cc: undefined, eos: "build" }, to: "ccm:owner", carries: { cc: "", eos: "New measurements" },
+    from: "build", to: "ccm:owner", carries: "New measurements",
     text: (c, rt) => cc(rt)
-      ? "The container image isn't measured, so build 1 still matches the new version. A new build is needed only if the InitData changed."
+      ? `The new image changes the pod's InitData, and so its MRCONFIGID on Intel TDX (HOSTDATA on AMD SEV-SNP). ${c.Name("builder")} takes the measurements again, registers them as build 2 and approves it.`
       : `A new converted image has new measurements. ${c.Name("builder")} registers them as build 2 and approves it.`,
     task: `${GUIDES}/day-2-operate/update-the-model#register-and-approve-the-build`,
   },
@@ -383,9 +389,9 @@ export function deployment(scenarioId: string): Deployment {
   const resolve = (e?: End) => (e === "ccm:owner" ? ccmOwner : e);
 
   const builds: Item[] = [
-    { id: "app", label: "Application llama-chat", at: ["measure"] },
+    { id: "app", label: "Application llama-chat", at: ["register-app"] },
     { id: "b1", label: "Build 1", at: ["measure"], done: ["approve"] },
-    { id: "b2", label: "Build 2", at: ["new-build@eos", "remeasure"], done: ["new-build@eos", "reapprove"] },
+    { id: "b2", label: "Build 2", at: ["new-build", "remeasure"], done: ["new-build", "reapprove"] },
   ];
 
   const territories: Territory[] = scenario.parties.map((party) => {

@@ -1,7 +1,8 @@
 {/* Shared flow (D16): get a join token, and the zone CA, from CCM.
-    Props: zoneCa, false to leave out the zone CA step. */}
+    Props: zoneCa, false to leave out the zone CA step; joinToken, false to
+    leave out the join token step (only the zone CA). */}
 
-<Walkthrough label="Get a join token">
+<Walkthrough label={props.joinToken === false ? 'Download the zone CA' : 'Get a join token'}>
 <Step
   title="Open the Intel TDX compute nodes"
   image={require('../img/ccm-compute-nodes.webp').default}
@@ -14,6 +15,7 @@ In CCM, go to **Infrastructure** > **COMPUTE NODES**, select **Intel TDX**, and 
 
 </Step>
 <Step
+  hidden={props.joinToken === false}
   title="Copy the join token"
   image={require('../img/ccm-enroll-node.webp').default}
   width={1409}

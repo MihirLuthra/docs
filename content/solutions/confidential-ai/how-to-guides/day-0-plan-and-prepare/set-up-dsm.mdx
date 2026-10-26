@@ -1,6 +1,6 @@
 ---
 title: Set up DSM for the model key
-description: Create the two DSM apps the model owner needs, one that encrypts the model and one that the attested workload authenticates as, trusting the consumer's zone CA.
+description: Create the two DSM apps the model owner needs, one that encrypts the model and one that the attested workload authenticates as, trusting the consumer's zone CA and the application's fortanix.cloud name.
 doc_type: how-to
 keywords: [dsm, trusted ca, api key, app, zone ca, model key, model owner]
 sidebar_label: Set up DSM
@@ -14,26 +14,32 @@ You need two DSM apps in one group. One encrypts the model, and the workload aut
 ## Before you begin
 
 - A Fortanix DSM account.
-- For the second app, the model consumer's zone CA certificate, from [Set up CCM](prepare-the-infrastructure.mdx#set-up-ccm). You can create the first app before it arrives.
-- The certificate domain the workload will have in CCM, for example `chat.northwind.example`.
+- From [Set up CCM](set-up-ccm.mdx), the application ID of the model owner's application, and the model consumer's zone CA certificate.
 
-## Create the apps
+## Create the encryption app
 
 1. In DSM, create a group for the model, such as `llama-chat-keys`, or use an existing one.
-2. Create the app you encrypt with. In the group, go to **APPS** and click **ADD APP**, with **Interface** set to REST API and **Authentication Method** set to API Key.
-3. Click **SAVE**, and copy its API key. Keep it with the people who encrypt models, and out of every image. You can now [protect the model](protect-the-model.mdx).
-4. Once the consumer sends its zone CA certificate, create the app the workload authenticates as. Click **ADD APP** again, then set these fields.
+2. In the group, go to **APPS** and click **ADD APP**, with **Interface** set to REST API and **Authentication Method** set to API Key.
+3. Click **SAVE**, and copy its API key. Keep it with the people who encrypt models, and out of every image.
 
-   | Field | Value |
-   |---|---|
-   | **Interface** | REST API |
-   | **Authentication Method** | Trusted CA |
-   | **DNS Name** | The certificate domain of the workload |
-   | **Upload Trusted CA Cert** | The consumer's zone CA certificate |
+## Create the Trusted CA app
 
-5. Click **SAVE**, and note the app's UUID.
+The workload authenticates as this app, with its CCM certificate. Click **ADD APP** again, then set these fields.
 
-{/* TODO(verify): the source examples use the DNS name "my-server" for the DSM app and a different domain in CCM. Confirm the two must match. */}
+| Field | Value |
+|---|---|
+| **Interface** | REST API |
+| **Authentication Method** | Trusted CA |
+| **DNS Name** | `<APPLICATION_ID>.app.fortanix.cloud` |
+| **Upload Trusted CA Cert** | The consumer's zone CA certificate |
+
+`<APPLICATION_ID>` is the application ID of the model owner's application in CCM, the one its measurements are registered in.
+
+Click **SAVE**, and note the app's UUID. The workload's InitData carries it.
+
+Don't use a generic DNS name, such as the application's own domain. Only CCM puts a name ending in `.fortanix.cloud` in a certificate, and only after verifying the workload's attestation. Nobody can add an application whose domain ends in `.fortanix.cloud`. And the consumer can't get another certificate with this name from its own zone CA, unless the model owner approves a new workflow for it. So DSM releases the key only to the approved application, never to some other application in the consumer's account.
+
+{/* TODO: DSM walkthrough with screenshots (group, encryption app, Trusted CA app). Needs access to the DSM test account. */}
 
 ## Verify
 

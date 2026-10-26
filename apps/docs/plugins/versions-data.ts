@@ -27,7 +27,9 @@ export type Combination = {
   date: string | null;
   source?: string;
 };
-export type VersionsData = {components: Component[]; combinations: Combination[]};
+/** A workload runtime and the TEEs it runs on (not what QA tested: that's tested.json). */
+export type Runtime = {id: string; name: string; tees: string[]; source: string; notes?: string};
+export type VersionsData = {components: Component[]; combinations: Combination[]; runtimes: Runtime[]};
 
 /** The versions folder, from apps/docs. */
 export const VERSIONS_DIR = path.resolve(__dirname, '../../../versions');
@@ -44,6 +46,7 @@ export function loadVersions(fresh = false): VersionsData {
   const data: VersionsData = {
     components: read<{components: Component[]}>('components.json').components,
     combinations: read<{combinations: Combination[]}>('tested.json').combinations,
+    runtimes: read<{runtimes: Runtime[]}>('runtimes.json').runtimes,
   };
   const problems = validate(data);
   if (problems.length) {
@@ -53,8 +56,12 @@ export function loadVersions(fresh = false): VersionsData {
   return data;
 }
 
-function validate({components, combinations}: VersionsData): string[] {
+function validate({components, combinations, runtimes}: VersionsData): string[] {
   const problems: string[] = [];
+  for (const r of runtimes) {
+    if (!r.tees.length) problems.push(`runtimes.json: "${r.id}" lists no TEEs`);
+    if (!r.source) problems.push(`runtimes.json: "${r.id}" needs a source`);
+  }
   const ids = new Set<string>();
   for (const c of components) {
     if (ids.has(c.id)) problems.push(`components.json: duplicate component "${c.id}"`);
