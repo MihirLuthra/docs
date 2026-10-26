@@ -21,7 +21,6 @@ import GoToPage from './GoToPage';
 import {resetNav, useNavReset} from '@site/src/lib/nav-reset';
 import {useTreeReveal} from '@site/src/lib/tree-reveal';
 import {readSmartIndex, writeSmartIndex} from '@site/src/lib/tree-prefs';
-import {isPlainShortcut} from '@site/src/lib/keys';
 import styles from './styles.module.css';
 
 type Row = {
@@ -87,10 +86,10 @@ function HomeIcon(): ReactNode {
 
 // Top-level sections, each on a small tile (by label; a folder otherwise).
 const SECTION_ICONS: Record<string, string> = {
-  'Get familiar': 'M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zM15.5 8.5l-2 5-5 2 2-5z',
+  Fundamentals: 'M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zM15.5 8.5l-2 5-5 2 2-5z',
   Solutions: 'M12 3l2.4 5.6L20 11l-5.6 2.4L12 19l-2.4-5.6L4 11l5.6-2.4z',
   Products: 'M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9',
-  Learn: 'M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z',
+  'API reference': 'M8.5 7L3.5 12l5 5M15.5 7l5 5-5 5M13.5 4.5l-3 15',
 };
 const FOLDER_ICON = 'M3 7.5a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z';
 
@@ -115,21 +114,13 @@ function SmartIndexIcon(): ReactNode {
   );
 }
 
-function CollapseAllIcon(): ReactNode {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M7 4l5 5 5-5M7 20l5-5 5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 /**
  * The docs navigation tree (ux-spec.md, Sidebar): a Home row, then the whole
  * tree, collapsed except along the current page's path. With the smart
  * index on (the default), resting the mouse on a section opens it, and any
  * open section that is no longer in use closes a second later: only the
  * sections holding the pointer, the keyboard focus or the current page stay
- * open. "Collapse all" closes everything. Sections slide open and shut.
+ * open. Sections slide open and shut.
  */
 export default function DocsTree({onNavigate}: {onNavigate?: () => void}): ReactNode {
   const tree = useTree();
@@ -244,25 +235,6 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
       }
     }, []),
   );
-
-  const collapseAll = useCallback(() => {
-    window.clearTimeout(hoverTimer.current);
-    setOpen(new Set());
-  }, []);
-
-  // "c" collapses all, when not typing (only the visible instance: sidebar
-  // or drawer).
-  useEffect(() => {
-    const onKeyDown = (e: globalThis.KeyboardEvent) => {
-      if (!isPlainShortcut(e, 'c') || navRef.current?.offsetParent == null) return;
-      e.preventDefault();
-      collapseAll();
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [collapseAll]);
 
   // "Show in sidebar" (path menus): open down to `key`, then (once the rows
   // exist) scroll to it, focus it and flash it. Only the visible instance.
@@ -397,22 +369,6 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
           <SmartIndexIcon />
           <span className={styles.tip} aria-hidden="true">
             Smart index: {smart ? 'on' : 'off'}
-          </span>
-        </button>
-        {/* The "c" shortcut shows on the button, like "t" in the filter. */}
-        <button
-          type="button"
-          className={`${styles.toolButton} ${styles.withKey}`}
-          aria-label="Collapse all"
-          aria-keyshortcuts="c"
-          disabled={open.size === 0}
-          onClick={collapseAll}>
-          <CollapseAllIcon />
-          <kbd className={styles.filterKbd} aria-hidden="true">
-            c
-          </kbd>
-          <span className={styles.tip} aria-hidden="true">
-            Collapse all
           </span>
         </button>
       </div>

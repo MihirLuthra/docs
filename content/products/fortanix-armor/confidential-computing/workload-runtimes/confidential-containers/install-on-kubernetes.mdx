@@ -10,7 +10,7 @@ The runtime adds Confidential Containers runtime classes to the cluster, such as
 
 ## Before you begin
 
-- Intel TDX nodes [enrolled in CCM](../../ccm/compute-nodes/enrol-an-intel-tdx-node.mdx).
+- Intel TDX nodes [enrolled in CCM](../../ccm/compute-nodes/enroll-an-intel-tdx-node.mdx).
 - Kubernetes <Version of="fortanix-kata-deploy" field="requires.kubernetes" /> set up with kubeadm. Kind and Minikube don't work with the QEMU runtime.
 - containerd <Version of="fortanix-kata-deploy" field="requires.containerd" /> and Helm <Version of="fortanix-kata-deploy" field="requires.helm" />.
 - SELinux disabled, and at least one node labelled `node.kubernetes.io/worker`.

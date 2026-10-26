@@ -63,10 +63,8 @@ function kindOf(names: string[], isFolder: boolean, docType?: string): Kind {
   }
   if (/quickstart|get started|install the toolchain/i.test(title)) return 'Quickstart';
   if (/^api$|reference|cli$|library|provider|glossary/i.test(title)) return 'Reference';
-  if (top === 'Get familiar' || title === 'Concepts' || parent === 'Concepts') return 'Concept';
-  if (top === 'Learn' || ['Tutorials', 'Examples'].includes(title) || ['Tutorials', 'Examples'].includes(parent)) {
-    return 'Tutorial';
-  }
+  if (top === 'Fundamentals' || title === 'Concepts' || parent === 'Concepts') return 'Concept';
+  if (['Tutorials', 'Examples'].includes(title) || ['Tutorials', 'Examples'].includes(parent)) return 'Tutorial';
   return 'Guide';
 }
 

@@ -28,6 +28,7 @@ No troubleshooting sections in how-tos.
 - No colons, semicolons or dashes (em dash, en dash, or a spaced hyphen) in doc prose, titles, captions or diagram text. Use a full stop or a comma, or rephrase. Lists of fields go in a table. Hyphens inside words (open-source), code, URLs and labels quoted exactly from a product UI are fine.
 - Name parties by who they are to each other: "the model vendor" and "the vendor's customer", or "your organization". Not "enterprise" or a bare "customer".
 - Call what the model runs on "the infrastructure", and each machine in it a "host". Not "GPU nodes" or "servers". CCM's own term for an enrolled host is a compute node.
+- Spell it "enroll" (enrolls, enrolled, enrollment), not "enrol".
 - Make link text describe the target. Never "click here".
 - No section numbers in headings, and no boilerplate intros.
 - Commands must be copy-pasteable. Write placeholders as `<PLACEHOLDER>` and define each one right after the block.

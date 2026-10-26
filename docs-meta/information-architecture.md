@@ -20,10 +20,11 @@ One tree; every page has exactly one home in it. Accuracy over marketing. The si
 
 ## Sections
 
-- **Get familiar**: what Fortanix does, the Armor platform, concepts (confidential computing, attestation, key management, TEE technologies), glossary.
+- **Fundamentals**: what Fortanix does, the Armor platform, concepts (confidential computing, attestation, key management, TEE technologies), glossary.
 - **Solutions**, each shaped like Confidential AI below where it applies.
 - **Products**: Fortanix Armor (Platform, Confidential Computing: CCM, workload runtimes, SDKs; Key Insight; Data Security Manager).
-- **Learn**: tutorials and examples that span products.
+- **API reference**: the APIs of the products, one section per API. No pages yet.
+- Tutorials and examples live in the doc set they belong to (Confidential AI has its own Examples), not in a section of their own.
 
 ### Confidential AI
 

@@ -252,21 +252,9 @@
   opacity: 0.4;
 }
 
-/* Icon, then its shortcut chip. */
-.withKey {
-  gap: var(--fx-space-1);
-  width: auto;
-  padding: 0 var(--fx-space-1) 0 var(--fx-space-2);
-}
-
-.withKey .filterKbd {
-  margin-right: 0;
-}
-
-/* The "h" shortcut, at the right of the Home row, lined up with the "c"
-   chip below (that button's right padding is space-1, the row's space-2). */
+/* The "h" shortcut, at the right of the Home row. */
 .filterKbd.rowKbd {
-  margin-right: calc(var(--fx-space-1) - var(--fx-space-2));
+  margin-right: 0;
   margin-left: auto;
   font-weight: 400;
 }

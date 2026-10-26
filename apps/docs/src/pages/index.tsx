@@ -81,12 +81,6 @@ const ICONS: Record<DocIcon, ReactNode> = {
       <path {...stroke} d="M10.5 12v-1a1.5 1.5 0 0 1 3 0v1" />
     </>
   ),
-  users: (
-    <>
-      <circle {...stroke} cx="9" cy="8.5" r="3.2" />
-      <path {...stroke} d="M3.5 19a5.5 5.5 0 0 1 11 0M15.5 5.6a3.2 3.2 0 0 1 0 6M17 13.6a5.5 5.5 0 0 1 3.5 5.4" />
-    </>
-  ),
   compass: (
     <>
       <circle {...stroke} cx="12" cy="12" r="8.5" />
@@ -104,6 +98,11 @@ const ICONS: Record<DocIcon, ReactNode> = {
       <path {...stroke} d="M12 8.5v4M12 15.5v.3" />
     </>
   ),
+  code: (
+    <>
+      <path {...stroke} d="M8.5 7L3.5 12l5 5M15.5 7l5 5-5 5M13.5 4.5l-3 15" />
+    </>
+  ),
   download: (
     <>
       <path {...stroke} d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14" />
@@ -119,17 +118,26 @@ const ICONS: Record<DocIcon, ReactNode> = {
   ),
 };
 
-/** A page to go to: its icon, title and one line, all one link. */
+/** A page to go to: its icon, title and one line, all one link (dimmed, not a link, while it has no pages). */
 function PageCard({set}: {set: DocSet}): ReactNode {
-  return (
-    <Link to={set.href} className={styles.pageCard}>
+  const inner = (
+    <>
       <Icon name={set.icon} />
       <span className={styles.cardText}>
         <span className={styles.cardTitle}>{set.title}</span>
         <span className={styles.cardLine}>{set.line}</span>
       </span>
+    </>
+  );
+  return set.href ? (
+    <Link to={set.href} className={styles.pageCard}>
+      {inner}
       <ArrowIcon />
     </Link>
+  ) : (
+    <span className={styles.pageCard} data-empty="">
+      {inner}
+    </span>
   );
 }
 
@@ -137,7 +145,7 @@ function PageCard({set}: {set: DocSet}): ReactNode {
 function SetCard({set}: {set: DocSet}): ReactNode {
   return (
     <div className={styles.setCard}>
-      <Link to={set.href} className={styles.setHead}>
+      <Link to={set.href!} className={styles.setHead}>
         <Icon name={set.icon} />
         <span className={styles.cardText}>
           <span className={styles.cardTitle}>
@@ -218,7 +226,7 @@ function RecentlyViewed(): ReactNode {
       {items.length > 0 && (
         <ul ref={listRef} className={styles.recentList}>
           {items.map((item, i) => (
-            <li key={item.href} className={styles.recentItem} style={{animationDelay: `${i * 40}ms`}}>
+            <li key={item.href} className={styles.recentItem}>
               <Link to={item.href} className={styles.recentLink} title={[...item.path, item.title].join(' / ')}>
                 <PageIcon />
                 <span className={styles.recentTitle}>{item.title}</span>
@@ -282,7 +290,7 @@ export default function Home(): ReactNode {
             <Section id="start-heading" title="Start here">
               <ul className={styles.pageGrid}>
                 {startHere.map((set) => (
-                  <li key={set.href}>
+                  <li key={set.title}>
                     <PageCard set={set} />
                   </li>
                 ))}
@@ -293,7 +301,7 @@ export default function Home(): ReactNode {
               <Section key={group.title} id={`group-${k}`} title={group.title} line={group.line}>
                 <ul className={group.sets.some((s) => s.links?.length) ? styles.setGrid : styles.pageGrid}>
                   {group.sets.map((set) => (
-                    <li key={set.href}>{set.links?.length ? <SetCard set={set} /> : <PageCard set={set} />}</li>
+                    <li key={set.title}>{set.links?.length ? <SetCard set={set} /> : <PageCard set={set} />}</li>
                   ))}
                 </ul>
               </Section>
@@ -302,7 +310,7 @@ export default function Home(): ReactNode {
             <Section id="reference-heading" title="Reference">
               <ul className={styles.startGrid}>
                 {reference.map((set) => (
-                  <li key={set.href}>
+                  <li key={set.title}>
                     <PageCard set={set} />
                   </li>
                 ))}

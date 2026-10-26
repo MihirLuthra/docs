@@ -150,14 +150,14 @@ const STEPS: StepDef[] = [
   {
     id: "join-token", phase: "day0", actor: "consumer", title: "Get a join token",
     from: "ccm:consumer", to: "infra", carries: "Join token",
-    text: (c) => `${c.Name("consumer")} copies a join token from Enroll Compute Node. ${c.sameInfra ? "It keeps it for its own hosts." : `It sends it to ${c.name("infra")} over a channel it trusts. Anyone with the token can enrol a host in the account.`}`,
+    text: (c) => `${c.Name("consumer")} copies a join token from Enroll Compute Node. ${c.sameInfra ? "It keeps it for its own hosts." : `It sends it to ${c.name("infra")} over a channel it trusts. Anyone with the token can enroll a host in the account.`}`,
     task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#set-up-ccm`,
   },
   {
-    id: "enrol", phase: "day0", actor: "infra", title: "Enrol the hosts",
+    id: "enroll", phase: "day0", actor: "infra", title: "Enroll the hosts",
     from: "infra", to: "ccm:consumer", carries: "Node attestation",
     text: (c) => `${c.Name("infra")} installs the node agent with the join token. The agent attests each host, and the hosts appear as compute nodes in the CCM account of ${c.name("consumer")}.`,
-    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#enrol-the-hosts`,
+    task: `${GUIDES}/day-0-plan-and-prepare/prepare-the-infrastructure#enroll-the-hosts`,
   },
   {
     id: "install", phase: "day0", actor: "infra", title: "Install the runtime",
@@ -409,7 +409,7 @@ export function deployment(scenarioId: string): Deployment {
         id: "ccm:consumer", service: "ccm", at: [created],
         items: [
           { id: "group", label: "Group llm-serving", at: [created] },
-          { id: "nodes", label: "Compute nodes", at: ["enrol"] },
+          { id: "nodes", label: "Compute nodes", at: ["enroll"] },
           ...(isSeparate
             ? [
                 { id: "link", label: "Collaborating group", at: ["collaborate"] },

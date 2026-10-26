@@ -4,7 +4,7 @@
  * its overview and to its main parts. Every href is a page in the docs tree
  * (the build fails on a broken link).
  */
-export type DocIcon = 'ai' | 'key' | 'token' | 'chip' | 'folder' | 'atom' | 'users' | 'compass' | 'notes' | 'alert' | 'download';
+export type DocIcon = 'ai' | 'key' | 'token' | 'chip' | 'folder' | 'atom' | 'compass' | 'notes' | 'alert' | 'download' | 'code';
 
 export type DocLink = {label: string; href: string};
 
@@ -12,7 +12,8 @@ export type DocSet = {
   icon: DocIcon;
   title: string;
   line: string;
-  href: string;
+  /** None while it has no pages yet: shown dimmed, not a link. */
+  href?: string;
   /** Its main parts, beyond the overview. */
   links?: DocLink[];
 };
@@ -27,13 +28,13 @@ export const startHere: DocSet[] = [
     icon: 'compass',
     title: 'What Fortanix does',
     line: 'What each product is for.',
-    href: '/get-familiar/what-fortanix-does',
+    href: '/fundamentals/what-fortanix-does',
   },
   {
     icon: 'chip',
     title: 'TEE technologies',
     line: 'How TEEs keep code and data private.',
-    href: '/get-familiar/concepts/tee-technologies/intel-sgx',
+    href: '/fundamentals/concepts/tee-technologies/intel-sgx',
   },
 ];
 
@@ -62,7 +63,7 @@ export const docGroups: DocGroup[] = [
         href: `${CC}/overview`,
         links: [
           {label: 'CCM concepts', href: `${CC}/ccm/concepts`},
-          {label: 'Enrol an Intel TDX node', href: `${CC}/ccm/compute-nodes/enrol-an-intel-tdx-node`},
+          {label: 'Enroll an Intel TDX node', href: `${CC}/ccm/compute-nodes/enroll-an-intel-tdx-node`},
           {label: 'Confidential Containers', href: `${CC}/workload-runtimes/confidential-containers/overview`},
           {label: 'Enclave OS', href: `${CC}/workload-runtimes/enclave-os/overview`},
         ],
@@ -102,6 +103,7 @@ export const docGroups: DocGroup[] = [
 ];
 
 export const reference: DocSet[] = [
+  {icon: 'code', title: 'API reference', line: 'No pages yet.'},
   {icon: 'notes', title: 'Release notes', line: 'What changed in each release.', href: '/release-notes'},
   {icon: 'alert', title: 'Advisories', line: 'Security advisories.', href: '/advisories'},
   {icon: 'download', title: 'Downloads', line: 'Software and tools to download.', href: '/downloads'},

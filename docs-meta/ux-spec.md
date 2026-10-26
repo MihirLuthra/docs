@@ -17,24 +17,23 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
   - It matches against the full path (e.g. `ccm api`, `armor/dsm/pkcs`). Words are separated by spaces or `/` and can come in any order. Each word must match part of a path segment as text, or as the initials of consecutive words in one segment (`dsm` → Data Security Manager).
   - Results are pages only (folders have none), best first: words matched in the page's own title, then at word starts, then shallower pages. Up to 8 are shown; no match shows "No matching pages".
   - Input: a search icon, a **×** clear button when there's text, and a **t** shortcut chip when empty. Pressing **t** when not typing focuses it; **/** opens the ⌘K search (also from the empty filter; once there's text, "/" is a path separator). The ⌘K search is separate and stays in the header.
-  - It stays visible at the top of the sidebar while the tree scrolls, with the "Smart index" and "Collapse all" buttons beside it.
+  - It stays visible at the top of the sidebar while the tree scrolls, with the "Smart index" button beside it.
 - The sidebar scrolls on its own: it sits under the header and ends above the footer when the footer is on screen, so the page scrolling never takes "Go to page" off screen, and a long tree never makes a short page scroll.
   - Dropdown: floats over the content, left-aligned with the input, ~640px wide (at most the viewport − 32px); the full drawer width inside the mobile drawer. Radius 12px, soft shadow.
   - Rows: a page icon, then the path with the matched parts in bold. Long paths wrap onto the next line, indented to the text (no ellipsis). The active or hovered row uses the neutral grey of sidebar row hover.
   - ↑ ↓ Enter work in it. Esc clears it and leaves the box (in the mobile drawer, Esc on an empty box closes the drawer).
 - The sidebar has a faint tint of its own (#fafafc; #161519 dark), so the page reads as the brightest surface.
 - Every tree row is 32px with the same padding; text 14px in the main text colour. Home and top-level sections are semi-bold (600), deeper rows regular.
-- **Home and each top-level section have an icon on a 22px tile** (the selected tint with the brand purple; filled purple on hover, when selected, or when the section holds the current page): Home a house, Get familiar a compass, Solutions a spark, Products a box, Learn a book. A top-level section's chevron sits at the end of its row. The tile is centred where its rows' guide lines run.
+- **Home and each top-level section have an icon on a 22px tile** (the selected tint with the brand purple; filled purple on hover, when selected, or when the section holds the current page): Home a house, Fundamentals a compass, Solutions a spark, Products a box, API reference code brackets. A top-level section's chevron sits at the end of its row. The tile is centred where its rows' guide lines run.
 - **Where you are:** the current page's row is tinted, in purple, semi-bold, with its own guide line drawn as a 2px purple bar. The sections holding it are semi-bold in the main text colour.
 - Home is a little larger: 40px tall, 15px text, and 4px of space before its divider.
-- Clicking Home, the logo in the header, or pressing **h** (when not typing; on any page, also on phones) goes home and resets the sidebar: every section collapsed, "Go to page" cleared, scrolled to the top. The Home row shows an **h** key chip on the right, lined up with the **c** chip below.
+- Clicking Home, the logo in the header, or pressing **h** (when not typing; on any page, also on phones) goes home and resets the sidebar: every section collapsed, "Go to page" cleared, scrolled to the top. The Home row shows an **h** key chip on the right.
 - All sections are collapsed by default; the tree opens along the current page's path.
 - Folders without pages yet still show (the planned structure); opened, they show a muted, italic "No pages yet" row. The path menus show the same.
 - Clicking a section row toggles it. Clicking a page navigates.
 - **Sliding:** sections slide open and shut. Their rows grow from, or shrink to, no height (`--fx-duration-slide`, 200ms). No motion with reduced motion.
 - **Smart index** (on by default, the button with the list icon next to "Go to page"; the choice is kept in localStorage): only the sections in use stay open. A section is in use while the mouse is on it or on a row inside it, while the keyboard focus is in it, or while it holds the current page. On touch screens, the section last tapped counts as in use. About 1 second after a section stops being in use, it closes, however it was opened (hover, click, keyboard, or the page it held being left). A section above the row the mouse or keyboard focus is on waits until they leave the tree, so closing it never pulls the rows being looked at upwards; sections below close right away. Only keyboard focus counts, not the focus a click leaves. Resting the mouse on a section (~200ms) opens it. If a click lands on a section the hover has just opened, while the pointer is still on it, it keeps it open (the user meant to open it); a second click closes it. Off, sections open and close only when clicked, as in a plain tree.
-- **Collapse all:** a button next to "Go to page", or the **c** key when not typing, closes every section (the button is disabled when none is open).
-- The Collapse all button shows its **c** shortcut as a key chip, like the **t** chip in the filter. Both buttons also show a small tooltip on hover or keyboard focus: "Smart index: on/off" and "Collapse all".
+- The Smart index button shows a small tooltip on hover or keyboard focus: "Smart index: on/off".
 - **Full-row highlight** on hover and on the selected row. Selected: background `#F5EDFF`, text `#4B0A80`.
 - Indent 16px per level, with thin vertical **indent guides**. The chevron rotates 90° when open (150ms).
 - A divider after Home and between top-level sections: a 1px line with its own spacing (6px above, 5px below), so rows keep one height. A small "standalone" pill on DSM.
@@ -51,15 +50,15 @@ D17: a page of the docs, in the same theme and layout as a doc page, so a reader
 - Doc sets are grouped by topic, not as "products" and "solutions". Every doc set in a group looks the same.
 - No layout shift: Recently viewed fills in where nothing is below it (or last on the page).
 
-1. **Title**: "Fortanix Documentation" (36px, 28px on phones), "Fortanix" in the brand gradient, over a soft wash of purple and blue that fades into the page; one lead line, then the **proof-of-concept notice** as a caution callout (amber bar on the left).
+1. **Title**: "Fortanix Documentation" (36px, 28px on phones), "Fortanix" in the brand gradient; one lead line, then the **proof-of-concept notice** as a caution callout (amber bar on the left).
 2. **Start here**: two page cards (What Fortanix does, TEE technologies). A page card is one link: an icon tile, the title, one line; an arrow comes in on hover, the tile fills purple, and the card lifts slightly.
 3. **One section per topic**, each with a heading and one line saying what it covers, then two columns of cards:
    - "Confidential computing and AI": run workloads and AI models in TEEs, and prove what runs before it gets a secret.
    - "Keys and data protection": keep keys in DSM, and protect the data they guard.
-   - A doc set with main parts is a **set card**: its head (icon tile, title, one line) links to its overview; under it, lined up with the title, its main parts as pills that wrap (Confidential AI: Use cases, Deploy and operate, Plan a deployment, Support matrix. Confidential Computing: CCM concepts, Enrol an Intel TDX node, Confidential Containers, Enclave OS). On hover a pill turns the selected tint; the card's border turns purple.
+   - A doc set with main parts is a **set card**: its head (icon tile, title, one line) links to its overview; under it, lined up with the title, its main parts as pills that wrap (Confidential AI: Use cases, Deploy and operate, Plan a deployment, Support matrix. Confidential Computing: CCM concepts, Enroll an Intel TDX node, Confidential Containers, Enclave OS). On hover a pill turns the selected tint; the card's border turns purple.
    - A doc set with one page so far is a page card.
-4. **Reference**: Release notes, Advisories, Downloads as page cards.
-5. **Recently viewed** (right column; localStorage, newest first, max 12): a small capitals heading, then each page with a page icon, its title and its closest section (full path in the tooltip). The pages slide in one after another once read. Hover tints the row and nudges it right; a **×** shows on hover (always, faintly, on touch screens) to remove it; no "clear all". Empty: "Pages you open show up here." Stored pages that no longer exist are dropped.
+4. **Reference**: API reference (dimmed, "No pages yet", not a link, until it has pages), Release notes, Advisories, Downloads as page cards.
+5. **Recently viewed** (right column; localStorage, newest first, max 12): a small capitals heading, then each page with a page icon, its title and its closest section (full path in the tooltip). Hover tints the row and nudges it right; a **×** shows on hover (always, faintly, on touch screens) to remove it; no "clear all". Empty: "Pages you open show up here." Stored pages that no longer exist are dropped.
 
 All the links come from `apps/docs/src/data/featured.ts`; each is a page in the tree (the build fails on a broken link).
 

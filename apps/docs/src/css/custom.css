@@ -227,8 +227,6 @@
   /* Home page (pages/index.module.css): laid out like a doc page */
   --fx-home-title-size: 2.25rem; /* 36px */
   --fx-home-icon-size: 40px;
-  --fx-home-wash-a: rgb(153 23 255 / 0.09);
-  --fx-home-wash-b: rgb(0 191 255 / 0.07);
   --fx-rail-width: 248px; /* the right column: recently viewed */
   --fx-rail-gap: var(--fx-space-12);
 
@@ -286,8 +284,6 @@
   --fx-search-bg: #1c1b21;
   --fx-search-shadow: none;
   --fx-sidebar-bg: #161519;
-  --fx-home-wash-a: rgb(153 23 255 / 0.16);
-  --fx-home-wash-b: rgb(0 191 255 / 0.08);
   --fx-shadow-field: none;
   --fx-bg: var(--fx-dark-gray);
   --fx-surface: #1b1b1f;
