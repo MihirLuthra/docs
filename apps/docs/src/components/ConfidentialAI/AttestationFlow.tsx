@@ -1,4 +1,4 @@
-import React, { useId, useMemo, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import "./styles.css";
 import { charsFor, fit, textWidth, wrap } from "./scene";
 
@@ -201,6 +201,16 @@ export function AttestationFlow({
 
   const choose = (v: boolean) => { setNeedsKey(v); setIndex((n) => Math.min(n, COMMON.length - 1)); };
 
+  // "Listen" (components/Listen) shows each step while it reads it.
+  const figureRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = figureRef.current;
+    if (!el) return undefined;
+    const onStep = (e: Event) => setIndex((e as CustomEvent<{ step: number }>).detail.step);
+    el.addEventListener("fx-speech-step", onStep);
+    return () => el.removeEventListener("fx-speech-step", onStep);
+  }, []);
+
   const wide = useMemo(wideLayout, []);
   const narrow = useMemo(narrowLayout, []);
 
@@ -389,7 +399,12 @@ export function AttestationFlow({
   const panels = [...variants.key.map((s, n) => ({ s, n, v: true, of: variants.key.length })), ...variants.none.map((s, n) => ({ s, n, v: false, of: variants.none.length }))];
 
   return (
-    <figure className="cai cai-deploy cai-attest" aria-label="How Confidential AI works, step by step">
+    <figure
+      ref={figureRef}
+      className="cai cai-deploy cai-attest"
+      aria-label="How Confidential AI works, step by step"
+      data-speech="steps"
+      data-speech-variant={needsKey ? "key" : "none"}>
       <nav className="cai-timeline" aria-label="Steps">
         <div className="cai-day" data-current="true">
           <span className="cai-day-label">Steps</span>
@@ -424,8 +439,14 @@ export function AttestationFlow({
         {panels.map(({ s, n, v, of }) => {
           const active = v === needsKey && s === step;
           return (
-            <div key={`${v}-${s.id}`} className="cai-deploy-panel" data-active={active} aria-hidden={!active}>
-              <p className="cai-deploy-who">Step {n + 1} of {of}</p>
+            <div
+              key={`${v}-${s.id}`}
+              className="cai-deploy-panel"
+              data-active={active}
+              aria-hidden={!active}
+              data-speech-step={n}
+              data-speech-variant={v ? "key" : "none"}>
+              <p className="cai-deploy-who" data-speech-skip>Step {n + 1} of {of}</p>
               <p className="cai-deploy-title">{s.title}</p>
               <p>{s.text}</p>
               {keyRelease === "toggle" && s.id === "run" && (

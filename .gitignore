@@ -4,3 +4,4 @@ build/
 .cache-loader/
 *.log
 .DS_Store
+.cache/

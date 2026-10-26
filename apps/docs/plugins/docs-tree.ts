@@ -19,7 +19,7 @@ type DocMeta = {
   id: string;
   title: string;
   permalink: string;
-  frontMatter: {doc_type?: string; keywords?: string[]};
+  frontMatter: {doc_type?: string; keywords?: string[]; listen?: boolean};
 };
 
 type LoadedVersion = {
@@ -76,7 +76,10 @@ function kindOf(names: string[], isFolder: boolean, docType?: string): Kind {
  * the docs sidebar, and builds the search index from the same sidebar.
  * Both come from the sidebar Docusaurus generates from content/.
  */
-export default function docsTreePlugin(_context: LoadContext): Plugin {
+export default function docsTreePlugin(context: LoadContext): Plugin {
+  // Pages with `listen: true` in front matter (permalinks), for the speech
+  // build (scripts/speech.mjs), which reads them from the generated files.
+  const listenPages: string[] = [];
   return {
     name: 'docs-tree',
     async allContentLoaded({allContent, actions}) {
@@ -85,6 +88,7 @@ export default function docsTreePlugin(_context: LoadContext): Plugin {
       if (!docsContent) throw new Error('docs-tree: docs plugin not loaded');
       const version = docsContent.loadedVersions[0];
       const docsById = new Map(version.docs.map((d) => [d.id, d]));
+      listenPages.length = 0; // reloads in dev
       const index: IndexEntry[] = [];
 
       const toNodes = (items: SidebarItem[], parents: string[]): TreeNode[] =>
@@ -124,7 +128,8 @@ export default function docsTreePlugin(_context: LoadContext): Plugin {
               depth: names.length,
               keywords: (doc.frontMatter.keywords ?? []).map((k) => k.toLowerCase()),
             });
-            return [{label, href: doc.permalink}];
+            if (doc.frontMatter.listen) listenPages.push(doc.permalink);
+            return [{label, href: doc.permalink, ...(doc.frontMatter.listen && {listen: true})}];
           }
           return [];
         });
@@ -133,6 +138,10 @@ export default function docsTreePlugin(_context: LoadContext): Plugin {
       actions.setGlobalData({tree});
       // Loaded on demand by the search modal, not shipped with every page.
       await actions.createData('search-index.json', index);
+    },
+    async postBuild() {
+      const file = path.join(context.generatedFilesDir, 'speech-pages.json');
+      fs.writeFileSync(file, JSON.stringify({baseUrl: context.baseUrl, pages: listenPages}));
     },
   };
 }

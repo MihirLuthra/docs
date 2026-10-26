@@ -6,6 +6,7 @@
     "start": "pnpm --filter docs start",
     "build": "pnpm --filter docs build",
     "serve": "pnpm --filter docs serve",
-    "typecheck": "pnpm --filter docs typecheck"
+    "typecheck": "pnpm --filter docs typecheck",
+    "speech": "pnpm --filter docs speech"
   }
 }

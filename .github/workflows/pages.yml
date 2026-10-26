@@ -34,6 +34,14 @@ jobs:
         env:
           DOCS_URL: https://mihirluthra.github.io
           DOCS_BASE_URL: /docs/
+      # "Listen" audio (scripts/speech.mjs): the voice model and every
+      # sentence already voiced are cached, so only changed text is voiced.
+      - uses: actions/cache@v4
+        with:
+          path: .cache/speech
+          key: speech-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.run_id }}
+          restore-keys: speech-${{ hashFiles('pnpm-lock.yaml') }}-
+      - run: pnpm speech
       - uses: actions/upload-pages-artifact@v4
         with:
           path: apps/docs/build

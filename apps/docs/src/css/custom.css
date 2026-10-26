@@ -71,6 +71,9 @@
   --fx-breadcrumb-caret-size: 10px;
   --fx-avatar-size: 28px; /* contributors */
   --fx-avatar-overlap: 8px; /* each avatar tucked under the one before */
+  --fx-listen-icon: 14px; /* Listen button and player icons */
+  --fx-listen-width: 640px; /* the player bar */
+  --fx-z-listen: 300; /* the player and the selection's Listen, over the page */
   --fx-menu-min: 200px; /* small menus (Back / Forward, path) fit their items */
   --fx-menu-max: 280px;
   --fx-tree-home-h: 40px;
@@ -516,4 +519,14 @@ body {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Listen (components/Listen): the block being read aloud. */
+.fx-speech-reading {
+  border-radius: var(--fx-radius-sm);
+  background-color: var(--fx-selected-bg);
+  box-shadow: 0 0 0 var(--fx-space-1) var(--fx-selected-bg);
+  transition:
+    background-color var(--fx-duration-panel) var(--fx-ease),
+    box-shadow var(--fx-duration-panel) var(--fx-ease);
 }

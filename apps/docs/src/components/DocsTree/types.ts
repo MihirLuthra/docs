@@ -5,4 +5,6 @@ export type TreeNode = {
   items?: TreeNode[];
   /** Small pill shown after the label, e.g. "standalone". */
   badge?: string;
+  /** The page can be listened to (`listen: true` in front matter, scripts/speech.mjs). */
+  listen?: true;
 };

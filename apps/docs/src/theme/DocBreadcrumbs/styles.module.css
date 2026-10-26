@@ -3,6 +3,10 @@
 /* Spacing and the path's text styles are in custom.css (.breadcrumbs). */
 .container {
   --ifm-breadcrumb-size-multiplier: 0.8;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--fx-space-3);
 }
 
 .homeIcon {

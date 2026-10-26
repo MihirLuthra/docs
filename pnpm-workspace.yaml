@@ -3,3 +3,8 @@ packages:
 allowBuilds:
   '@swc/core': true
   core-js: false
+  # Speech build (kokoro-js): the CPU binaries ship in the packages; these
+  # scripts only fetch GPU extras or print notices.
+  onnxruntime-node: false
+  protobufjs: false
+  sharp: false

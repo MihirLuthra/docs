@@ -131,7 +131,8 @@ export function RolesExplorer({
       </div>
 
       {/* Narrow, and for screen readers: each party with the roles it holds. */}
-      <ul className="cai-roles-list">
+      {/* Not read aloud: the caption below says it in words. */}
+      <ul className="cai-roles-list" data-speech-skip>
         {sc.parties.map((p) => (
           <li key={p.name} className="cai-party-block">
             <span className="cai-party-name">{p.name}</span>

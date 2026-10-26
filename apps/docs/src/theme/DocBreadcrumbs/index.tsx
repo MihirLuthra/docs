@@ -6,6 +6,7 @@ import {findKey, nodesAlong, normalize, useTree} from '@site/src/components/Docs
 import type {TreeNode} from '@site/src/components/DocsTree/types';
 import {revealInTree} from '@site/src/lib/tree-reveal';
 import CopyPath from '@site/src/components/CopyPath';
+import Listen from '@site/src/components/Listen';
 import styles from './styles.module.css';
 
 function HomeIcon(): ReactNode {
@@ -131,7 +132,8 @@ function FolderCrumb({tree, folderKey, currentHref}: {tree: TreeNode[]; folderKe
 /**
  * The path above a doc's title (ux-spec.md, Doc pages): Home, then each
  * folder as a menu of its contents, then the page itself, then a button that
- * copies the page's path (components/CopyPath).
+ * copies the page's path (components/CopyPath). Pages with audio have
+ * "Listen" at the right end (components/Listen).
  */
 export default function DocBreadcrumbs(): ReactNode {
   const tree = useTree();
@@ -164,6 +166,7 @@ export default function DocBreadcrumbs(): ReactNode {
           <CopyPath label="Copy page path" />
         </li>
       </ul>
+      {along[along.length - 1].listen && <Listen />}
     </nav>
   );
 }
