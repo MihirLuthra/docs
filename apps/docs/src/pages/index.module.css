@@ -14,6 +14,7 @@
   flex: none;
   width: var(--fx-sidebar-width);
   border-right: var(--fx-border-width) solid var(--fx-border);
+  background-color: var(--fx-sidebar-bg);
 }
 
 .sidebarFrame {
@@ -53,8 +54,30 @@
 
 /* ---------- Title ---------- */
 
+/* A soft wash of the brand's purple and blue behind the title, fading into
+   the page: the same theme, a little depth. */
 .intro {
-  margin-bottom: var(--fx-space-6);
+  position: relative;
+  isolation: isolate;
+  margin-bottom: var(--fx-space-8);
+  padding: var(--fx-space-2) 0 0;
+}
+
+.intro::before {
+  position: absolute;
+  z-index: -1;
+  inset: calc(-1 * var(--fx-content-top)) -40% -30% -20%;
+  background:
+    radial-gradient(40% 70% at 20% 30%, var(--fx-home-wash-a), transparent 70%),
+    radial-gradient(35% 60% at 60% 10%, var(--fx-home-wash-b), transparent 70%);
+  content: '';
+  pointer-events: none;
+}
+
+.titleBrand {
+  background: var(--fx-gradient);
+  background-clip: text;
+  color: transparent;
 }
 
 .title {
@@ -95,10 +118,24 @@
 }
 
 .heading {
-  margin: 0 0 var(--fx-space-3);
-  font-size: var(--fx-text-lg);
+  margin: 0 0 var(--fx-space-1);
+  font-size: var(--fx-text-xl);
   font-weight: 700;
+  letter-spacing: -0.01em;
   line-height: 1.3;
+}
+
+.sectionLine {
+  margin: 0 0 var(--fx-space-4);
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-md);
+  line-height: 1.5;
+}
+
+/* Without a line, the heading keeps the same space before the cards. */
+.heading:last-child,
+.heading + ul {
+  margin-top: var(--fx-space-3);
 }
 
 .startGrid,
@@ -244,11 +281,14 @@
   border: var(--fx-border-width) solid var(--fx-border);
   border-radius: var(--fx-radius-card);
   background: var(--fx-bg);
-  transition: border-color var(--fx-duration-fast) var(--fx-ease);
+  transition:
+    border-color var(--fx-duration-fast) var(--fx-ease),
+    box-shadow var(--fx-duration-fast) var(--fx-ease);
 }
 
 .setCard:hover {
-  border-color: var(--fx-border-strong);
+  border-color: var(--fx-card-hover-border);
+  box-shadow: var(--fx-shadow-card);
 }
 
 .setHead {
@@ -279,41 +319,37 @@
   transform: none;
 }
 
+/* The main parts, as pills that wrap. */
 .setLinks {
+  display: flex;
   flex: 1;
-  padding: var(--fx-space-2);
-  border-top: var(--fx-border-width) solid var(--fx-border);
-  background: var(--fx-surface);
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: var(--fx-space-2);
+  padding: 0 var(--fx-space-4) var(--fx-space-4) calc(var(--fx-space-4) + var(--fx-home-icon-size) + var(--fx-space-3));
 }
 
 .setLink {
-  display: flex;
-  align-items: center;
-  gap: var(--fx-space-2);
-  padding: var(--fx-space-1) var(--fx-space-2);
-  border-radius: var(--fx-radius-md);
+  display: inline-block;
+  padding: 2px var(--fx-space-3);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-pill);
+  background: var(--fx-surface);
   color: var(--fx-text-secondary);
-  font-size: var(--fx-text-md);
+  font-size: var(--fx-text-sm);
+  font-weight: 500;
   line-height: 1.6;
+  transition:
+    border-color var(--fx-duration-fast) var(--fx-ease),
+    background-color var(--fx-duration-fast) var(--fx-ease),
+    color var(--fx-duration-fast) var(--fx-ease);
 }
 
 .setLink:hover {
-  background: var(--fx-hover);
-  color: var(--fx-link);
+  border-color: var(--fx-card-hover-border);
+  background: var(--fx-selected-bg);
+  color: var(--fx-selected-text);
   text-decoration: none;
-}
-
-.chevron {
-  flex: none;
-  width: var(--fx-space-3);
-  height: var(--fx-space-3);
-  color: var(--fx-text-muted);
-  transition: transform var(--fx-duration-fast) var(--fx-ease);
-}
-
-.setLink:hover .chevron {
-  color: var(--fx-link);
-  transform: translateX(2px);
 }
 
 /* ---------- Recently viewed, in the right column ---------- */
@@ -509,7 +545,7 @@
   .pageCard,
   .pageCard > .arrow,
   .setHead .arrow,
-  .chevron,
+  .setLink,
   .recentLink {
     transition: none;
   }

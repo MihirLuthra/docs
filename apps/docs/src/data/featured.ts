@@ -17,7 +17,7 @@ export type DocSet = {
   links?: DocLink[];
 };
 
-export type DocGroup = {title: string; sets: DocSet[]};
+export type DocGroup = {title: string; line: string; sets: DocSet[]};
 
 const CAI = '/solutions/confidential-ai';
 const CC = '/products/fortanix-armor/confidential-computing';
@@ -35,18 +35,13 @@ export const startHere: DocSet[] = [
     line: 'How TEEs keep code and data private.',
     href: '/get-familiar/concepts/tee-technologies/intel-sgx',
   },
-  {
-    icon: 'users',
-    title: 'Identity and access',
-    line: 'Accounts and groups in Armor.',
-    href: '/products/fortanix-armor/platform/identity-and-access-management/create-a-group',
-  },
 ];
 
 // TODO(verify): set lines come from the N5 prototype; product claims need review.
 export const docGroups: DocGroup[] = [
   {
     title: 'Confidential computing and AI',
+    line: 'Run workloads and AI models in TEEs, and prove what runs before it gets a secret.',
     sets: [
       {
         icon: 'ai',
@@ -76,6 +71,7 @@ export const docGroups: DocGroup[] = [
   },
   {
     title: 'Keys and data protection',
+    line: 'Keep keys in DSM, and protect the data they guard.',
     sets: [
       {
         icon: 'key',

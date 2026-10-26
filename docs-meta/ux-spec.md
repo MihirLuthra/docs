@@ -6,7 +6,8 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 - Left: the Fortanix mark (no wordmark) and "Documentation" in purple, centred on the mark; goes to Home.
 - No back and forward buttons of its own: the browser's are enough.
-- Centre: a search trigger ("Search the docs", with **/** and ⌘K hints) and an **Ask AI** button.
+- The header is slightly see-through (the page shows faintly under it, blurred).
+- Centre: a search trigger ("Search the docs", 440px): a soft field with a faint fill and a hairline border, a ⌘K (Ctrl K) hint on a keycap with a thicker bottom edge (fixed width, so the swap after loading moves nothing). On hover it turns the page colour, with a purple ring and a purple icon. **/** opens search too, without a chip. Then an **Ask AI** button.
 - Right: Release notes · Advisories · Downloads.
 
 ## Sidebar (GitHub-style tree)
@@ -21,8 +22,11 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
   - Dropdown: floats over the content, left-aligned with the input, ~640px wide (at most the viewport − 32px); the full drawer width inside the mobile drawer. Radius 12px, soft shadow.
   - Rows: a page icon, then the path with the matched parts in bold. Long paths wrap onto the next line, indented to the text (no ellipsis). The active or hovered row uses the neutral grey of sidebar row hover.
   - ↑ ↓ Enter work in it. Esc clears it and leaves the box (in the mobile drawer, Esc on an empty box closes the drawer).
-- Every tree row is 32px with the same padding; text 14px in the main text colour. Home and top-level sections are semi-bold (600), deeper rows regular. The Home icon sits in the chevron's slot so labels line up.
-- Home is a little larger: 40px tall, 15px text, a 16px icon, and 4px of space before its divider.
+- The sidebar has a faint tint of its own (#fafafc; #161519 dark), so the page reads as the brightest surface.
+- Every tree row is 32px with the same padding; text 14px in the main text colour. Home and top-level sections are semi-bold (600), deeper rows regular.
+- **Home and each top-level section have an icon on a 22px tile** (the selected tint with the brand purple; filled purple on hover, when selected, or when the section holds the current page): Home a house, Get familiar a compass, Solutions a spark, Products a box, Learn a book. A top-level section's chevron sits at the end of its row. The tile is centred where its rows' guide lines run.
+- **Where you are:** the current page's row is tinted, in purple, semi-bold, with its own guide line drawn as a 2px purple bar. The sections holding it are semi-bold in the main text colour.
+- Home is a little larger: 40px tall, 15px text, and 4px of space before its divider.
 - Clicking Home, the logo in the header, or pressing **h** (when not typing; on any page, also on phones) goes home and resets the sidebar: every section collapsed, "Go to page" cleared, scrolled to the top. The Home row shows an **h** key chip on the right, lined up with the **c** chip below.
 - All sections are collapsed by default; the tree opens along the current page's path.
 - Folders without pages yet still show (the planned structure); opened, they show a muted, italic "No pages yet" row. The path menus show the same.
@@ -47,10 +51,12 @@ D17: a page of the docs, in the same theme and layout as a doc page, so a reader
 - Doc sets are grouped by topic, not as "products" and "solutions". Every doc set in a group looks the same.
 - No layout shift: Recently viewed fills in where nothing is below it (or last on the page).
 
-1. **Title**: "Fortanix Documentation" (36px, 28px on phones), one lead line, then the **proof-of-concept notice** as a caution callout (amber bar on the left).
-2. **Start here**: three page cards (What Fortanix does, TEE technologies, Identity and access). A page card is one link: an icon tile, the title, one line; an arrow comes in on hover and the card lifts slightly. Three columns, fewer when narrow.
-3. **One section per topic** ("Confidential computing and AI", "Keys and data protection"), two columns:
-   - A doc set with main parts is a **set card**: its head (icon tile, title, one line) links to its overview; under a divider, on a faint grey, its main parts as links with a chevron (Confidential AI: Use cases, Deploy and operate, Plan a deployment, Support matrix. Confidential Computing: CCM concepts, Enrol an Intel TDX node, Confidential Containers, Enclave OS).
+1. **Title**: "Fortanix Documentation" (36px, 28px on phones), "Fortanix" in the brand gradient, over a soft wash of purple and blue that fades into the page; one lead line, then the **proof-of-concept notice** as a caution callout (amber bar on the left).
+2. **Start here**: two page cards (What Fortanix does, TEE technologies). A page card is one link: an icon tile, the title, one line; an arrow comes in on hover, the tile fills purple, and the card lifts slightly.
+3. **One section per topic**, each with a heading and one line saying what it covers, then two columns of cards:
+   - "Confidential computing and AI": run workloads and AI models in TEEs, and prove what runs before it gets a secret.
+   - "Keys and data protection": keep keys in DSM, and protect the data they guard.
+   - A doc set with main parts is a **set card**: its head (icon tile, title, one line) links to its overview; under it, lined up with the title, its main parts as pills that wrap (Confidential AI: Use cases, Deploy and operate, Plan a deployment, Support matrix. Confidential Computing: CCM concepts, Enrol an Intel TDX node, Confidential Containers, Enclave OS). On hover a pill turns the selected tint; the card's border turns purple.
    - A doc set with one page so far is a page card.
 4. **Reference**: Release notes, Advisories, Downloads as page cards.
 5. **Recently viewed** (right column; localStorage, newest first, max 12): a small capitals heading, then each page with a page icon, its title and its closest section (full path in the tooltip). The pages slide in one after another once read. Hover tints the row and nudges it right; a **×** shows on hover (always, faintly, on touch screens) to remove it; no "clear all". Empty: "Pages you open show up here." Stored pages that no longer exist are dropped.

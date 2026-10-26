@@ -51,6 +51,54 @@
   font-weight: 600;
 }
 
+/* The sections holding the current page. */
+.row.inPath {
+  color: var(--fx-text);
+  font-weight: 600;
+}
+
+/* An icon on a small tile, for Home and each top-level section. Its centre
+   is where the guide lines of the section's rows run. */
+.sectionIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--fx-tree-icon-tile);
+  height: var(--fx-tree-icon-tile);
+  margin: 0 var(--fx-space-1) 0 calc((var(--fx-tree-indent) - var(--fx-tree-icon-tile)) / 2);
+  border-radius: var(--fx-radius-md);
+  background-color: var(--fx-selected-bg);
+  color: var(--fx-brand-text);
+  transition:
+    background-color var(--fx-duration-fast) var(--fx-ease),
+    color var(--fx-duration-fast) var(--fx-ease);
+}
+
+.sectionIcon svg {
+  width: var(--fx-tree-icon);
+  height: var(--fx-tree-icon);
+}
+
+.row:hover .sectionIcon,
+.row.selected .sectionIcon,
+.row.inPath .sectionIcon {
+  background-color: var(--fx-brand-text);
+  color: var(--fx-bg);
+}
+
+/* A top-level section's chevron, at the end of the row. */
+.endTwisty {
+  display: flex;
+  flex: none;
+  margin-left: auto;
+  color: var(--fx-text-muted);
+}
+
+.row:hover .twisty,
+.row:hover .endTwisty {
+  color: var(--fx-text-secondary);
+}
+
 /* "No pages yet" inside an empty folder: muted, not clickable. */
 .row.emptyRow {
   color: var(--fx-text-muted);
@@ -101,6 +149,14 @@
   background-color: var(--fx-border);
 }
 
+/* The current page's own guide line: a purple bar beside it. */
+.guide.guideCurrent {
+  width: 2px;
+  margin-left: -0.5px;
+  border-radius: 1px;
+  background-color: var(--fx-brand-text);
+}
+
 .twisty {
   display: flex;
   flex: none;
@@ -113,7 +169,8 @@
   transition: transform var(--fx-duration-chevron) var(--fx-ease);
 }
 
-[aria-expanded='true'] > .twisty .chevron {
+[aria-expanded='true'] > .twisty .chevron,
+[aria-expanded='true'] > .endTwisty .chevron {
   transform: rotate(90deg);
 }
 
@@ -152,7 +209,7 @@
   gap: var(--fx-space-1);
   margin-top: calc(-1 * var(--above));
   padding: var(--above) 0 var(--fx-space-2);
-  background-color: var(--fx-bg);
+  background-color: var(--fx-sidebar-bg);
 }
 
 .goto {
@@ -264,14 +321,22 @@
   box-sizing: border-box;
   height: var(--fx-tree-row-h);
   padding: 0 var(--fx-space-1) 0 var(--fx-space-2);
-  border: var(--fx-border-width) solid var(--fx-border-strong);
-  border-radius: var(--fx-radius-md);
-  background-color: var(--fx-surface);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-lg);
+  background-color: var(--fx-bg);
+  box-shadow: var(--fx-shadow-field);
+  transition:
+    border-color var(--fx-duration-fast) var(--fx-ease),
+    box-shadow var(--fx-duration-fast) var(--fx-ease);
+}
+
+.filterBox:hover {
+  border-color: var(--fx-border-strong);
 }
 
 .filterBox:focus-within {
-  border-color: var(--fx-focus);
-  background-color: var(--fx-bg);
+  border-color: var(--fx-card-hover-border);
+  box-shadow: 0 0 0 3px var(--fx-selected-bg);
 }
 
 .filterIcon {

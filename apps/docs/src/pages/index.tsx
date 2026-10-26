@@ -32,14 +32,6 @@ function ArrowIcon(): ReactNode {
   );
 }
 
-function ChevronIcon(): ReactNode {
-  return (
-    <svg className={styles.chevron} viewBox="0 0 24 24" aria-hidden="true">
-      <path {...stroke} strokeWidth={2.2} d="M9 6l6 6-6 6" />
-    </svg>
-  );
-}
-
 function CloseIcon(): ReactNode {
   return (
     <svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true">
@@ -141,7 +133,7 @@ function PageCard({set}: {set: DocSet}): ReactNode {
   );
 }
 
-/** A doc set: its overview (the head of the card) and links to its main parts. */
+/** A doc set: its overview (the head of the card), then its main parts as pills. */
 function SetCard({set}: {set: DocSet}): ReactNode {
   return (
     <div className={styles.setCard}>
@@ -159,7 +151,6 @@ function SetCard({set}: {set: DocSet}): ReactNode {
         {(set.links ?? []).map((l) => (
           <li key={l.href}>
             <Link to={l.href} className={styles.setLink}>
-              <ChevronIcon />
               {l.label}
             </Link>
           </li>
@@ -169,12 +160,13 @@ function SetCard({set}: {set: DocSet}): ReactNode {
   );
 }
 
-function Section({id, title, children}: {id: string; title: string; children: ReactNode}): ReactNode {
+function Section({id, title, line, children}: {id: string; title: string; line?: string; children: ReactNode}): ReactNode {
   return (
     <section className={styles.section} aria-labelledby={id}>
       <h2 id={id} className={styles.heading}>
         {title}
       </h2>
+      {line && <p className={styles.sectionLine}>{line}</p>}
       {children}
     </section>
   );
@@ -275,7 +267,9 @@ export default function Home(): ReactNode {
         <div className={styles.content}>
           <main className={styles.main}>
             <header className={styles.intro}>
-              <h1 className={styles.title}>Fortanix Documentation</h1>
+              <h1 className={styles.title}>
+                <span className={styles.titleBrand}>Fortanix</span> Documentation
+              </h1>
               <p className={styles.lead}>
                 Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.
               </p>
@@ -286,7 +280,7 @@ export default function Home(): ReactNode {
             </header>
 
             <Section id="start-heading" title="Start here">
-              <ul className={styles.startGrid}>
+              <ul className={styles.pageGrid}>
                 {startHere.map((set) => (
                   <li key={set.href}>
                     <PageCard set={set} />
@@ -296,7 +290,7 @@ export default function Home(): ReactNode {
             </Section>
 
             {docGroups.map((group, k) => (
-              <Section key={group.title} id={`group-${k}`} title={group.title}>
+              <Section key={group.title} id={`group-${k}`} title={group.title} line={group.line}>
                 <ul className={group.sets.some((s) => s.links?.length) ? styles.setGrid : styles.pageGrid}>
                   {group.sets.map((set) => (
                     <li key={set.href}>{set.links?.length ? <SetCard set={set} /> : <PageCard set={set} />}</li>

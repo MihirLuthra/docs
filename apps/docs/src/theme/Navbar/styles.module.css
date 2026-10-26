@@ -11,8 +11,10 @@
   height: var(--fx-header-height);
   padding: 0 var(--fx-space-5);
   border-bottom: var(--fx-border-width) solid var(--fx-border);
-  background-color: var(--fx-bg);
+  /* Slightly see-through: the page shows faintly as it scrolls under. */
+  background-color: var(--fx-header-bg);
   box-shadow: none;
+  backdrop-filter: var(--fx-glass-filter);
   color: var(--fx-text);
 }
 
@@ -49,27 +51,45 @@
   min-width: 0;
 }
 
+/* A soft field: a faint fill and a hairline; on hover it lifts to the page
+   colour with a purple ring. */
 .searchTrigger {
   display: flex;
   align-items: center;
-  gap: var(--fx-space-3);
+  gap: var(--fx-space-2);
   width: var(--fx-search-trigger-w);
   max-width: 100%;
   height: var(--fx-control-h);
-  padding: 0 var(--fx-space-3);
-  border: var(--fx-border-width) solid var(--fx-border-strong);
+  padding: 0 var(--fx-space-2) 0 var(--fx-space-3);
+  border: var(--fx-border-width) solid var(--fx-border);
   border-radius: var(--fx-radius-lg);
-  background-color: var(--fx-surface);
+  background-color: var(--fx-search-bg);
+  box-shadow: var(--fx-search-shadow);
   color: var(--fx-text-muted);
   font: inherit;
   font-size: var(--fx-text-md);
   text-align: left;
   /* Looks like a text box, so it gets the text cursor. */
   cursor: text;
+  transition:
+    background-color var(--fx-duration-fast) var(--fx-ease),
+    border-color var(--fx-duration-fast) var(--fx-ease),
+    box-shadow var(--fx-duration-fast) var(--fx-ease);
+}
+
+.searchTrigger svg {
+  flex: none;
+  transition: color var(--fx-duration-fast) var(--fx-ease);
 }
 
 .searchTrigger:hover {
   border-color: var(--fx-card-hover-border);
+  background-color: var(--fx-bg);
+  box-shadow: 0 0 0 3px var(--fx-selected-bg);
+}
+
+.searchTrigger:hover svg {
+  color: var(--fx-brand-text);
 }
 
 /* Clicked before the page finished loading; search opens once it has. */
@@ -85,24 +105,25 @@
   text-overflow: ellipsis;
 }
 
+/* A keycap: a thicker bottom edge. Fixed width, so "Ctrl K" turning into
+   "⌘K" after loading moves nothing. ("/" opens search too.) */
 .searchKbd {
   flex: none;
-  width: var(--fx-space-12);
+  box-sizing: border-box;
+  width: var(--fx-search-kbd-w);
+  height: var(--fx-search-kbd-h);
   padding: 0;
   border: var(--fx-border-width) solid var(--fx-border-strong);
-  border-radius: var(--fx-radius-sm);
+  border-bottom-width: 2px;
+  border-radius: var(--fx-radius-md);
   background-color: var(--fx-bg);
   box-shadow: none;
-  color: inherit;
-  font-family: var(--fx-font-mono);
+  color: var(--fx-text-muted);
+  font-family: var(--fx-font-sans);
   font-size: var(--fx-text-xs);
+  font-weight: 600;
+  line-height: calc(var(--fx-search-kbd-h) - 3px);
   text-align: center;
-}
-
-/* "/" also opens search; a narrower chip before ⌘K. */
-.searchSlash {
-  width: var(--fx-space-6);
-  margin-right: calc(-1 * var(--fx-space-2));
 }
 
 .askAI {
@@ -230,7 +251,7 @@
   width: min(var(--fx-sidebar-width), 85vw);
   overflow-y: auto;
   overscroll-behavior: contain;
-  background-color: var(--fx-bg);
+  background-color: var(--fx-sidebar-bg);
   box-shadow: var(--fx-shadow-drawer);
   animation: slide-in var(--fx-duration-panel) var(--fx-ease-out);
 }

@@ -118,7 +118,9 @@
   --fx-search-width: 680px;
   --fx-search-input-h: 60px;
   --fx-search-results-max: 440px;
-  --fx-search-trigger-w: 420px;
+  --fx-search-trigger-w: 440px;
+  --fx-search-kbd-w: 46px;
+  --fx-search-kbd-h: 22px;
   --fx-control-h: 36px;
   --fx-ai-width: 400px;
   --fx-ai-input-h: 44px;
@@ -225,6 +227,8 @@
   /* Home page (pages/index.module.css): laid out like a doc page */
   --fx-home-title-size: 2.25rem; /* 36px */
   --fx-home-icon-size: 40px;
+  --fx-home-wash-a: rgb(153 23 255 / 0.09);
+  --fx-home-wash-b: rgb(0 191 255 / 0.07);
   --fx-rail-width: 248px; /* the right column: recently viewed */
   --fx-rail-gap: var(--fx-space-12);
 
@@ -266,9 +270,25 @@
   --fx-code-property: #0550ae;
   --fx-code-tag: #116329;
   --fx-code-variable: #953800;
+  /* Header and its search field */
+  --fx-header-bg: rgb(255 255 255 / 0.86);
+  --fx-search-bg: #f4f4f7;
+  --fx-search-shadow: inset 0 1px 2px rgb(19 19 19 / 0.04);
+  /* Sidebar: a faint tint, so the page reads as the brightest surface */
+  --fx-sidebar-bg: #fafafc;
+  --fx-shadow-field: 0 1px 2px rgb(19 19 19 / 0.05);
+  --fx-tree-icon-tile: 22px;
+  --fx-tree-icon: 14px;
 }
 
 [data-theme='dark'] {
+  --fx-header-bg: rgb(19 19 19 / 0.82);
+  --fx-search-bg: #1c1b21;
+  --fx-search-shadow: none;
+  --fx-sidebar-bg: #161519;
+  --fx-home-wash-a: rgb(153 23 255 / 0.16);
+  --fx-home-wash-b: rgb(0 191 255 / 0.08);
+  --fx-shadow-field: none;
   --fx-bg: var(--fx-dark-gray);
   --fx-surface: #1b1b1f;
   --fx-chip: #26262c;
@@ -385,6 +405,7 @@ body {
   margin-top: 0 !important;
   clip-path: none !important;
   border-right: var(--fx-border-width) solid var(--fx-border) !important;
+  background-color: var(--fx-sidebar-bg);
 }
 
 /* Docusaurus's wrapper inside it fills the column without adding to the

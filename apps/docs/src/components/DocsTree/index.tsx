@@ -85,6 +85,25 @@ function HomeIcon(): ReactNode {
   );
 }
 
+// Top-level sections, each on a small tile (by label; a folder otherwise).
+const SECTION_ICONS: Record<string, string> = {
+  'Get familiar': 'M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zM15.5 8.5l-2 5-5 2 2-5z',
+  Solutions: 'M12 3l2.4 5.6L20 11l-5.6 2.4L12 19l-2.4-5.6L4 11l5.6-2.4z',
+  Products: 'M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9',
+  Learn: 'M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z',
+};
+const FOLDER_ICON = 'M3 7.5a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z';
+
+function SectionIcon({d}: {d: string}): ReactNode {
+  return (
+    <span className={styles.sectionIcon} aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d={d} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+  );
+}
+
 // Smart index: only the active line of a list is open (a dot), the rest stay short.
 function SmartIndexIcon(): ReactNode {
   return (
@@ -117,6 +136,8 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
   const pathname = normalize(useLocation().pathname);
   const home = normalize(useBaseUrl('/'));
   const currentKey = useMemo(() => findKey(tree, pathname), [tree, pathname]);
+  // The sections holding the current page: their names are emphasised.
+  const pathKeys = useMemo(() => new Set(ancestors(currentKey)), [currentKey]);
 
   const [open, setOpen] = useState(() => new Set(ancestors(currentKey)));
   const [focusKey, setFocusKey] = useState<string | null>(null);
@@ -350,8 +371,8 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
           resetNav();
           onNavigate?.();
         }}>
-        {/* The icon takes the chevron's slot, so "Home" lines up with the sections. */}
-        <span className={styles.twisty} aria-hidden="true">
+        {/* On a tile, like the sections' icons below it. */}
+        <span className={styles.sectionIcon} aria-hidden="true">
           <HomeIcon />
         </span>
         <span className={styles.label}>Home</span>
@@ -436,24 +457,45 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
               styles.row,
               depth === 0 && styles.top,
               isCurrent && styles.selected,
+              pathKeys.has(key) && styles.inPath,
               row.empty && styles.emptyRow,
               key === revealed && styles.revealed,
             ),
             style: {'--depth': depth} as CSSProperties,
             title: node.label,
           };
-          const content = (
-            <>
-              {Array.from({length: depth}, (_, i) => (
-                <span key={i} className={styles.guide} style={{'--level': i} as CSSProperties} aria-hidden="true" />
-              ))}
-              <span className={styles.twisty} aria-hidden="true">
-                {isFolder && <Chevron />}
-              </span>
-              <span className={styles.label}>{node.label}</span>
-              {node.badge && <span className={styles.badge}>{node.badge}</span>}
-            </>
-          );
+          // A top-level section: its icon tile, its name, the chevron at the
+          // end. Deeper rows: guide lines (the current page's, purple), the
+          // chevron, the name.
+          const content =
+            depth === 0 ? (
+              <>
+                <SectionIcon d={SECTION_ICONS[node.label] ?? FOLDER_ICON} />
+                <span className={styles.label}>{node.label}</span>
+                {node.badge && <span className={styles.badge}>{node.badge}</span>}
+                {isFolder && (
+                  <span className={styles.endTwisty} aria-hidden="true">
+                    <Chevron />
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                {Array.from({length: depth}, (_, i) => (
+                  <span
+                    key={i}
+                    className={clsx(styles.guide, isCurrent && i === depth - 1 && styles.guideCurrent)}
+                    style={{'--level': i} as CSSProperties}
+                    aria-hidden="true"
+                  />
+                ))}
+                <span className={styles.twisty} aria-hidden="true">
+                  {isFolder && <Chevron />}
+                </span>
+                <span className={styles.label}>{node.label}</span>
+                {node.badge && <span className={styles.badge}>{node.badge}</span>}
+              </>
+            );
           return (
             <div
               key={key}
