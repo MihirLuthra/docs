@@ -2,14 +2,47 @@
 
 <Walkthrough label="Add an application configuration">
 <Step
-  title="Add the configuration"
-  image={require('../img/ccm-config-new.webp').default}
-  width={1036}
-  height={839}
-  marks={[[31.3, 19.3, 24.0, 5.5], [3.5, 27.7, 45.8, 9.3], [50.8, 27.7, 45.8, 9.3], [50.8, 41.4, 45.8, 9.7], [15.3, 93.8, 22.4, 6.1]]}
-  alt="The Add Application Configuration dialog, with Add new configuration, the name, group and build, and the ADD CONFIGURATION button outlined">
+  title="Open the configurations"
+  image={require('../img/ccm-app-configs.webp').default}
+  width={1568}
+  height={665}
+  marks={[[19.9, 39.4, 11.1, 6.2], [88.8, 49.6, 8.6, 4.4]]}
+  alt="The application page on CONFIGURATIONS, with ADD CONFIGURATION outlined">
 
-Open the application, go to **CONFIGURATIONS** and click **ADD CONFIGURATION**. Select **Add new configuration**, enter the **Configuration name**, select the **Group** and the **Build**, add ports and configuration items if the application needs them, and click **ADD CONFIGURATION**.
+Open the application, go to **CONFIGURATIONS** and click **ADD CONFIGURATION**.
+
+</Step>
+<Step
+  title="Name the configuration"
+  image={require('../img/ccm-config-new.webp').default}
+  width={1568}
+  height={665}
+  marks={[[40.9, 25.1, 10.5, 4.2], [28.4, 32.2, 20.3, 8.0], [49.5, 32.2, 20.4, 20.0], [33.8, 86.2, 9.7, 4.4]]}
+  alt="The Add Application Configuration dialog, with Add new configuration, the name, the group and the build outlined">
+
+Select **Add new configuration**, enter the **Configuration name**, such as `model-server-config`, and select the **Group** and the **Build**. Add ports and configuration items if the application needs them.
+
+</Step>
+<Step
+  title="Add a label and save"
+  image={require('../img/ccm-config-label.webp').default}
+  width={1568}
+  height={665}
+  marks={[[28.4, 41.5, 41.5, 27.4], [33.8, 86.4, 9.7, 4.3]]}
+  alt="The labels, with a label added and ADD CONFIGURATION outlined">
+
+Configurations must be unique. If one in the account already has the same labels and configuration items, CCM refuses the new one, so add a label, such as `app` with the value `model-server`, and click **ADD LABEL**. Click **ADD CONFIGURATION**.
+
+</Step>
+<Step
+  title="Check the configuration"
+  image={require('../img/ccm-config-listed.webp').default}
+  width={1568}
+  height={665}
+  marks={[[14.3, 61.6, 83.6, 7.0]]}
+  alt="The application's configurations, with the new configuration listed">
+
+The configuration is listed with its build.
 
 </Step>
 </Walkthrough>

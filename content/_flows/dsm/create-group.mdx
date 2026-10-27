@@ -3,14 +3,47 @@
 
 <Walkthrough label="Create a DSM group">
 <Step
-  title="Name the group"
-  image={require('../img/dsm-group-new.webp').default}
-  width={1640}
-  height={679}
-  marks={[[1.6, 0.3, 58.9, 10.9], [85.9, 88.2, 13.0, 7.4]]}
-  alt="The new group form, with the title field and SAVE outlined">
+  title="Open Groups"
+  image={require('../img/dsm-groups.webp').default}
+  width={1568}
+  height={665}
+  marks={[[93.1, 16.5, 5.9, 5.1]]}
+  alt="The Groups page in DSM, with ADD GROUP outlined">
 
-In DSM, go to **Groups** and click **ADD GROUP**. Enter a title, such as <code>{props.group ?? 'model-keys'}</code>, a description if you like, and click **SAVE**.
+In DSM, go to **Groups** and click **ADD GROUP**.
+
+</Step>
+<Step
+  title="Name the group"
+  image={require('../img/dsm-group-name.webp').default}
+  width={1568}
+  height={665}
+  marks={[[14.6, 35.1, 49.7, 7.5], [14.6, 45.1, 49.7, 7.5]]}
+  alt="The new group form, with the title and description fields outlined">
+
+Enter a title, such as <code>{props.group ?? 'model-keys'}</code>, and a description if you like.
+
+</Step>
+<Step
+  title="Save the group"
+  image={require('../img/dsm-group-save.webp').default}
+  width={1568}
+  height={665}
+  marks={[[86.3, 88.8, 10.8, 5.7]]}
+  alt="The bottom of the new group form, with SAVE outlined">
+
+Leave the quorum, HSM and KEK options as they are, and click **SAVE**.
+
+</Step>
+<Step
+  title="Check the group"
+  image={require('../img/dsm-group-page.webp').default}
+  width={1568}
+  height={665}
+  marks={[[13.2, 15.9, 22.2, 13.3]]}
+  alt="The new group's page, with its name and UUID outlined">
+
+The group's page opens, with its name and UUID.
 
 </Step>
 </Walkthrough>

@@ -3,22 +3,33 @@
 
 <Walkthrough label="Create a group">
 <Step
+  title="Open Identity & Access Management"
+  image={require('../img/armor-home.webp').default}
+  width={1568}
+  height={665}
+  marks={[[2.3, 64.5, 17.5, 4.8]]}
+  alt="The account's home page in Armor, with MANAGE USERS on the Identity & Access Management card outlined">
+
+On the account's home page in Armor, click **MANAGE USERS** on the **Identity & Access Management** card.
+
+</Step>
+<Step
   title="Open Groups"
   image={require('../img/iam-groups.webp').default}
-  width={1903}
-  height={858}
-  marks={[[89.5, 37.6, 8.9, 5.2]]}
-  alt="The Groups page of Identity & Access Management, with the ADD GROUP button outlined">
+  width={1568}
+  height={665}
+  marks={[[0.4, 17.4, 12.2, 5.2], [92.8, 25.9, 6.4, 4.8]]}
+  alt="The Groups page of Identity & Access Management, with Groups and the ADD GROUP button outlined">
 
-In Armor, open **Identity & Access Management** from the account's home page, go to **Groups**, and click **ADD GROUP**.
+Go to **Groups** and click **ADD GROUP**.
 
 </Step>
 <Step
   title="Name the group"
   image={require('../img/iam-create-group.webp').default}
-  width={831}
-  height={702}
-  marks={[[9, 30.4, 81.9, 5.2], [27.3, 80.8, 24.5, 6.4]]}
+  width={1568}
+  height={665}
+  marks={[[37.9, 34.6, 24.1, 7.5], [43.4, 67.2, 7.4, 4.7]]}
   alt="The Create group dialog, with the Name field and the CREATE GROUP button outlined">
 
 Enter a **Name**, such as <code>{props.group ?? 'model-serving'}</code>, and click **CREATE GROUP**. A description and labels are optional.
@@ -27,9 +38,9 @@ Enter a **Name**, such as <code>{props.group ?? 'model-serving'}</code>, and cli
 <Step
   title="Check the group"
   image={require('../img/iam-group-created.webp').default}
-  width={1903}
-  height={858}
-  marks={[[20.6, 70.3, 77.8, 10.4]]}
+  width={1568}
+  height={665}
+  marks={[[13.6, 42.4, 85.4, 7.4]]}
   alt="The Groups page with the new group listed">
 
 The group is listed under **Groups**, ready to choose when you register an application.

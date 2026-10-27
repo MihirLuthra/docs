@@ -5,43 +5,54 @@
 <Walkthrough label="Create a Trusted CA app">
 <Step
   title="Open Apps"
-  image={require('../img/dsm-apps.webp').default}
+  image={require('../img/dsm-apps-2.webp').default}
   width={1568}
-  height={501}
-  marks={[[94.0, 20.8, 5.4, 8.4]]}
+  height={665}
+  marks={[[94.2, 16.1, 4.9, 5.0]]}
   alt="The Apps page in DSM, with ADD APP outlined">
 
 In DSM, go to **Apps** and click **ADD APP**.
 
 </Step>
 <Step
-  title="Set Trusted CA authentication"
+  title="Name the app and pick Trusted CA"
   image={require('../img/dsm-app-trusted-ca.webp').default}
   width={1568}
-  height={706}
-  marks={[[19.2, 6.9, 9.9, 8.2], [1.7, 40.5, 65.1, 10.2], [1.7, 56.2, 95.5, 43.8]]}
-  alt="The new app form on Trusted CA, with the method, the DNS name and the CA certificate outlined">
+  height={665}
+  marks={[[14.2, 29.5, 42.0, 7.2], [56.8, 30.8, 25.5, 5.9], [29.8, 54.3, 7.9, 6.0]]}
+  alt="The new app form, with the app name, the interface and Trusted CA outlined">
 
-Enter the **App name**, such as <code>{props.name ?? 'model-server-access'}</code>, and set **Interface** to **REST API**. Under **Authentication method**, select **Trusted CA**. Under **Configure Subject Alternative Name (SAN)**, keep **DNS Name** and enter <code>{'<APPLICATION_ID>.app.fortanix.cloud'}</code>. Under **UPLOAD TRUSTED CA CERT**, upload the zone CA certificate, or paste it into the box.
+Enter the **App name**, such as <code>{props.name ?? 'model-server-access'}</code>, set the interface to **REST API**, and under **Authentication method**, select **Trusted CA**.
+
+</Step>
+<Step
+  title="Enter the DNS name and the CA"
+  image={require('../img/dsm-app-san-ca.webp').default}
+  width={1568}
+  height={665}
+  marks={[[14.5, 31.1, 56.1, 7.9], [14.5, 45.7, 82.7, 54.0]]}
+  alt="The SAN and trusted CA sections, with the DNS name and the CA certificate outlined">
+
+Under **Configure Subject Alternative Name (SAN)**, keep **DNS Name** and enter <code>{'<APPLICATION_ID>.app.fortanix.cloud'}</code>. Under **UPLOAD TRUSTED CA CERT**, upload the zone CA certificate, or paste it into the box.
 
 </Step>
 <Step
   title="Assign the group and save"
-  image={require('../img/dsm-app-groups.webp').default}
+  image={require('../img/dsm-app-groups-2.webp').default}
   width={1568}
-  height={648}
-  marks={[[50.5, 8.8, 46.6, 12.5], [91.2, 90.4, 6.0, 7.7]]}
+  height={665}
+  marks={[[57.4, 13.2, 33.2, 8.4], [92.6, 82.0, 4.7, 5.0]]}
   alt="The groups the app is assigned to, with the group and SAVE outlined">
 
-Under **Assigning the new app to groups**, click the group, such as <code>{props.group ?? 'model-keys'}</code>, so that it moves to the list on the right. Click **SAVE**.
+Scroll to **Assigning the new app to groups** and click the group, such as <code>{props.group ?? 'model-keys'}</code>, so that it moves to the list on the right. Click **SAVE**.
 
 </Step>
 <Step
   title="Note the app's UUID"
-  image={require('../img/dsm-app-workload-page.webp').default}
+  image={require('../img/dsm-app-access-page.webp').default}
   width={1568}
-  height={711}
-  marks={[[0.5, 12.9, 25.5, 5.8]]}
+  height={665}
+  marks={[[13.3, 21.0, 21.6, 5.4]]}
   alt="The new app, with its UUID outlined">
 
 The app opens. Note its **UUID**. The workload's InitData carries it.
@@ -50,12 +61,12 @@ The app opens. Note its **UUID**. The workload's InitData carries it.
 <Step
   title="Check the DNS name"
   image={require('../img/dsm-trusted-ca-view.webp').default}
-  width={932}
-  height={441}
-  marks={[[1.8, 46.0, 94.6, 16.6]]}
+  width={1568}
+  height={665}
+  marks={[[26.9, 31.6, 45.4, 7.9]]}
   alt="The View Trusted CA dialog, with the DNS name outlined">
 
-To check the app, click **VIEW TRUSTED CA**. The **DNS Name** is the application's name under <code>app.fortanix.cloud</code>.
+To check the app, click **VIEW TRUSTED CA**. The **DNS Name** is the application's ID under <code>app.fortanix.cloud</code>.
 
 </Step>
 </Walkthrough>
