@@ -85,19 +85,19 @@ const STEPS: StepDef[] = [
     to: "ccm:owner",
     text: (c) => c.separate
       ? `${c.Name("owner")} gets a Fortanix CCM account and creates a group in it. The application and its approved builds will belong to this account.`
-      : `${c.Name("builder")} gets a Fortanix CCM account and creates a group in it, such as llm-serving. The application, the infrastructure and the workload's certificates will belong to this account.`,
+      : `${c.Name("builder")} gets a Fortanix CCM account and creates a group in it, such as model-serving. The application, the infrastructure and the workload's certificates will belong to this account.`,
     task: `${GUIDES}/day-0-plan-and-prepare/set-up-ccm#create-a-group`,
   },
   {
     id: "register-app", phase: "day0", actor: "builder", title: "Add the application",
     to: "ccm:owner",
-    text: (c) => `${c.Name("builder")} adds the application llama-chat in CCM, with its certificate domain, such as chat.northwind.example. CCM gives it an application ID.`,
+    text: (c) => `${c.Name("builder")} adds the application model-server in CCM, with its certificate domain, such as model.northwind.example. CCM gives it an application ID.`,
     task: `${GUIDES}/day-0-plan-and-prepare/set-up-ccm#add-the-application`,
   },
   {
     id: "dsm-account", phase: "day0", actor: "owner", title: "Create a DSM account",
     to: "dsm:owner", when: model,
-    text: (c) => `${c.Name("owner")} gets a Fortanix DSM account and creates a group for the model, such as llama-chat-keys. The model's key will never leave it.`,
+    text: (c) => `${c.Name("owner")} gets a Fortanix DSM account and creates a group for the model, such as model-keys. The model's key will never leave it.`,
     task: `${GUIDES}/day-0-plan-and-prepare/set-up-dsm`,
   },
   {
@@ -109,7 +109,7 @@ const STEPS: StepDef[] = [
   {
     id: "ccm-consumer-account", phase: "day0", actor: "consumer", title: "Create a CCM account",
     to: "ccm:consumer", when: separate,
-    text: (c) => `${c.Name("consumer")} gets its own Fortanix CCM account and creates a group in it, such as llm-serving. The infrastructure and the workload's certificates will belong to this account.`,
+    text: (c) => `${c.Name("consumer")} gets its own Fortanix CCM account and creates a group in it, such as model-serving. The infrastructure and the workload's certificates will belong to this account.`,
     task: `${GUIDES}/day-0-plan-and-prepare/set-up-ccm#create-the-consumers-group`,
   },
   {
@@ -121,7 +121,7 @@ const STEPS: StepDef[] = [
   {
     id: "trust-app", phase: "day0", actor: "owner", title: "Create the Trusted CA app",
     to: "dsm:owner", when: model,
-    text: (c) => `${c.Name("owner")} creates the app the workload authenticates as. It trusts the zone CA of ${c.name("consumer")} and expects the DNS name <application ID>.app.fortanix.cloud, from the application llama-chat. CCM puts that name in a certificate only after verifying the workload's attestation.`,
+    text: (c) => `${c.Name("owner")} creates the app the workload authenticates as. It trusts the zone CA of ${c.name("consumer")} and expects the DNS name <application ID>.app.fortanix.cloud, from the application model-server. CCM puts that name in a certificate only after verifying the workload's attestation.`,
     task: `${GUIDES}/day-0-plan-and-prepare/set-up-dsm#create-the-trusted-ca-app`,
   },
   {
@@ -150,7 +150,7 @@ const STEPS: StepDef[] = [
   {
     id: "measure", phase: "day0", actor: "builder", title: "Register the measurements",
     from: "build", to: "ccm:owner", carries: "Measurements",
-    text: (c, rt) => `${c.Name("builder")} takes the workload's measurements${cc(rt) ? "" : " from the converter"} and adds them to the application llama-chat in CCM as build 1.`,
+    text: (c, rt) => `${c.Name("builder")} takes the workload's measurements${cc(rt) ? "" : " from the converter"} and adds them to the application model-server in CCM as build 1.`,
     task: `${GUIDES}/day-0-plan-and-prepare/protect-the-model#add-the-build`,
   },
   {
@@ -207,7 +207,7 @@ const STEPS: StepDef[] = [
   {
     id: "own-workflow", phase: "day1", actor: "consumer", title: "Approve a workflow",
     to: "ccm:consumer", when: (c) => !c.separate,
-    text: (c) => `${c.Name("consumer")} creates a workflow that runs build 1 of llama-chat with its application configuration, and approves it. The workload passes the configuration's ID when it starts.`,
+    text: (c) => `${c.Name("consumer")} creates a workflow that runs build 1 of model-server with its application configuration, and approves it. The workload passes the configuration's ID when it starts.`,
     task: "/products/fortanix-armor/confidential-computing/ccm/workflows/create-a-workflow",
   },
   {
@@ -241,7 +241,7 @@ const STEPS: StepDef[] = [
   {
     id: "clients", phase: "day1", actor: "user", title: "Connect clients",
     from: "clients", to: "infra", carries: "TLS",
-    text: (c) => `End users connect over TLS to chat.northwind.example. Only a client that trusts the zone CA of ${c.name("consumer")} can tell from the certificate that it reached the attested workload, for example an application inside that organization. End users outside it can't trust that zone CA, so for them the certificate proves nothing about attestation.`,
+    text: (c) => `End users connect over TLS to model.northwind.example. Only a client that trusts the zone CA of ${c.name("consumer")} can tell from the certificate that it reached the attested workload, for example an application inside that organization. End users outside it can't trust that zone CA, so for them the certificate proves nothing about attestation.`,
     task: `${GUIDES}/day-1-deploy/deploy-and-verify#connect-clients`,
   },
 
@@ -401,7 +401,7 @@ export function deployment(scenarioId: string): Deployment {
   const resolve = (e?: End) => (e === "ccm:owner" ? ccmOwner : e);
 
   const builds: Item[] = [
-    { id: "app", label: "Application llama-chat", at: ["register-app"] },
+    { id: "app", label: "Application model-server", at: ["register-app"] },
     { id: "b1", label: "Build 1", at: ["measure"], done: ["approve"] },
     { id: "b2", label: "Build 2", at: ["new-build", "remeasure"], done: ["new-build", "reapprove"] },
   ];
@@ -413,7 +413,7 @@ export function deployment(scenarioId: string): Deployment {
       accounts.push({
         id: "dsm:owner", service: "dsm", at: ["dsm-account"],
         items: [
-          { id: "group", label: "Group llama-chat-keys", at: ["dsm-account"] },
+          { id: "group", label: "Group model-keys", at: ["dsm-account"] },
           { id: "enc", label: "Encryption app", at: ["enc-app"] },
           { id: "key", label: { cc: "Key encryption key", eos: "Model key" }, at: ["encrypt"] },
           { id: "apps", label: "Trusted CA app", at: ["trust-app"] },
@@ -426,7 +426,7 @@ export function deployment(scenarioId: string): Deployment {
       accounts.push({
         id: "ccm:consumer", service: "ccm", at: [created],
         items: [
-          { id: "group", label: "Group llm-serving", at: [created] },
+          { id: "group", label: "Group model-serving", at: [created] },
           { id: "nodes", label: "Compute nodes", at: ["enroll"] },
           ...(isSeparate
             ? [
@@ -445,7 +445,7 @@ export function deployment(scenarioId: string): Deployment {
     if (party === infra) {
       assets.push({ id: "infra", name: "Infrastructure", detail: { cc: "Kubernetes on TEE hosts", eos: "TEE hosts running containers" }, at: ["prepare"], tee: "deploy" });
     }
-    if (party.roles.includes("user")) assets.push({ id: "clients", name: "Clients", detail: "chat.northwind.example", at: ["clients"] });
+    if (party.roles.includes("user")) assets.push({ id: "clients", name: "Clients", detail: "model.northwind.example", at: ["clients"] });
     return { party, roles: party.roles, accounts, assets };
   });
 

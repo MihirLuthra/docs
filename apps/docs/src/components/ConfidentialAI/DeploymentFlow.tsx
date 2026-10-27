@@ -116,9 +116,9 @@ function wideLayout(d: Deployment, rt: Runtime): Layout {
   return layout;
 }
 
-/** Narrow: territories stacked, each with its accounts then its machines two to a row. */
+/** Narrow: territories stacked, each with its accounts then its machines two to a row (a last one alone takes the row). */
 function narrowLayout(d: Deployment, rt: Runtime): Layout {
-  const W = 340, M = 4, GAP = 12, PAD = 10, AH = 84;
+  const W = 340, M = 4, GAP = 12, PAD = 10, AH = ASSET_H;
   const HA = accountHeight(d);
   const layout: Layout = { w: W, h: 0, territories: new Map(), items: new Map(), row: new Map() };
   let y = M;
@@ -133,7 +133,10 @@ function narrowLayout(d: Deployment, rt: Runtime): Layout {
     }
     const assets = assetsFor(t, rt);
     const w = (iw - 10) / 2;
-    assets.forEach((a, k) => layout.items.set(a.id, { x: M + PAD + (k % 2) * (w + 10), y: y + Math.floor(k / 2) * (AH + 10), w, h: AH }));
+    assets.forEach((a, k) => {
+      const alone = k === assets.length - 1 && k % 2 === 0;
+      layout.items.set(a.id, { x: M + PAD + (k % 2) * (w + 10), y: y + Math.floor(k / 2) * (AH + 10), w: alone ? iw : w, h: AH });
+    });
     y += Math.ceil(assets.length / 2) * (AH + 10) + 4;
     layout.territories.set(t, { x: M, y: top, w: W - 2 * M, h: y - top });
     y += GAP;
@@ -316,7 +319,7 @@ export function DeploymentFlow({ scenario, scenarios, role }: { scenario?: strin
         {lines.map((t, k) => <text key={k} x={r.x + r.w / 2} y={r.y + 57 + title.length * 14 + k * 13} textAnchor="middle" className="cai-s-muted" {...fit(t, 11.5, avail)}>{t}</text>)}
         {/* The workload, once deployed: a badge on the card's top edge, clear of its text. */}
         {teeOn && (() => {
-          const full = "TEE · llama-chat";
+          const full = "TEE · model-server";
           const label = textWidth(full, 11.5, true) + 20 <= r.w - 8 ? full : "TEE";
           const bw = textWidth(label, 11.5, true) + 20;
           return (

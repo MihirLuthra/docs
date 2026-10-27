@@ -54,6 +54,9 @@ function visibleRows(nodes: TreeNode[], open: Set<string>): Row[] {
 const HOVER_DELAY_MS = 200;
 // Smart index: an open section no longer in use closes after this long.
 const SMART_CLOSE_MS = 1000;
+// Devices with a mouse or trackpad (the smart index needs hover). Matches
+// the media query that hides its button in styles.module.css.
+const HOVER_QUERY = '(hover: hover) and (pointer: fine)';
 // Rows slide open and shut (--fx-duration-slide in custom.css). A closed
 // section's rows go when their slide ends; this is the latest they go if it
 // never runs (reduced motion, a hidden tab).
@@ -136,10 +139,21 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
   const navRef = useRef<HTMLElement>(null);
 
   // On until the saved choice is read after hydration (localStorage).
-  const [smart, setSmart] = useState(true);
+  const [smartChoice, setSmart] = useState(true);
   useEffect(() => {
     setSmart(readSmartIndex());
   }, []);
+  // Only where a mouse can rest on a section: on phones and tablets the
+  // tree opens and closes on taps alone, and the button is hidden (CSS).
+  const [hoverable, setHoverable] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(HOVER_QUERY);
+    const update = () => setHoverable(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+  const smart = smartChoice && hoverable;
   const hoverTimer = useRef<number | undefined>(undefined);
   // The section a hover has just opened, while the pointer is still on it:
   // a click on it then keeps it open instead of closing it (someone who
@@ -359,16 +373,16 @@ export default function DocsTree({onNavigate}: {onNavigate?: () => void}): React
         <button
           type="button"
           className={styles.toolButton}
-          aria-pressed={smart}
+          aria-pressed={smartChoice}
           aria-label="Smart index"
           aria-description="Opens the section you point at and closes the ones you leave"
           onClick={() => {
-            writeSmartIndex(!smart);
-            setSmart(!smart);
+            writeSmartIndex(!smartChoice);
+            setSmart(!smartChoice);
           }}>
           <SmartIndexIcon />
           <span className={styles.tip} aria-hidden="true">
-            Smart index: {smart ? 'on' : 'off'}
+            Smart index: {smartChoice ? 'on' : 'off'}
           </span>
         </button>
       </div>

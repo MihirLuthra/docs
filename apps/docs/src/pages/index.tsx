@@ -32,6 +32,14 @@ function ArrowIcon(): ReactNode {
   );
 }
 
+function ChevronIcon(): ReactNode {
+  return (
+    <svg className={styles.linkArrow} viewBox="0 0 24 24" aria-hidden="true">
+      <path {...stroke} strokeWidth={2.4} d="M9 6l6 6-6 6" />
+    </svg>
+  );
+}
+
 function CloseIcon(): ReactNode {
   return (
     <svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true">
@@ -141,7 +149,7 @@ function PageCard({set}: {set: DocSet}): ReactNode {
   );
 }
 
-/** A doc set: its overview (the head of the card), then its main parts as pills. */
+/** A doc set: its overview (the head of the card), then its main parts as a list. */
 function SetCard({set}: {set: DocSet}): ReactNode {
   return (
     <div className={styles.setCard}>
@@ -159,6 +167,7 @@ function SetCard({set}: {set: DocSet}): ReactNode {
         {(set.links ?? []).map((l) => (
           <li key={l.href}>
             <Link to={l.href} className={styles.setLink}>
+              <ChevronIcon />
               {l.label}
             </Link>
           </li>

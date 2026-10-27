@@ -30,26 +30,29 @@
   overscroll-behavior: contain;
 }
 
-/* The page and the right column, centred together beside the sidebar. */
+/* The page and the right column beside the sidebar. The free space is shared
+   equally: before the page, between the page and the right column, and after
+   it, so the page sits centred between the sidebar and the right column. */
 .content {
-  display: flex;
-  gap: var(--fx-rail-gap);
+  display: grid;
+  grid-template-columns:
+    minmax(var(--fx-space-12), 1fr) minmax(0, var(--fx-home-max)) minmax(var(--fx-space-12), 1fr)
+    var(--fx-rail-width) minmax(var(--fx-space-12), 1fr);
+  align-items: start;
   box-sizing: border-box;
   flex: 1;
   min-width: 0;
-  max-width: calc(var(--fx-home-max) + var(--fx-rail-gap) + var(--fx-rail-width) + 2 * var(--fx-space-12));
-  margin: 0 auto;
-  padding: var(--fx-content-top) var(--fx-space-12) var(--fx-space-12);
+  padding: var(--fx-content-top) 0 var(--fx-space-12);
 }
 
 .main {
-  flex: 1 1 auto;
+  grid-column: 2;
   min-width: 0;
 }
 
 .rail {
-  flex: none;
-  width: var(--fx-rail-width);
+  grid-column: 4;
+  align-self: stretch;
 }
 
 /* ---------- Title ---------- */
@@ -308,37 +311,50 @@ a.pageCard:hover .icon,
   transform: none;
 }
 
-/* The main parts, as pills that wrap. */
+/* The main parts: a list under a hairline, two columns where they fit. */
 .setLinks {
-  display: flex;
+  display: grid;
   flex: 1;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: var(--fx-space-2);
-  padding: 0 var(--fx-space-4) var(--fx-space-4) calc(var(--fx-space-4) + var(--fx-home-icon-size) + var(--fx-space-3));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
+  align-content: start;
+  gap: 0 var(--fx-space-3);
+  margin: 0 var(--fx-space-4);
+  padding: var(--fx-space-2) 0 var(--fx-space-3);
+  border-top: var(--fx-border-width) solid var(--fx-border);
 }
 
 .setLink {
-  display: inline-block;
-  padding: 2px var(--fx-space-3);
-  border: var(--fx-border-width) solid var(--fx-border);
-  border-radius: var(--fx-radius-pill);
-  background: var(--fx-surface);
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-2);
+  margin: 0 calc(-1 * var(--fx-space-2));
+  padding: 6px var(--fx-space-2);
+  border-radius: var(--fx-radius-md);
   color: var(--fx-text-secondary);
-  font-size: var(--fx-text-sm);
+  font-size: var(--fx-text-md);
   font-weight: 500;
-  line-height: 1.6;
+  line-height: 1.4;
   transition:
-    border-color var(--fx-duration-fast) var(--fx-ease),
     background-color var(--fx-duration-fast) var(--fx-ease),
     color var(--fx-duration-fast) var(--fx-ease);
 }
 
+.setLink .linkArrow {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: var(--fx-text-muted);
+  transition: color var(--fx-duration-fast) var(--fx-ease);
+}
+
 .setLink:hover {
-  border-color: var(--fx-card-hover-border);
-  background: var(--fx-selected-bg);
-  color: var(--fx-selected-text);
+  background: var(--fx-hover);
+  color: var(--fx-brand-text);
   text-decoration: none;
+}
+
+.setLink:hover .linkArrow {
+  color: var(--fx-brand-text);
 }
 
 /* ---------- Recently viewed, in the right column ---------- */
@@ -481,10 +497,7 @@ a.pageCard:hover .icon,
 @media (max-width: 1279px) {
   .content {
     display: block;
-  }
-
-  .rail {
-    width: auto;
+    padding: var(--fx-content-top) var(--fx-space-12) var(--fx-space-12);
   }
 
   .recent {

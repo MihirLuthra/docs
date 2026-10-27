@@ -124,7 +124,20 @@
 /* ---------- Deployment flow: a scene, step by step ---------- */
 
 .cai-select { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: var(--fx-text-muted); font-size: 13px; }
-.cai-select select, .cai-day select { padding: 3px 8px; border: 1px solid var(--fx-border-strong); border-radius: 8px; background: var(--fx-bg); color: var(--fx-text); font: inherit; font-size: 13px; }
+.cai-select select { flex: 0 1 auto; min-width: 0; }
+.cai-select select, .cai-day select { max-width: 100%; padding: 3px 8px; border: 1px solid var(--fx-border-strong); border-radius: 8px; background: var(--fx-bg); color: var(--fx-text); font: inherit; font-size: 13px; }
+
+/* Narrow: the step's text comes right under the steps, then the scene, so
+   picking a step and reading it needs no scrolling. */
+.cai-deploy { display: flex; flex-direction: column; }
+@container (max-width: 560px) {
+  .cai-deploy .cai-deploy-panels { order: 1; margin: 0 0 12px; padding-top: 0; border-top: 0; }
+  .cai-deploy .cai-scene-wrap { order: 2; padding-top: 12px; border-top: 1px solid var(--fx-border-strong); }
+  .cai-deploy .cai-deploy-accounts { order: 3; }
+}
+@media (max-width: 575px) {
+  .cai { padding: 12px; }
+}
 
 /* Two shapes of the same scene; the one that fits is shown. */
 /* Never taller than about half the screen, so the steps, the scene and the step's text fit together. */
@@ -194,6 +207,15 @@
 .cai-day ol button[data-done="true"] { background: var(--fx-chip); color: var(--fx-text-secondary); }
 .cai-day ol button.is-yours { border-color: var(--fx-diagram-party); }
 .cai-day ol button[aria-current="step"] { border-color: var(--fx-diagram-accent); background: var(--fx-diagram-accent); color: var(--fx-bg); }
+
+/* Touch screens: bigger targets, and 16px text in the menus (smaller makes
+   iOS zoom the page when one opens). */
+@media (pointer: coarse) {
+  .cai-select select, .cai-day select { padding: 6px 10px; font-size: 16px; }
+  .cai-day ol { gap: 6px; }
+  .cai-day ol button { width: 32px; height: 32px; font-size: 12px; }
+  .cai-deploy-step-nav button { padding: 8px 18px; }
+}
 
 .cai-deploy-panels { display: grid; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--fx-border-strong); }
 .cai-deploy-panel { grid-area: 1 / 1; }

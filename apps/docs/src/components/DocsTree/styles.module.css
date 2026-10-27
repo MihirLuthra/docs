@@ -233,6 +233,13 @@
   cursor: pointer;
 }
 
+/* Touch screens: no smart index (HOVER_QUERY in index.tsx). */
+@media not ((hover: hover) and (pointer: fine)) {
+  .toolButton {
+    display: none;
+  }
+}
+
 .toolButton:hover:not(:disabled) {
   background-color: var(--fx-hover);
   color: var(--fx-text);
