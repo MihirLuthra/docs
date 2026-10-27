@@ -1,0 +1,16 @@
+{/* Shared flow (D16): create a group in DSM.
+    Props: group, the name to suggest (default llama-chat-keys). */}
+
+<Walkthrough label="Create a DSM group">
+<Step
+  title="Name the group"
+  image={require('../img/dsm-group-new.webp').default}
+  width={1640}
+  height={679}
+  marks={[[1.6, 0.3, 58.9, 10.9], [85.9, 88.2, 13.0, 7.4]]}
+  alt="The new group form, with the title field and SAVE outlined">
+
+In DSM, go to **Groups** and click **ADD GROUP**. Enter a title, such as <code>{props.group ?? 'llama-chat-keys'}</code>, a description if you like, and click **SAVE**.
+
+</Step>
+</Walkthrough>

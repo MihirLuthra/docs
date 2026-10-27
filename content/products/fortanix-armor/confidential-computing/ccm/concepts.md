@@ -23,11 +23,11 @@ A new build, and a new certificate domain, are requests on the **Tasks** page. C
 The certificate CCM issues carries the domains you gave the application, such as `chat.northwind.example`. CCM also adds names of its own, under `fortanix.cloud`.
 
 - `<APPLICATION_ID>.app.fortanix.cloud` names the application.
-- A name under `id.fortanix.cloud` is derived from the workload's measurements.
+- A name under `id.fortanix.cloud` is derived from the workload's measurements, in the form `<HASH>.<PLATFORM>.id.fortanix.cloud`. For example, an AMD SEV-SNP workload's name ends in `.sev-snp.id.fortanix.cloud`.
 
 Only CCM puts these names in a certificate, and only after verifying the workload's attestation. Nobody can add an application whose domain ends in `.fortanix.cloud`. That makes `<APPLICATION_ID>.app.fortanix.cloud` the name to trust when a relying party, such as a DSM app, must accept only one application.
 
-{/* TODO(verify): the exact form of the measurement-based name, and which measurements it is derived from. */}
+{/* TODO(verify): which measurements <HASH> is derived from, and the platform label for each TEE. Seen in a real certificate: a 96-hex-character hash with the label sev-snp. */}
 
 ## Workflows
 
