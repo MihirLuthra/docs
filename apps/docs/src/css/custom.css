@@ -156,20 +156,20 @@
   --fx-text-muted: #5b6170;
   --fx-border: #e6e8ec;
   --fx-border-strong: #d9dce2;
-  --fx-link: #7a12cc;
-  --fx-link-hover: #4b0a80;
-  --fx-brand-text: #7a12cc;
+  --fx-link: #6a29d6;
+  --fx-link-hover: #44168f;
+  --fx-brand-text: #6a29d6;
   --fx-hover: rgb(19 19 19 / 0.05);
-  --fx-selected-bg: #f5edff;
-  --fx-home-band: #f8f2ff; /* top of the home page's band, fading to the page */
-  --fx-selected-text: #4b0a80;
-  --fx-speech-word-bg: #e4d0ff; /* the marker behind the word being read aloud */
-  --fx-speech-word-text: #4a0a85;
+  --fx-selected-bg: #f1f0fb; /* a low-chroma violet: purple, not pink */
+  --fx-home-band: #f3f3fa; /* top of the home page's band, fading to the page */
+  --fx-selected-text: #44168f;
+  --fx-speech-word-bg: #dfd8fb; /* the marker behind the word being read aloud */
+  --fx-speech-word-text: #3c1585;
   --fx-speech-word-blend: multiply;
   --fx-focus: var(--fx-purple);
-  --fx-accent-soft: #f7efff;
-  --fx-accent-border: var(--fx-purple-light);
-  --fx-card-hover-border: #c9a2ff;
+  --fx-accent-soft: #f4f3fc;
+  --fx-accent-border: #cfc9f2;
+  --fx-card-hover-border: #b6aeea;
   --fx-cta-bg: var(--fx-dark-gray);
   --fx-cta-text: var(--fx-white);
   --fx-shadow-card: 0 4px 14px rgb(19 19 19 / 0.06);
@@ -189,13 +189,13 @@
      stays >= 4.5:1 whatever shows through (measured down to 5:1). */
   --fx-glass-text-muted: #4f5462;
   --fx-search-backdrop: rgb(19 19 19 / 0.14);
-  --fx-search-active: rgb(153 23 255 / 0.1);
-  --fx-search-match: rgb(153 23 255 / 0.16);
+  --fx-search-active: rgb(106 41 214 / 0.08);
+  --fx-search-match: rgb(106 41 214 / 0.14);
   --fx-shadow-modal: 0 30px 80px rgb(19 19 19 / 0.25), inset 0 0 0 1px rgb(19 19 19 / 0.06);
 
   /* Kinds (ux-spec.md, Kind icons): icon/text colour and tile tint */
-  --fx-kind-solution: #7a12cc;
-  --fx-kind-solution-tint: #f3e8ff;
+  --fx-kind-solution: #6a29d6;
+  --fx-kind-solution-tint: #efedfb;
   --fx-kind-product: #1f5fcc;
   --fx-kind-product-tint: #e8f0ff;
   --fx-kind-concept: #8a5a00;
@@ -298,20 +298,20 @@
   --fx-text-muted: #a3a8b5;
   --fx-border: #2e2e36;
   --fx-border-strong: #3a3a44;
-  --fx-link: #d3a6ff;
-  --fx-brand-text: #d3a6ff;
+  --fx-link: #b9a7ff;
+  --fx-brand-text: #b9a7ff;
   --fx-link-hover: var(--fx-white);
   --fx-hover: rgb(255 255 255 / 0.06);
-  --fx-selected-bg: #2c1640;
-  --fx-home-band: #1d1428;
-  --fx-selected-text: var(--fx-purple-light);
-  --fx-speech-word-bg: #4b2280;
+  --fx-selected-bg: #221e38;
+  --fx-home-band: #18171f;
+  --fx-selected-text: #cdc3ff;
+  --fx-speech-word-bg: #3a2f73;
   --fx-speech-word-text: #ffffff;
   --fx-speech-word-blend: screen;
-  --fx-focus: var(--fx-purple-light);
-  --fx-accent-soft: #1f1230;
-  --fx-accent-border: #4b1f75;
-  --fx-card-hover-border: #6b3a99;
+  --fx-focus: #b9a7ff;
+  --fx-accent-soft: #1b1a2a;
+  --fx-accent-border: #3d3770;
+  --fx-card-hover-border: #4f4790;
   --fx-cta-bg: var(--fx-white);
   --fx-cta-text: var(--fx-dark-gray);
   --fx-shadow-card: 0 4px 14px rgb(0 0 0 / 0.4);
@@ -331,8 +331,8 @@
   --fx-search-match: rgb(211 166 255 / 0.28);
   --fx-shadow-modal: 0 30px 80px rgb(0 0 0 / 0.6), inset 0 0 0 1px rgb(255 255 255 / 0.06);
 
-  --fx-kind-solution: #d0a6ff;
-  --fx-kind-solution-tint: #2a1a3d;
+  --fx-kind-solution: #b9a7ff;
+  --fx-kind-solution-tint: #211d36;
   --fx-kind-product: #9dbcff;
   --fx-kind-product-tint: #18243d;
   --fx-kind-concept: #f0c060;
@@ -618,4 +618,10 @@ body {
 
 ::highlight(fx-speech-selection) {
   background-color: var(--fx-selected-bg);
+}
+
+/* The search modal is open: the search boxes that open it step aside, so
+   its field is the only one on screen (theme/Root.tsx). */
+html[data-search-open] [data-search-trigger] {
+  visibility: hidden;
 }

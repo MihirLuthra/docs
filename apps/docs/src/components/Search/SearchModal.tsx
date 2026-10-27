@@ -15,6 +15,7 @@ import type {IndexEntry} from './types';
 import {useIndex} from './useIndex';
 import {useOverlays} from '../Overlays/context';
 import {SparkleIcon} from '../AskAI/SparkleIcon';
+import {SEARCH_TRIGGER_ATTR} from '@site/src/lib/search-early';
 import styles from './styles.module.css';
 
 function SearchIcon(): ReactNode {
@@ -43,6 +44,33 @@ const SETTLE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// The field grows out of the search box it was opened from, and goes back
+// into it on close (ux-spec.md, Search).
+const FLY_OPEN_MS = 280;
+const FLY_CLOSE_MS = 220;
+
+/**
+ * The search box on screen that the panel flies from and back to: the one
+ * visible (the header's, or on the home page the band's) and in view. None
+ * when it is scrolled away; the panel then just fades.
+ */
+function findOrigin(): HTMLElement | null {
+  const els = Array.from(document.querySelectorAll<HTMLElement>(`[${SEARCH_TRIGGER_ATTR}]`));
+  return (
+    els.find((el) => {
+      const r = el.getBoundingClientRect();
+      return getComputedStyle(el).visibility === 'visible' && r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
+    }) ?? null
+  );
+}
+
+/** The transform that puts the panel (its top-left corner as origin) where `el` is. */
+function onto(panel: HTMLElement, el: HTMLElement): string {
+  const a = el.getBoundingClientRect();
+  const b = panel.getBoundingClientRect();
+  return `translate(${a.left - b.left}px, ${a.top - b.top}px) scale(${a.width / b.width}, ${a.height / b.height})`;
+}
+
 /**
  * Fades the backdrop's tint in or out. Its colour, not its opacity: opacity
  * below 1 on the backdrop would cut the panel's blur off from the page.
@@ -64,6 +92,8 @@ export default function SearchModal({onClose}: {onClose: () => void}): ReactNode
   const listRef = useRef<HTMLUListElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const closing = useRef(false);
+  // The search box it opened from (findOrigin), measured before it hides.
+  const origin = useRef<HTMLElement | null>(null);
   const height = useRef<{last: number; animation?: Animation}>({last: 0});
 
   const trimmed = query.trim();
@@ -76,10 +106,21 @@ export default function SearchModal({onClose}: {onClose: () => void}): ReactNode
     const panel = panelRef.current;
     const backdrop = backdropRef.current;
     if (!panel || !backdrop || reducedMotion()) return;
-    panel.animate(
-      [{opacity: 0, transform: 'translateY(-8px) scale(0.97)'}, {opacity: 1, transform: 'none'}],
-      {duration: OPEN_MS, easing: SETTLE},
-    );
+    origin.current = findOrigin();
+    if (origin.current) {
+      panel.animate(
+        [
+          {transformOrigin: 'top left', transform: onto(panel, origin.current)},
+          {transformOrigin: 'top left', transform: 'none'},
+        ],
+        {duration: FLY_OPEN_MS, easing: SETTLE},
+      );
+    } else {
+      panel.animate(
+        [{opacity: 0, transform: 'translateY(-8px) scale(0.97)'}, {opacity: 1, transform: 'none'}],
+        {duration: OPEN_MS, easing: SETTLE},
+      );
+    }
     fadeBackdrop(backdrop, true, {duration: OPEN_MS, easing: 'ease-out'});
   }, []);
 
@@ -121,10 +162,19 @@ export default function SearchModal({onClose}: {onClose: () => void}): ReactNode
     backdrop.inert = true;
     if (focused instanceof HTMLElement && backdrop.contains(focused)) focused.blur();
     const options = {duration: CLOSE_MS, easing: 'ease-in', fill: 'forwards'} as const;
-    panel
-      .animate([{opacity: 1, transform: 'none'}, {opacity: 0, transform: 'translateY(-4px) scale(0.98)'}], options)
-      .finished.then(onClose, onClose);
-    fadeBackdrop(backdrop, false, options);
+    // Back into the search box it came from, if it is still in view.
+    const home = origin.current && origin.current.isConnected ? origin.current : null;
+    const exit = home
+      ? panel.animate(
+          [
+            {transformOrigin: 'top left', transform: 'none'},
+            {transformOrigin: 'top left', transform: onto(panel, home)},
+          ],
+          {duration: FLY_CLOSE_MS, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards'},
+        )
+      : panel.animate([{opacity: 1, transform: 'none'}, {opacity: 0, transform: 'translateY(-4px) scale(0.98)'}], options);
+    exit.finished.then(onClose, onClose);
+    fadeBackdrop(backdrop, false, home ? {...options, duration: FLY_CLOSE_MS} : options);
   }, [onClose]);
 
   useEffect(() => {

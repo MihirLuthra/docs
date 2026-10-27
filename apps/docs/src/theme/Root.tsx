@@ -38,6 +38,14 @@ export default function Root({children}: {children: ReactNode}): ReactNode {
     if (!active || active === document.body) returnFocus.current?.focus();
   }, []);
 
+  // While the search modal is open, the search boxes it opened from hide
+  // (custom.css), so the modal's field is the only one on screen.
+  useEffect(() => {
+    const html = document.documentElement;
+    if (searchOpen) html.setAttribute('data-search-open', '');
+    else html.removeAttribute('data-search-open');
+  }, [searchOpen]);
+
   const prefetchSearch = useCallback(() => {
     void loadIndex();
   }, []);

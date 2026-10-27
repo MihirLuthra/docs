@@ -45,16 +45,18 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 D19 (changes D17's layout): a map of what the docs cover, in the docs' own theme. The first screen shows the solutions and the products.
 
 - **A map of what the docs cover**, from a developer's point of view: what the solutions are, what the products are, and where each one's docs start. No docs tree on this page (it is one click away in the header's menu).
-- **Band:** a tint fading into the page, with the title, one lead line, a large search box (the header's search, opened from here; the header hides its own search on this page) and the proof-of-concept line.
-- **Rows:** Solutions, then Products, then Recently viewed. Each row is a heading with one line beside it (Solutions: "Products put together for one use case, end to end". Products: "The Fortanix Armor services you set up, call and integrate with"), then four cards across (two, then one, when narrower).
-- **Card:** an icon tile, the title, one line, all linking to the set's overview; on hover the border turns purple, the tile fills, and an arrow comes in after the title. A set's main pages follow as purple links wrapped in a row; a solution then says which products it uses ("Uses CCM DSM"), only where the docs say so. A set with no pages yet is dimmed and not a link.
-- **Recently viewed:** up to four pages as small cards (page icon, title, closest section; full path in the tooltip; × on hover, always faintly on touch screens). Empty: a dashed card, "Pages you open show up here." The row keeps its height empty or full, so it fills in without moving anything.
-- **Colours:** the docs' own tokens, light and dark.
+- **Band:** a tint fading into the page, with the title, one lead line, a large search box (the header's search, opened from here; the header hides its own search on this page), "New to Fortanix? Start here" (to What Fortanix does) and the proof-of-concept line.
+- **Recently viewed**, first under the band: one row of small cards (page icon, title, closest section; full path in the tooltip; × on hover, always faintly on touch screens), 4, 2 or 1 by width, and "View more" / "View less" for the rest (up to 12). Left out when there are none. An inline head script marks the page before the first paint when there are recent pages, so the row is there from the start and nothing moves when it fills in.
+- **Rows:** Solutions, then Products. Each row is a heading with one line beside it (Solutions: "Products put together for one use case, end to end". Products: "All part of Fortanix Armor, one platform with shared services"), then four cards across (two, then one, when narrower; on phones the icon sits beside the text).
+- **Card:** an icon tile, the title and one line, the whole card one link to the set's overview; on hover the border turns purple, the tile fills, and an arrow comes in after the title. A set with no pages yet is dimmed and not a link.
+- **Colours:** the docs' own tokens, light and dark. Purple stays the accent; its tints are low-chroma violet, not pink.
 
-1. Solutions: Confidential AI (Use cases, Plan a deployment, Deploy and operate, Support matrix; uses CCM and DSM), Tokenization, File system encryption, PQC readiness.
-2. Products: Confidential Computing (CCM concepts, Enroll an Intel TDX node, Confidential Containers, Enclave OS), Data Security Manager, Platform, Key Insight (no pages yet).
+1. Solutions: Confidential AI, Tokenization, File system encryption, PQC readiness.
+2. Products (Fortanix Armor): Confidential Computing, Data Security Manager, Platform services (identity and access management and other shared services), Key Insight (no pages yet).
 
 ## Search bar
+
+- **Open and close:** the field grows out of the search box it was opened from (the header's, or the home page's band) and goes back into it on close; that box is hidden while the modal is open, so there is only one field on screen. When the box is out of view, or with reduced motion, the panel just fades. The boxes show the text cursor.
 
 A search bar in the header. Clicking it (or ⌘K / Ctrl+K or `/`) opens a larger search panel near the top of the page, over a dimmed page.
 

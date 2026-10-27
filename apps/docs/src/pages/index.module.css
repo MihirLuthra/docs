@@ -56,7 +56,8 @@
   color: var(--fx-text-muted);
   font: inherit;
   font-size: var(--fx-text-body);
-  cursor: pointer;
+  /* Looks like a text box, so it gets the text cursor. */
+  cursor: text;
   transition: border-color var(--fx-duration-fast) var(--fx-ease);
 }
 
@@ -75,8 +76,18 @@
   font-size: var(--fx-text-xs);
 }
 
-.notice {
+.start {
   margin: var(--fx-space-4) 0 0;
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-md);
+}
+
+.startLink {
+  font-weight: 600;
+}
+
+.notice {
+  margin: var(--fx-space-2) 0 0;
   color: var(--fx-text-muted);
   font-size: var(--fx-text-sm);
 }
@@ -129,16 +140,14 @@
 }
 
 .grid,
-.recentGrid,
-.links {
+.recentGrid {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .grid li,
-.recentGrid li,
-.links li {
+.recentGrid li {
   margin: 0;
 }
 
@@ -174,41 +183,33 @@
 .card {
   display: flex;
   flex-direction: column;
+  gap: var(--fx-space-2);
   height: 100%;
   box-sizing: border-box;
+  padding: var(--fx-space-4);
   border: var(--fx-border-width) solid var(--fx-border);
   border-radius: var(--fx-radius-card);
   background: var(--fx-bg);
+  color: var(--fx-text);
   transition:
     border-color var(--fx-duration-fast) var(--fx-ease),
     box-shadow var(--fx-duration-fast) var(--fx-ease);
 }
 
-.card:not([data-empty]):hover {
+a.card:hover {
   border-color: var(--fx-card-hover-border);
   box-shadow: var(--fx-shadow-card);
-}
-
-.card[data-empty] {
-  opacity: 0.55;
-}
-
-.cardHead {
-  display: flex;
-  flex-direction: column;
-  gap: var(--fx-space-2);
-  padding: var(--fx-space-4);
-  color: var(--fx-text);
-}
-
-a.cardHead:hover {
   color: var(--fx-text);
   text-decoration: none;
 }
 
-a.cardHead:hover .icon {
+a.card:hover .icon {
   background: var(--fx-brand-text);
   color: var(--fx-bg);
+}
+
+.card[data-empty] {
+  opacity: 0.55;
 }
 
 .cardTitle {
@@ -233,8 +234,8 @@ a.cardHead:hover .icon {
     transform var(--fx-duration-fast) var(--fx-ease);
 }
 
-a.cardHead:hover .arrow,
-a.cardHead:focus-visible .arrow {
+a.card:hover .arrow,
+a.card:focus-visible .arrow {
   opacity: 1;
   transform: none;
 }
@@ -245,53 +246,54 @@ a.cardHead:focus-visible .arrow {
   line-height: 1.5;
 }
 
-/* Its main pages, wrapped in a row, so a set with several pages is barely
-   taller than one without. */
-.links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--fx-space-1) var(--fx-space-3);
-  margin: calc(-1 * var(--fx-space-1)) var(--fx-space-4) 0;
-  padding-bottom: var(--fx-space-4);
+/* ---------- Recently viewed: one row of small cards ---------- */
+
+/* Shown only when there are recent pages (html[data-recents], set before
+   the first paint by lib/recents.ts). */
+.recent {
+  display: none;
+  margin-top: var(--fx-space-4);
 }
 
-.link {
-  color: var(--fx-brand-text);
-  font-size: var(--fx-text-sm);
-  font-weight: 500;
-  line-height: 1.5;
+:global(html[data-recents]) .recent {
+  display: block;
 }
 
-.link:hover {
-  color: var(--fx-selected-text);
-  text-decoration: underline;
-  text-underline-offset: var(--fx-link-underline-offset);
+/* With no recents, the first row of cards keeps the same space below the band. */
+:global(html:not([data-recents])) .recent + .section {
+  margin-top: var(--fx-space-4);
 }
 
-/* A solution's products, at the foot of its card. */
-.uses {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin: auto 0 0;
-  padding: 0 var(--fx-space-4) var(--fx-space-4);
-  color: var(--fx-text-muted);
-  font-size: var(--fx-text-xs);
-}
-
-.use {
-  padding: 2px 7px;
-  border-radius: var(--fx-radius-sm);
-  background: var(--fx-chip);
-  color: var(--fx-text-secondary);
-  font-weight: 600;
-}
-
-/* ---------- Recently viewed: a row of small cards ---------- */
-
+/* One row: as tall as one card even before it fills in. */
 .recentGrid {
   min-height: 76px;
+}
+
+/* The rest stay behind "View more": past 4, 2 or 1, by width. */
+.recent:not([data-expanded]) .recentItem:nth-child(n + 5) {
+  display: none;
+}
+
+.more {
+  display: none;
+  margin-left: auto;
+  padding: 2px var(--fx-space-2);
+  border: 0;
+  border-radius: var(--fx-radius-md);
+  background: transparent;
+  color: var(--fx-link);
+  font: inherit;
+  font-size: var(--fx-text-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.more:hover {
+  background: var(--fx-hover);
+}
+
+.recent[data-more4] .more {
+  display: block;
 }
 
 .recentItem {
@@ -349,19 +351,6 @@ a.cardHead:focus-visible .arrow {
   font-size: var(--fx-text-xs);
 }
 
-.recentEmpty {
-  display: flex;
-  grid-column: 1 / -1;
-  align-items: center;
-  box-sizing: border-box;
-  height: 76px;
-  padding: 0 var(--fx-space-4);
-  border: var(--fx-border-width) dashed var(--fx-border-strong);
-  border-radius: var(--fx-radius-card);
-  color: var(--fx-text-muted);
-  font-size: var(--fx-text-md);
-}
-
 .remove {
   position: absolute;
   top: 50%;
@@ -398,8 +387,8 @@ a.cardHead:focus-visible .arrow {
 }
 
 .search:focus-visible,
-.cardHead:focus-visible,
-.link:focus-visible,
+.card:focus-visible,
+.more:focus-visible,
 .recentCard:focus-visible,
 .remove:focus-visible {
   outline: var(--fx-focus-width) solid var(--fx-focus);
@@ -413,12 +402,44 @@ a.cardHead:focus-visible .arrow {
   .recentGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .recent:not([data-expanded]) .recentItem:nth-child(n + 3) {
+    display: none;
+  }
+
+  .recent[data-more2] .more {
+    display: block;
+  }
 }
 
 @media (max-width: 575px) {
   .grid,
   .recentGrid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .recent:not([data-expanded]) .recentItem:nth-child(n + 2) {
+    display: none;
+  }
+
+  /* One column: the icon beside the text, so each card stays short. */
+  .card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 2px var(--fx-space-3);
+    align-items: start;
+  }
+
+  .card .icon {
+    grid-row: span 2;
+  }
+
+  .cardTitle {
+    margin-top: 0;
+  }
+
+  .recent[data-more1] .more {
+    display: block;
   }
 
   .band {
@@ -438,7 +459,6 @@ a.cardHead:focus-visible .arrow {
   .icon,
   .card,
   .arrow,
-  .link,
   .search,
   .recentCard,
   .remove {

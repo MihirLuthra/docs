@@ -8,6 +8,7 @@ import versions from './plugins/versions';
 import prismTheme from './src/lib/prism-theme';
 import {fontFaceCss, fontUrl} from './src/lib/fonts';
 import {searchEarlyScript} from './src/lib/search-early';
+import {recentsEarlyScript} from './src/lib/recents';
 
 const GITHUB_REPO = 'MihirLuthra/docs';
 // The branch the site is published from (.github/workflows/pages.yml).
@@ -50,6 +51,8 @@ const config: Config = {
     {tagName: 'style', attributes: {}, innerHTML: fontFaceCss(BASE_URL)},
     // Keeps search clicks/shortcuts made before hydration (lib/search-early.ts).
     {tagName: 'script', attributes: {}, innerHTML: searchEarlyScript},
+    // Shows or leaves out the home page's Recently viewed from the first paint (lib/recents.ts).
+    {tagName: 'script', attributes: {}, innerHTML: recentsEarlyScript},
     {
       tagName: 'link',
       attributes: {

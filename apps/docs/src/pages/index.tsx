@@ -4,13 +4,13 @@ import Layout from '@theme/Layout';
 import {locate, useTree} from '@site/src/components/DocsTree/tree';
 import {useOverlays} from '@site/src/components/Overlays/context';
 import {products, solutions, type DocIcon, type DocSet} from '@site/src/data/featured';
-import {readRecents, writeRecents} from '@site/src/lib/recents';
+import {RECENTS_ATTR, readRecents, writeRecents} from '@site/src/lib/recents';
 import {SEARCH_TRIGGER_ATTR} from '@site/src/lib/search-early';
 import styles from './index.module.css';
 
 // The home page (ux-spec.md, Home; D19): a map of what the docs cover. A
-// tinted band with the title and a large search; then three rows of the
-// same cards: the solutions, the products, and the pages viewed recently.
+// tinted band with the title, a large search and where to start; then the
+// pages viewed lately, and rows of the same cards: the solutions, the products.
 
 const stroke = {fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round'} as const;
 
@@ -103,13 +103,9 @@ function CloseIcon(): ReactNode {
   );
 }
 
-/**
- * A doc set: its icon, title and one line, linking to its overview; then its
- * main pages, or for a solution the products it uses. Dimmed, not a link,
- * while it has no pages.
- */
+/** A doc set: its icon, title and one line, linking to its overview (dimmed, not a link, while it has no pages). */
 function Card({set}: {set: DocSet}): ReactNode {
-  const head = (
+  const inner = (
     <>
       <Icon>{ICONS[set.icon]}</Icon>
       <span className={styles.cardTitle}>
@@ -119,37 +115,14 @@ function Card({set}: {set: DocSet}): ReactNode {
       <span className={styles.cardLine}>{set.line}</span>
     </>
   );
-  return (
-    <div className={styles.card} data-empty={set.href ? undefined : ''}>
-      {set.href ? (
-        <Link to={set.href} className={styles.cardHead}>
-          {head}
-        </Link>
-      ) : (
-        <span className={styles.cardHead}>{head}</span>
-      )}
-      {!!set.links?.length && (
-        <ul className={styles.links} aria-label={`${set.title}, main pages`}>
-          {set.links.map((l) => (
-            <li key={l.href}>
-              <Link to={l.href} className={styles.link}>
-                {l.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-      {!!set.uses?.length && (
-        <p className={styles.uses}>
-          Uses
-          {set.uses.map((u) => (
-            <span key={u} className={styles.use}>
-              {u}
-            </span>
-          ))}
-        </p>
-      )}
-    </div>
+  return set.href ? (
+    <Link to={set.href} className={styles.card}>
+      {inner}
+    </Link>
+  ) : (
+    <span className={styles.card} data-empty="">
+      {inner}
+    </span>
   );
 }
 
@@ -194,17 +167,17 @@ function HeroSearch(): ReactNode {
   );
 }
 
-const RECENT_MAX = 4;
-
 /**
- * The last pages opened, newest first, as cards like the ones above. The row
- * keeps its height whether it is empty or full, so filling it in after
- * loading moves nothing.
+ * The pages opened lately, newest first, as small cards: one row, and the
+ * rest behind "View more". Left out when there are none. An inline head
+ * script (lib/recents.ts) marks <html> before the first paint when there
+ * are, so the row is there from the start and filling it in moves nothing.
  */
 function RecentlyViewed(): ReactNode {
   const tree = useTree();
   // null until read from localStorage after hydration.
   const [paths, setPaths] = useState<string[] | null>(null);
+  const [expanded, setExpanded] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
@@ -212,15 +185,17 @@ function RecentlyViewed(): ReactNode {
     setPaths(readRecents());
   }, []);
 
-  const all = (paths ?? []).flatMap((p) => {
+  const items = (paths ?? []).flatMap((p) => {
     const loc = locate(tree, p);
     return loc ? [{href: p, ...loc}] : [];
   });
-  const items = all.slice(0, RECENT_MAX);
-  // Pages moved or removed since: forgotten.
   useEffect(() => {
-    if (paths !== null && all.length !== paths.length) writeRecents(all.map((i) => i.href));
-  }, [paths, all.length]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (paths === null) return;
+    // Pages moved or removed since: forgotten.
+    if (items.length !== paths.length) writeRecents(items.map((i) => i.href));
+    // None left: the row goes.
+    if (items.length === 0) document.documentElement.removeAttribute(RECENTS_ATTR);
+  }, [paths, items.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const remove = (href: string, index: number) => {
     const next = (paths ?? []).filter((p) => p !== href);
@@ -228,24 +203,30 @@ function RecentlyViewed(): ReactNode {
     setPaths(next);
     // Keep focus in the row: the next card's ×, else the previous, else the heading.
     requestAnimationFrame(() => {
-      const buttons = listRef.current?.querySelectorAll<HTMLButtonElement>('button');
+      const buttons = listRef.current?.querySelectorAll<HTMLButtonElement>('button[data-remove]');
       const target = buttons?.[Math.min(index, buttons.length - 1)];
       (target ?? headingRef.current)?.focus();
     });
   };
 
   return (
-    <section className={styles.section} aria-labelledby="recent-heading">
+    <section
+      className={styles.recent}
+      aria-labelledby="recent-heading"
+      data-expanded={expanded || undefined}
+      // How many there are past one row of 4, 2 or 1 (styles.module.css shows "View more" from these).
+      data-more4={items.length > 4 || undefined}
+      data-more2={items.length > 2 || undefined}
+      data-more1={items.length > 1 || undefined}>
       <div className={styles.sectionHead}>
         <h2 id="recent-heading" ref={headingRef} tabIndex={-1} className={styles.heading}>
           Recently viewed
         </h2>
-        <p className={styles.sectionLine}>The last pages you opened, on this device.</p>
+        <button type="button" className={styles.more} aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
+          {expanded ? 'View less' : 'View more'}
+        </button>
       </div>
       <ul ref={listRef} className={styles.recentGrid}>
-        {paths !== null && items.length === 0 && (
-          <li className={styles.recentEmpty}>Pages you open show up here.</li>
-        )}
         {items.map((item, i) => (
           <li key={item.href} className={styles.recentItem}>
             <Link to={item.href} className={styles.recentCard} title={[...item.path, item.title].join(' / ')}>
@@ -258,6 +239,7 @@ function RecentlyViewed(): ReactNode {
             </Link>
             <button
               type="button"
+              data-remove=""
               className={styles.remove}
               onClick={() => remove(item.href, i)}
               aria-label={`Remove ${item.title} from recently viewed`}>
@@ -273,46 +255,52 @@ function RecentlyViewed(): ReactNode {
 export default function Home(): ReactNode {
   return (
     <Layout title="Home" description="Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.">
-        {/* fx-home: the header hides its own search here (Navbar/styles.module.css). */}
-        <main className={`${styles.page} fx-home`}>
-          <header className={styles.band}>
-            <h1 className={styles.title}>
-              <span className={styles.titleBrand}>Fortanix</span> Documentation
-            </h1>
-            <p className={styles.lead}>
-              Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.
-            </p>
-            <HeroSearch />
-            <p className={styles.notice}>
-              <strong>Proof of concept.</strong> Not official Fortanix documentation, and not reviewed or approved by
-              Fortanix.
-            </p>
-          </header>
+      {/* fx-home: the header hides its own search here (Navbar/styles.module.css). */}
+      <main className={`${styles.page} fx-home`}>
+        <header className={styles.band}>
+          <h1 className={styles.title}>
+            <span className={styles.titleBrand}>Fortanix</span> Documentation
+          </h1>
+          <p className={styles.lead}>
+            Guides, concepts and references for protecting data, keys and AI workloads with Fortanix Armor.
+          </p>
+          <HeroSearch />
+          <p className={styles.start}>
+            New to Fortanix?{' '}
+            <Link to="/fundamentals/what-fortanix-does" className={styles.startLink}>
+              Start here
+            </Link>
+          </p>
+          <p className={styles.notice}>
+            <strong>Proof of concept.</strong> Not official Fortanix documentation, and not reviewed or approved by
+            Fortanix.
+          </p>
+        </header>
 
-          <div className={styles.body}>
-            <Section id="solutions-heading" title="Solutions" line="Products put together for one use case, end to end.">
-              <ul className={styles.grid}>
-                {solutions.map((set) => (
-                  <li key={set.title}>
-                    <Card set={set} />
-                  </li>
-                ))}
-              </ul>
-            </Section>
+        <div className={styles.body}>
+          <RecentlyViewed />
 
-            <Section id="products-heading" title="Products" line="The Fortanix Armor services you set up, call and integrate with.">
-              <ul className={styles.grid}>
-                {products.map((set) => (
-                  <li key={set.title}>
-                    <Card set={set} />
-                  </li>
-                ))}
-              </ul>
-            </Section>
+          <Section id="solutions-heading" title="Solutions" line="Products put together for one use case, end to end.">
+            <ul className={styles.grid}>
+              {solutions.map((set) => (
+                <li key={set.title}>
+                  <Card set={set} />
+                </li>
+              ))}
+            </ul>
+          </Section>
 
-            <RecentlyViewed />
-          </div>
-        </main>
-      </Layout>
+          <Section id="products-heading" title="Products" line="All part of Fortanix Armor, one platform with shared services.">
+            <ul className={styles.grid}>
+              {products.map((set) => (
+                <li key={set.title}>
+                  <Card set={set} />
+                </li>
+              ))}
+            </ul>
+          </Section>
+        </div>
+      </main>
+    </Layout>
   );
 }

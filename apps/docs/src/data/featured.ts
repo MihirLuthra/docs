@@ -1,11 +1,9 @@
 /**
  * The home page's map of the docs (ux-spec.md, Home): the solutions, then
- * the products. Every href is a page in the docs tree (the build fails on a
+ * the products, each linking to its overview. Every href is a page in the docs tree (the build fails on a
  * broken link). A set with no pages yet has no href and shows dimmed.
  */
 export type DocIcon = 'ai' | 'key' | 'token' | 'chip' | 'folder' | 'atom' | 'insight' | 'platform';
-
-export type DocLink = {label: string; href: string};
 
 export type DocSet = {
   icon: DocIcon;
@@ -13,31 +11,21 @@ export type DocSet = {
   line: string;
   /** Its overview. None while it has no pages yet. */
   href?: string;
-  /** Its main pages, beyond the overview. */
-  links?: DocLink[];
-  /** For a solution: the products it is built on. */
-  uses?: string[];
 };
 
 const CAI = '/solutions/confidential-ai';
 const CC = '/products/fortanix-armor/confidential-computing';
 
-// TODO(verify): the solution and product lines come from the N5 prototype;
-// product claims need review. Tokenization, File system encryption and PQC
-// readiness are stubs, so they say nothing about which products they use.
+// TODO(verify): the solution lines come from the N5 prototype and need
+// review. The product lines follow support.fortanix.com's Fortanix Armor
+// overview: Armor is the platform, with DSM, CCM, Key Insight and shared
+// platform services (IAM among them).
 export const solutions: DocSet[] = [
   {
     icon: 'ai',
     title: 'Confidential AI',
     line: 'Run AI models in TEEs and release keys only to attested workloads.',
     href: `${CAI}/overview`,
-    links: [
-      {label: 'Use cases', href: `${CAI}/use-cases/proprietary-model`},
-      {label: 'Plan a deployment', href: `${CAI}/how-to-guides/day-0-plan-and-prepare/plan-a-deployment`},
-      {label: 'Deploy and operate', href: `${CAI}/how-to-guides/overview`},
-      {label: 'Support matrix', href: `${CAI}/support-matrix`},
-    ],
-    uses: ['CCM', 'DSM'],
   },
   {
     icon: 'token',
@@ -65,28 +53,22 @@ export const products: DocSet[] = [
     title: 'Confidential Computing',
     line: 'Verify workloads in TEEs with CCM before they get secrets.',
     href: `${CC}/overview`,
-    links: [
-      {label: 'CCM concepts', href: `${CC}/ccm/concepts`},
-      {label: 'Enroll an Intel TDX node', href: `${CC}/ccm/compute-nodes/enroll-an-intel-tdx-node`},
-      {label: 'Confidential Containers', href: `${CC}/workload-runtimes/confidential-containers/overview`},
-      {label: 'Enclave OS', href: `${CC}/workload-runtimes/enclave-os/overview`},
-    ],
   },
   {
     icon: 'key',
     title: 'Data Security Manager',
-    line: 'Generate, store and control keys.',
+    line: 'Store and use keys, certificates and other secrets.',
     href: '/products/fortanix-armor/data-security-manager/overview',
   },
   {
     icon: 'platform',
-    title: 'Platform',
-    line: 'Identity and access management for every Armor service.',
+    title: 'Platform services',
+    line: 'Identity and access management, and other services every Armor product shares.',
     href: '/products/fortanix-armor/platform/identity-and-access-management/create-a-group',
   },
   {
     icon: 'insight',
     title: 'Key Insight',
-    line: 'No pages yet.',
+    line: 'Find encryption keys and data services across on-premises and multicloud. No pages yet.',
   },
 ];
