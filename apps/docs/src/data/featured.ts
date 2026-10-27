@@ -1,110 +1,65 @@
 /**
- * The home page's paths into the docs (ux-spec.md, Home): where to start,
- * every doc set grouped by topic, and reference pages. Each doc set links to
- * its overview and to its main parts. Every href is a page in the docs tree
- * (the build fails on a broken link).
+ * The home page's directory (ux-spec.md, Home): where to start, each doc set
+ * with its main pages, and reference pages. Every href is a page in the docs
+ * tree (the build fails on a broken link).
  */
 export type DocIcon = 'ai' | 'key' | 'token' | 'chip' | 'folder' | 'atom' | 'compass' | 'notes' | 'alert' | 'download' | 'code';
 
-export type DocLink = {label: string; href: string};
+/** A page in the directory. None while it has no pages yet: shown dimmed, not a link. */
+export type DirLink = {label: string; href?: string; icon?: DocIcon};
 
-export type DocSet = {
-  icon: DocIcon;
-  title: string;
-  line: string;
-  /** None while it has no pages yet: shown dimmed, not a link. */
-  href?: string;
-  /** Its main parts, beyond the overview. */
-  links?: DocLink[];
-};
-
-export type DocGroup = {title: string; line: string; sets: DocSet[]};
+/** A column of the directory: a heading, then its pages. */
+export type DirSection = {icon: DocIcon; title: string; links: DirLink[]};
 
 const CAI = '/solutions/confidential-ai';
 const CC = '/products/fortanix-armor/confidential-computing';
 
-export const startHere: DocSet[] = [
+export const directory: DirSection[] = [
   {
     icon: 'compass',
-    title: 'What Fortanix does',
-    line: 'What each product is for.',
-    href: '/fundamentals/what-fortanix-does',
+    title: 'Start here',
+    links: [
+      {label: 'What Fortanix does', href: '/fundamentals/what-fortanix-does'},
+      {label: 'TEE technologies', href: '/fundamentals/concepts/tee-technologies/intel-sgx'},
+    ],
+  },
+  {
+    icon: 'ai',
+    title: 'Confidential AI',
+    links: [
+      {label: 'Overview', href: `${CAI}/overview`},
+      {label: 'Use cases', href: `${CAI}/use-cases/proprietary-model`},
+      {label: 'Plan a deployment', href: `${CAI}/how-to-guides/day-0-plan-and-prepare/plan-a-deployment`},
+      {label: 'Deploy and operate', href: `${CAI}/how-to-guides/overview`},
+      {label: 'Support matrix', href: `${CAI}/support-matrix`},
+    ],
   },
   {
     icon: 'chip',
-    title: 'TEE technologies',
-    line: 'How TEEs keep code and data private.',
-    href: '/fundamentals/concepts/tee-technologies/intel-sgx',
-  },
-];
-
-// TODO(verify): set lines come from the N5 prototype; product claims need review.
-export const docGroups: DocGroup[] = [
-  {
-    title: 'Confidential computing and AI',
-    line: 'Run workloads and AI models in TEEs, and prove what runs before it gets a secret.',
-    sets: [
-      {
-        icon: 'ai',
-        title: 'Confidential AI',
-        line: 'Run AI models in TEEs and release keys only to attested workloads.',
-        href: `${CAI}/overview`,
-        links: [
-          {label: 'Use cases', href: `${CAI}/use-cases/proprietary-model`},
-          {label: 'Deploy and operate', href: `${CAI}/how-to-guides/overview`},
-          {label: 'Plan a deployment', href: `${CAI}/how-to-guides/day-0-plan-and-prepare/plan-a-deployment`},
-          {label: 'Support matrix', href: `${CAI}/support-matrix`},
-        ],
-      },
-      {
-        icon: 'chip',
-        title: 'Confidential Computing',
-        line: 'Verify workloads in TEEs with CCM before they get secrets.',
-        href: `${CC}/overview`,
-        links: [
-          {label: 'CCM concepts', href: `${CC}/ccm/concepts`},
-          {label: 'Enroll an Intel TDX node', href: `${CC}/ccm/compute-nodes/enroll-an-intel-tdx-node`},
-          {label: 'Confidential Containers', href: `${CC}/workload-runtimes/confidential-containers/overview`},
-          {label: 'Enclave OS', href: `${CC}/workload-runtimes/enclave-os/overview`},
-        ],
-      },
+    title: 'Confidential Computing',
+    links: [
+      {label: 'Overview', href: `${CC}/overview`},
+      {label: 'CCM concepts', href: `${CC}/ccm/concepts`},
+      {label: 'Enroll an Intel TDX node', href: `${CC}/ccm/compute-nodes/enroll-an-intel-tdx-node`},
+      {label: 'Confidential Containers', href: `${CC}/workload-runtimes/confidential-containers/overview`},
+      {label: 'Enclave OS', href: `${CC}/workload-runtimes/enclave-os/overview`},
     ],
   },
   {
-    title: 'Keys and data protection',
-    line: 'Keep keys in DSM, and protect the data they guard.',
-    sets: [
-      {
-        icon: 'key',
-        title: 'Data Security Manager',
-        line: 'Generate, store and control keys.',
-        href: '/products/fortanix-armor/data-security-manager/overview',
-      },
-      {
-        icon: 'token',
-        title: 'Tokenization',
-        line: 'Replace sensitive fields with format-preserving tokens.',
-        href: '/solutions/tokenization/overview',
-      },
-      {
-        icon: 'folder',
-        title: 'File system encryption',
-        line: 'Encrypt files on Linux and Windows with keys in DSM.',
-        href: '/solutions/file-system-encryption/overview',
-      },
-      {
-        icon: 'atom',
-        title: 'PQC readiness',
-        line: 'Find quantum-vulnerable cryptography across your estate.',
-        href: '/solutions/pqc-readiness/overview',
-      },
+    icon: 'key',
+    title: 'Data protection',
+    links: [
+      {label: 'Data Security Manager', href: '/products/fortanix-armor/data-security-manager/overview'},
+      {label: 'Tokenization', href: '/solutions/tokenization/overview'},
+      {label: 'File system encryption', href: '/solutions/file-system-encryption/overview'},
+      {label: 'PQC readiness', href: '/solutions/pqc-readiness/overview'},
     ],
   },
 ];
 
-export const reference: DocSet[] = [
-  {icon: 'code', title: 'API reference', line: 'No pages yet.'},
-  {icon: 'notes', title: 'Release notes', line: 'What changed in each release.', href: '/release-notes'},
-  {icon: 'alert', title: 'Advisories', line: 'Security advisories.', href: '/advisories'},
-  {icon: 'download', title: 'Downloads', line: 'Software and tools to download.', href: '/downloads'},
+export const reference: DirLink[] = [
+  {label: 'Release notes', href: '/release-notes', icon: 'notes'},
+  {label: 'Advisories', href: '/advisories', icon: 'alert'},
+  {label: 'Downloads', href: '/downloads', icon: 'download'},
+  {label: 'API reference', icon: 'code'},
 ];

@@ -30,35 +30,23 @@
   overscroll-behavior: contain;
 }
 
-/* The page and the right column beside the sidebar. The free space is shared
-   equally: before the page, between the page and the right column, and after
-   it, so the page sits centred between the sidebar and the right column. */
+/* The page beside the sidebar, centred in the space left. */
 .content {
-  display: grid;
-  grid-template-columns:
-    minmax(var(--fx-space-12), 1fr) minmax(0, var(--fx-home-max)) minmax(var(--fx-space-12), 1fr)
-    var(--fx-rail-width) minmax(var(--fx-space-12), 1fr);
-  align-items: start;
   box-sizing: border-box;
   flex: 1;
   min-width: 0;
-  padding: var(--fx-content-top) 0 var(--fx-space-12);
+  padding: var(--fx-content-top) var(--fx-space-12) var(--fx-space-12);
 }
 
 .main {
-  grid-column: 2;
-  min-width: 0;
-}
-
-.rail {
-  grid-column: 4;
-  align-self: stretch;
+  max-width: var(--fx-home-max);
+  margin: 0 auto;
 }
 
 /* ---------- Title ---------- */
 
 .intro {
-  margin-bottom: var(--fx-space-8);
+  margin-bottom: var(--fx-space-6);
 }
 
 .titleBrand {
@@ -98,282 +86,75 @@
   color: var(--fx-text);
 }
 
-/* ---------- Sections ---------- */
+/* ---------- Shared pieces ---------- */
 
-/* Every section starts on a hairline, with its heading and one line, so the
-   page reads as a column of equal parts. */
-.section {
-  margin-bottom: var(--fx-space-8);
-  padding-top: var(--fx-space-6);
-  border-top: var(--fx-border-width) solid var(--fx-border);
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-.heading {
-  margin: 0 0 var(--fx-space-1);
-  font-size: var(--fx-text-xl);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.3;
-}
-
-.sectionLine {
-  margin: 0 0 var(--fx-space-4);
-  color: var(--fx-text-secondary);
-  font-size: var(--fx-text-md);
-  line-height: 1.5;
-}
-
-/* Without a line, the heading keeps the same space before the cards. */
-.heading:last-child,
-.heading + ul {
-  margin-top: var(--fx-space-3);
-}
-
-.grid,
-.refGrid,
-.setLinks {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.grid li,
-.refGrid li,
-.setLinks li {
-  margin: 0;
-}
-
-/* Cards: two columns in every section; one when narrow. */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
-  gap: var(--fx-space-4);
-}
-
-/* Reference: four small tiles in a row; two, then one, when narrower. */
-.refGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
-  gap: var(--fx-space-3);
-}
-
-.arrow {
-  flex: none;
-  width: var(--fx-space-4);
-  height: var(--fx-space-4);
-  color: var(--fx-brand-text);
-  opacity: 0;
-  transform: translateX(-4px);
-  transition:
-    opacity var(--fx-duration-fast) var(--fx-ease),
-    transform var(--fx-duration-fast) var(--fx-ease);
-}
-
-/* An icon on a tinted tile, in the brand's purple. */
+/* An icon on a tinted tile, in the brand's purple: the docs tree's section
+   tiles, in the same size. */
 .icon {
   display: grid;
   flex: none;
   place-items: center;
-  width: var(--fx-home-icon-size);
-  height: var(--fx-home-icon-size);
-  border-radius: var(--fx-radius-lg);
+  width: var(--fx-tree-icon-tile);
+  height: var(--fx-tree-icon-tile);
+  border-radius: var(--fx-radius-md);
   background: var(--fx-selected-bg);
   color: var(--fx-brand-text);
-  transition:
-    background-color var(--fx-duration-fast) var(--fx-ease),
-    color var(--fx-duration-fast) var(--fx-ease);
 }
 
 .icon svg {
-  width: var(--fx-space-5);
-  height: var(--fx-space-5);
+  width: 14px;
+  height: 14px;
 }
 
-/* ---------- A card: the set's head, then its main parts ---------- */
-
-.card {
+/* A page: a row like the docs tree's (32px, the neutral hover grey). */
+.row {
   display: flex;
-  flex-direction: column;
-  height: 100%;
+  align-items: center;
+  gap: var(--fx-space-2);
   box-sizing: border-box;
-  overflow: hidden;
-  border: var(--fx-border-width) solid var(--fx-border);
-  border-radius: var(--fx-radius-card);
-  background: var(--fx-bg);
-  transition:
-    border-color var(--fx-duration-fast) var(--fx-ease),
-    box-shadow var(--fx-duration-fast) var(--fx-ease);
-}
-
-.card:not([data-empty]):hover {
-  border-color: var(--fx-card-hover-border);
-  box-shadow: var(--fx-shadow-card);
-}
-
-/* Nothing there yet. */
-.card[data-empty] {
-  opacity: 0.55;
-}
-
-.cardHead {
-  display: flex;
-  flex: 1;
-  align-items: flex-start;
-  gap: var(--fx-space-3);
-  padding: var(--fx-space-4);
-  color: var(--fx-text);
-}
-
-a.cardHead:hover {
-  color: var(--fx-text);
-  text-decoration: none;
-}
-
-a.cardHead:hover .arrow,
-a.cardHead:focus-visible .arrow {
-  opacity: 1;
-  transform: none;
-}
-
-a.cardHead:hover .icon {
-  background: var(--fx-brand-text);
-  color: var(--fx-bg);
-}
-
-.cardText {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.cardTitle {
-  display: flex;
-  align-items: center;
-  gap: var(--fx-space-2);
-  color: var(--fx-text);
-  font-size: var(--fx-text-body);
-  font-weight: 650;
-  line-height: 1.35;
-}
-
-.cardLine {
-  color: var(--fx-text-secondary);
-  font-size: var(--fx-text-md);
-  line-height: 1.5;
-}
-
-/* The main parts: a list under a hairline, two columns where they fit. */
-.setLinks {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
-  gap: 0 var(--fx-space-3);
-  margin: 0 var(--fx-space-4);
-  padding: var(--fx-space-2) 0 var(--fx-space-3);
-  border-top: var(--fx-border-width) solid var(--fx-border);
-}
-
-.setLink {
-  display: flex;
-  align-items: center;
-  gap: var(--fx-space-2);
-  margin: 0 calc(-1 * var(--fx-space-2));
-  padding: 6px var(--fx-space-2);
+  height: var(--fx-tree-row-h);
+  padding: 0 var(--fx-space-2);
   border-radius: var(--fx-radius-md);
-  color: var(--fx-text-secondary);
+  color: var(--fx-text);
   font-size: var(--fx-text-md);
-  font-weight: 500;
-  line-height: 1.4;
+  line-height: 1.25;
   transition:
     background-color var(--fx-duration-fast) var(--fx-ease),
     color var(--fx-duration-fast) var(--fx-ease);
 }
 
-.setLink .linkArrow {
-  flex: none;
-  width: 13px;
-  height: 13px;
+a.row:hover {
+  background-color: var(--fx-hover);
+  color: var(--fx-brand-text);
+  text-decoration: none;
+}
+
+.row[data-empty] {
   color: var(--fx-text-muted);
-  opacity: 0.6;
-  transition:
-    color var(--fx-duration-fast) var(--fx-ease),
-    opacity var(--fx-duration-fast) var(--fx-ease),
-    transform var(--fx-duration-fast) var(--fx-ease);
+  cursor: default;
 }
 
-.setLink:hover {
-  background: var(--fx-hover);
-  color: var(--fx-brand-text);
-  text-decoration: none;
-}
-
-.setLink:hover .linkArrow,
-.setLink:focus-visible .linkArrow {
-  color: var(--fx-brand-text);
-  opacity: 1;
-  transform: translateX(2px);
-}
-
-/* ---------- A reference tile ---------- */
-
-.refTile {
-  display: flex;
-  align-items: center;
-  gap: var(--fx-space-3);
-  height: 100%;
-  box-sizing: border-box;
-  padding: var(--fx-space-3);
-  border: var(--fx-border-width) solid var(--fx-border);
-  border-radius: var(--fx-radius-card);
-  background: var(--fx-bg);
-  color: var(--fx-text);
-  transition:
-    border-color var(--fx-duration-fast) var(--fx-ease),
-    box-shadow var(--fx-duration-fast) var(--fx-ease);
-}
-
-.refTile .icon {
-  width: var(--fx-space-8);
-  height: var(--fx-space-8);
-  border-radius: var(--fx-radius-md);
-}
-
-.refTile .icon svg {
-  width: var(--fx-space-4);
-  height: var(--fx-space-4);
-}
-
-.refTitle {
-  font-size: var(--fx-text-md);
-  font-weight: 600;
-  line-height: 1.35;
-}
-
-a.refTile:hover {
-  border-color: var(--fx-card-hover-border);
-  box-shadow: var(--fx-shadow-card);
-  color: var(--fx-text);
-  text-decoration: none;
-}
-
-a.refTile:hover .icon {
-  background: var(--fx-brand-text);
-  color: var(--fx-bg);
-}
-
-.refTile[data-empty] {
+.row[data-empty] .icon {
   opacity: 0.55;
 }
 
-/* ---------- Recently viewed, in the right column ---------- */
-
-.recent {
-  position: sticky;
-  top: calc(var(--fx-header-height) + var(--fx-content-top));
+.rowLabel {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.railHeading {
+/* Small capitals, like the doc pages' "On this page". */
+.recentHeading {
   margin: 0 0 var(--fx-space-2);
   color: var(--fx-text-muted);
   font-size: var(--fx-text-xs);
@@ -382,72 +163,88 @@ a.refTile:hover .icon {
   text-transform: uppercase;
 }
 
-.railHeading:focus {
+.recentHeading:focus {
   outline: none;
 }
 
+/* ---------- Recently viewed: one row ---------- */
+
+.recent {
+  margin-bottom: var(--fx-space-8);
+}
+
+/* One line tall, empty or full: pages that don't fit wrap out of sight. */
+.recentList,
 .recentEmpty {
+  height: var(--fx-tree-row-h);
+}
+
+.recentList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fx-space-2);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+}
+
+.recentEmpty {
+  display: flex;
+  align-items: center;
   margin: 0;
   color: var(--fx-text-muted);
   font-size: var(--fx-text-sm);
 }
 
-.recentList {
-  display: grid;
-  gap: 2px;
-  margin: 0 calc(-1 * var(--fx-space-2));
-  padding: 0;
-  list-style: none;
-}
-
 .recentItem {
   position: relative;
+  display: flex;
   margin: 0;
 }
 
-/* A page icon, then the title over its section. */
 .recentLink {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-rows: auto auto;
-  column-gap: var(--fx-space-2);
-  padding: var(--fx-space-2) var(--fx-space-8) var(--fx-space-2) var(--fx-space-2);
-  border-radius: var(--fx-radius-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-2);
+  box-sizing: border-box;
+  max-width: 18rem;
+  height: var(--fx-tree-row-h);
+  padding: 0 var(--fx-space-8) 0 var(--fx-space-2);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-md);
+  background: var(--fx-bg);
   color: var(--fx-text);
+  font-size: var(--fx-text-md);
   transition:
     background-color var(--fx-duration-fast) var(--fx-ease),
-    transform var(--fx-duration-fast) var(--fx-ease);
+    border-color var(--fx-duration-fast) var(--fx-ease);
 }
 
 .recentLink:hover {
+  border-color: var(--fx-card-hover-border);
   background: var(--fx-hover);
   color: var(--fx-text);
   text-decoration: none;
-  transform: translateX(2px);
 }
 
 .pageIcon {
-  grid-row: 1 / 3;
-  box-sizing: border-box;
-  width: var(--fx-space-8);
-  height: var(--fx-space-8);
-  padding: 6px;
-  border-radius: var(--fx-radius-md);
-  background: var(--fx-selected-bg);
+  flex: none;
+  width: 16px;
+  height: 16px;
   color: var(--fx-brand-text);
 }
 
 .recentTitle,
 .recentPath {
   overflow: hidden;
-  line-height: 1.35;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .recentTitle {
-  font-size: var(--fx-text-md);
-  font-weight: 600;
+  flex: none;
+  max-width: 10rem;
 }
 
 .recentPath {
@@ -458,7 +255,7 @@ a.refTile:hover .icon {
 .remove {
   position: absolute;
   top: 50%;
-  right: var(--fx-space-2);
+  right: var(--fx-space-1);
   display: grid;
   place-items: center;
   width: var(--fx-space-6);
@@ -490,33 +287,92 @@ a.refTile:hover .icon {
   }
 }
 
-.cardHead:focus-visible,
-.refTile:focus-visible,
-.setLink:focus-visible,
+/* ---------- The directory: two columns of doc sets ---------- */
+
+/* Four columns side by side; two when they can't fit; one on phones. Never
+   three, which would leave one alone on a row. */
+.main {
+  container-type: inline-size;
+}
+
+.directory {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--fx-space-8) var(--fx-space-6);
+  padding-top: var(--fx-space-6);
+  border-top: var(--fx-border-width) solid var(--fx-border);
+}
+
+.dirColumn {
+  min-width: 0;
+}
+
+/* The set's name on its tile, like a top-level row of the docs tree. */
+.dirHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-2);
+  margin: 0 0 var(--fx-space-1);
+  padding-left: var(--fx-space-2);
+  font-size: var(--fx-text-md);
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+/* Its pages hang from a guide line under the tile, as in the tree. */
+.dirList {
+  margin: 0 0 0 calc(var(--fx-space-2) + var(--fx-tree-icon-tile) / 2);
+  padding: 0 0 0 var(--fx-space-2);
+  border-left: var(--fx-border-width) solid var(--fx-border);
+  list-style: none;
+}
+
+.dirList li {
+  margin: 0;
+}
+
+/* ---------- Reference: one row of pages ---------- */
+
+.reference {
+  margin-top: var(--fx-space-8);
+  padding-top: var(--fx-space-4);
+  border-top: var(--fx-border-width) solid var(--fx-border);
+}
+
+.refList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fx-space-1) var(--fx-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.refList li {
+  margin: 0;
+}
+
+.row:focus-visible,
 .recentLink:focus-visible,
 .remove:focus-visible {
   outline: var(--fx-focus-width) solid var(--fx-focus);
   outline-offset: 2px;
 }
 
-/* ---------- Narrower screens ---------- */
-
-/* No room for the right column: recently viewed comes last, after the page,
-   in columns. */
-@media (max-width: 1279px) {
-  .content {
-    display: block;
-    padding: var(--fx-content-top) var(--fx-space-12) var(--fx-space-12);
-  }
-
-  .recent {
-    position: static;
-  }
-
-  .recentList {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+@container (max-width: 860px) {
+  .directory {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+@container (max-width: 420px) {
+  .directory {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- Narrower screens ---------- */
 
 @media (max-width: 996px) {
   .sidebar {
@@ -539,13 +395,9 @@ a.refTile:hover .icon {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .icon,
-  .card,
-  .refTile,
-  .arrow,
-  .setLink,
-  .setLink .linkArrow,
-  .recentLink {
+  .row,
+  .recentLink,
+  .remove {
     transition: none;
   }
 }

@@ -3,16 +3,16 @@ import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
 import DocsTree from '@site/src/components/DocsTree';
 import {locate, useTree} from '@site/src/components/DocsTree/tree';
-import {docGroups, reference, startHere, type DocIcon, type DocSet} from '@site/src/data/featured';
+import {directory, reference, type DirLink, type DocIcon} from '@site/src/data/featured';
 import {useFooterOverlap} from '@site/src/lib/footer-overlap';
 import {readRecents, writeRecents} from '@site/src/lib/recents';
 import styles from './index.module.css';
 
 // The home page (ux-spec.md, Home; D17): a page of the docs, laid out like
-// the others. The docs tree with "Go to page" on the left; the title, where
-// to start, every doc set grouped by topic with links to its main parts, and
-// reference pages in the middle; recently viewed pages on the right, where a
-// doc page has its table of contents.
+// the others, in the docs tree's own visual language. The tree with "Go to
+// page" on the left; in the middle, the title, recently viewed pages in one
+// row, then a directory: each doc set a heading with its main pages listed
+// under it, in two columns, and the reference pages in one row.
 
 const stroke = {fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round'} as const;
 
@@ -21,23 +21,6 @@ function Icon({name}: {name: DocIcon}): ReactNode {
     <span className={styles.icon} aria-hidden="true">
       <svg viewBox="0 0 24 24">{ICONS[name]}</svg>
     </span>
-  );
-}
-
-function ArrowIcon(): ReactNode {
-  return (
-    <svg className={styles.arrow} viewBox="0 0 24 24" aria-hidden="true">
-      <path {...stroke} strokeWidth={2.2} d="M5 12h13M13 6l6 6-6 6" />
-    </svg>
-  );
-}
-
-// After a set card's link: it goes to a page (a chevron before it read as "expands").
-function LinkArrow(): ReactNode {
-  return (
-    <svg className={styles.linkArrow} viewBox="0 0 24 24" aria-hidden="true">
-      <path {...stroke} strokeWidth={2.2} d="M5 12h13M13 6l6 6-6 6" />
-    </svg>
   );
 }
 
@@ -127,85 +110,48 @@ const ICONS: Record<DocIcon, ReactNode> = {
   ),
 };
 
-/**
- * A doc set: its icon, title and one line, linking to its overview, then its
- * main parts under a hairline when it has them. One shape for every card on
- * the page, so the sections read as one system. Dimmed, not a link, while it
- * has no pages.
- */
-function Card({set}: {set: DocSet}): ReactNode {
-  const head = (
-    <>
-      <Icon name={set.icon} />
-      <span className={styles.cardText}>
-        <span className={styles.cardTitle}>
-          {set.title}
-          {set.href && <ArrowIcon />}
-        </span>
-        <span className={styles.cardLine}>{set.line}</span>
-      </span>
-    </>
-  );
-  return (
-    <div className={styles.card} data-empty={set.href ? undefined : ''}>
-      {set.href ? (
-        <Link to={set.href} className={styles.cardHead}>
-          {head}
-        </Link>
-      ) : (
-        <span className={styles.cardHead}>{head}</span>
-      )}
-      {!!set.links?.length && (
-        <ul className={styles.setLinks} aria-label={`${set.title}, main parts`}>
-          {set.links.map((l) => (
-            <li key={l.href}>
-              <Link to={l.href} className={styles.setLink}>
-                {l.label}
-                <LinkArrow />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-/** A reference page: a small tile with its icon and title (the line is its tooltip). */
-function RefTile({set}: {set: DocSet}): ReactNode {
+/** A page in the directory: a row like the docs tree's (dimmed, not a link, while it has no pages). */
+function DirRow({link}: {link: DirLink}): ReactNode {
   const inner = (
     <>
-      <Icon name={set.icon} />
-      <span className={styles.refTitle}>{set.title}</span>
+      {link.icon && <Icon name={link.icon} />}
+      <span className={styles.rowLabel}>{link.label}</span>
     </>
   );
-  return set.href ? (
-    <Link to={set.href} className={styles.refTile} title={set.line}>
+  return link.href ? (
+    <Link to={link.href} className={styles.row}>
       {inner}
     </Link>
   ) : (
-    <span className={styles.refTile} data-empty="" title={set.line}>
+    <span className={styles.row} data-empty="" title="No pages yet">
       {inner}
     </span>
   );
 }
 
-function Section({id, title, line, children}: {id: string; title: string; line?: string; children: ReactNode}): ReactNode {
+/** A doc set in the directory: its heading, then its pages. */
+function DirColumn({id, icon, title, links}: {id: string; icon: DocIcon; title: string; links: DirLink[]}): ReactNode {
   return (
-    <section className={styles.section} aria-labelledby={id}>
-      <h2 id={id} className={styles.heading}>
+    <section className={styles.dirColumn} aria-labelledby={id}>
+      <h2 id={id} className={styles.dirHeading}>
+        <Icon name={icon} />
         {title}
       </h2>
-      {line && <p className={styles.sectionLine}>{line}</p>}
-      {children}
+      <ul className={styles.dirList}>
+        {links.map((l) => (
+          <li key={l.label}>
+            <DirRow link={l} />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
 
 /**
- * Recently viewed pages, newest first, in the right column (after the page's
- * content on narrower screens). Filling in after loading moves nothing: on
- * the right nothing is below it, and narrower it comes last.
+ * Recently viewed pages, newest first, in one row under the title. The row
+ * is one line tall whether it is empty or full (pages that don't fit are
+ * left out), so filling it in after loading moves nothing below it.
  */
 function RecentlyViewed(): ReactNode {
   const tree = useTree();
@@ -241,7 +187,7 @@ function RecentlyViewed(): ReactNode {
 
   return (
     <section className={styles.recent} aria-labelledby="recent-heading">
-      <h2 id="recent-heading" ref={headingRef} tabIndex={-1} className={styles.railHeading}>
+      <h2 id="recent-heading" ref={headingRef} tabIndex={-1} className={styles.recentHeading}>
         Recently viewed
       </h2>
       {paths !== null && items.length === 0 && <p className={styles.recentEmpty}>Pages you open show up here.</p>}
@@ -252,7 +198,7 @@ function RecentlyViewed(): ReactNode {
               <Link to={item.href} className={styles.recentLink} title={[...item.path, item.title].join(' / ')}>
                 <PageIcon />
                 <span className={styles.recentTitle}>{item.title}</span>
-                {/* The closest parent section; the full path is in the tooltip. */}
+                {/* The closest parent section, so two "Overview"s differ; the full path is in the tooltip. */}
                 <span className={styles.recentPath}>{item.path[item.path.length - 1]}</span>
               </Link>
               <button
@@ -309,41 +255,27 @@ export default function Home(): ReactNode {
               </p>
             </header>
 
-            <Section id="start-heading" title="Start here" line="New to Fortanix? Learn what each product does and how TEEs protect code and data.">
-              <ul className={styles.grid}>
-                {startHere.map((set) => (
-                  <li key={set.title}>
-                    <Card set={set} />
-                  </li>
-                ))}
-              </ul>
-            </Section>
-
-            {docGroups.map((group, k) => (
-              <Section key={group.title} id={`group-${k}`} title={group.title} line={group.line}>
-                <ul className={styles.grid}>
-                  {group.sets.map((set) => (
-                    <li key={set.title}>
-                      <Card set={set} />
-                    </li>
-                  ))}
-                </ul>
-              </Section>
-            ))}
-
-            <Section id="reference-heading" title="Reference" line="APIs, release notes, security advisories and downloads.">
-              <ul className={styles.refGrid}>
-                {reference.map((set) => (
-                  <li key={set.title}>
-                    <RefTile set={set} />
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          </main>
-          <aside className={styles.rail}>
             <RecentlyViewed />
-          </aside>
+
+            <div className={styles.directory}>
+              {directory.map((d, k) => (
+                <DirColumn key={d.title} id={`dir-${k}`} icon={d.icon} title={d.title} links={d.links} />
+              ))}
+            </div>
+
+            <section className={styles.reference} aria-labelledby="reference-heading">
+              <h2 id="reference-heading" className={styles.srOnly}>
+                Reference
+              </h2>
+              <ul className={styles.refList}>
+                {reference.map((l) => (
+                  <li key={l.label}>
+                    <DirRow link={l} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </main>
         </div>
       </div>
     </Layout>
