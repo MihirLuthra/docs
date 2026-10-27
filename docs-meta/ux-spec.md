@@ -49,15 +49,14 @@ D17: a page of the docs, in the same theme and layout as a doc page, so a reader
 - **Colours:** the docs' own tokens, light and dark. Icons sit on tiles in the selected tint with the brand purple; on hover the tile fills with purple.
 - Doc sets are grouped by topic, not as "products" and "solutions". Every doc set in a group looks the same.
 - No layout shift: Recently viewed fills in where nothing is below it (or last on the page).
+- **One system:** every section has the same shape (a hairline above it, a heading, one line saying what it covers, then its items), and every doc set is the same **card**: an icon tile, the title, one line, all linking to the set's overview; an arrow comes in after the title on hover, the tile fills purple and the border turns purple. When the set has main parts, they follow under a hairline as a list of links, each followed by a small faint arrow (a page to go to, not something that expands), in two columns where they fit. Cards sit in two columns (one on narrow screens), the same in every section, and cards in a row are the same height.
 
 1. **Title**: "Fortanix Documentation" (36px, 28px on phones), "Fortanix" in the brand gradient; one lead line, then the **proof-of-concept notice** as a caution callout (amber bar on the left).
-2. **Start here**: two page cards (What Fortanix does, TEE technologies). A page card is one link: an icon tile, the title, one line; an arrow comes in on hover, the tile fills purple, and the card lifts slightly.
-3. **One section per topic**, each with a heading and one line saying what it covers, then two columns of cards:
-   - "Confidential computing and AI": run workloads and AI models in TEEs, and prove what runs before it gets a secret.
-   - "Keys and data protection": keep keys in DSM, and protect the data they guard.
-   - A doc set with main parts is a **set card**: its head (icon tile, title, one line) links to its overview; under a hairline, its main parts as a list of links, each followed by a small faint arrow (a page to go to, not something that expands), in two columns where they fit (Confidential AI: Use cases, Deploy and operate, Plan a deployment, Support matrix. Confidential Computing: CCM concepts, Enroll an Intel TDX node, Confidential Containers, Enclave OS). On hover a link turns purple on the neutral hover grey and its arrow nudges right; the card's border turns purple.
-   - A doc set with one page so far is a page card.
-4. **Reference**: API reference (dimmed, "No pages yet", not a link, until it has pages), Release notes, Advisories, Downloads as page cards.
+2. **Start here**: What Fortanix does, TEE technologies.
+3. **One section per topic**:
+   - "Confidential computing and AI": Confidential AI (Use cases, Deploy and operate, Plan a deployment, Support matrix) and Confidential Computing (CCM concepts, Enroll an Intel TDX node, Confidential Containers, Enclave OS).
+   - "Keys and data protection": Data Security Manager, Tokenization, File system encryption, PQC readiness.
+4. **Reference**: smaller tiles, four in a row (two, then one, when narrower), each an icon and a title, with its line as the tooltip: API reference (dimmed, not a link, until it has pages), Release notes, Advisories, Downloads.
 5. **Recently viewed** (right column; localStorage, newest first, max 12): a small capitals heading, then each page with a page icon, its title and its closest section (full path in the tooltip). Hover tints the row and nudges it right; a **×** shows on hover (always, faintly, on touch screens) to remove it; no "clear all". Empty: "Pages you open show up here." Stored pages that no longer exist are dropped.
 
 All the links come from `apps/docs/src/data/featured.ts`; each is a page in the tree (the build fails on a broken link).

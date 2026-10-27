@@ -100,8 +100,12 @@
 
 /* ---------- Sections ---------- */
 
+/* Every section starts on a hairline, with its heading and one line, so the
+   page reads as a column of equal parts. */
 .section {
   margin-bottom: var(--fx-space-8);
+  padding-top: var(--fx-space-6);
+  border-top: var(--fx-border-width) solid var(--fx-border);
 }
 
 .heading {
@@ -125,44 +129,44 @@
   margin-top: var(--fx-space-3);
 }
 
-.startGrid,
-.pageGrid,
-.setGrid,
+.grid,
+.refGrid,
 .setLinks {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.startGrid li,
-.pageGrid li,
-.setGrid li,
+.grid li,
+.refGrid li,
 .setLinks li {
   margin: 0;
 }
 
-.startGrid,
-.pageGrid,
-.setGrid {
+/* Cards: two columns in every section; one when narrow. */
+.grid {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  gap: var(--fx-space-4);
+}
+
+/* Reference: four small tiles in a row; two, then one, when narrower. */
+.refGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
   gap: var(--fx-space-3);
-}
-
-/* At most 3 columns; fewer when narrower. */
-.startGrid {
-  grid-template-columns: repeat(auto-fit, minmax(max(min(100%, 15rem), calc((100% - 2 * var(--fx-space-3)) / 3)), 1fr));
-}
-
-/* At most 2 columns. */
-.pageGrid,
-.setGrid {
-  grid-template-columns: repeat(auto-fit, minmax(max(min(100%, 17rem), calc((100% - var(--fx-space-3)) / 2)), 1fr));
 }
 
 .arrow {
   flex: none;
   width: var(--fx-space-4);
   height: var(--fx-space-4);
+  color: var(--fx-brand-text);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity var(--fx-duration-fast) var(--fx-ease),
+    transform var(--fx-duration-fast) var(--fx-ease);
 }
 
 /* An icon on a tinted tile, in the brand's purple. */
@@ -183,6 +187,57 @@
 .icon svg {
   width: var(--fx-space-5);
   height: var(--fx-space-5);
+}
+
+/* ---------- A card: the set's head, then its main parts ---------- */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-card);
+  background: var(--fx-bg);
+  transition:
+    border-color var(--fx-duration-fast) var(--fx-ease),
+    box-shadow var(--fx-duration-fast) var(--fx-ease);
+}
+
+.card:not([data-empty]):hover {
+  border-color: var(--fx-card-hover-border);
+  box-shadow: var(--fx-shadow-card);
+}
+
+/* Nothing there yet. */
+.card[data-empty] {
+  opacity: 0.55;
+}
+
+.cardHead {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: var(--fx-space-3);
+  padding: var(--fx-space-4);
+  color: var(--fx-text);
+}
+
+a.cardHead:hover {
+  color: var(--fx-text);
+  text-decoration: none;
+}
+
+a.cardHead:hover .arrow,
+a.cardHead:focus-visible .arrow {
+  opacity: 1;
+  transform: none;
+}
+
+a.cardHead:hover .icon {
+  background: var(--fx-brand-text);
+  color: var(--fx-bg);
 }
 
 .cardText {
@@ -209,114 +264,10 @@
   line-height: 1.5;
 }
 
-/* ---------- A page card: one link ---------- */
-
-.pageCard {
-  display: flex;
-  align-items: center;
-  gap: var(--fx-space-3);
-  height: 100%;
-  box-sizing: border-box;
-  padding: var(--fx-space-3) var(--fx-space-4);
-  border: var(--fx-border-width) solid var(--fx-border);
-  border-radius: var(--fx-radius-card);
-  background: var(--fx-bg);
-  color: var(--fx-text);
-  transition:
-    border-color var(--fx-duration-fast) var(--fx-ease),
-    box-shadow var(--fx-duration-fast) var(--fx-ease),
-    transform var(--fx-duration-fast) var(--fx-ease);
-}
-
-.pageCard > .arrow {
-  color: var(--fx-brand-text);
-  opacity: 0;
-  transform: translateX(-4px);
-  transition:
-    opacity var(--fx-duration-fast) var(--fx-ease),
-    transform var(--fx-duration-fast) var(--fx-ease);
-}
-
-/* Nothing there yet. */
-.pageCard[data-empty] {
-  opacity: 0.55;
-}
-
-a.pageCard:hover {
-  border-color: var(--fx-card-hover-border);
-  box-shadow: var(--fx-shadow-card);
-  color: var(--fx-text);
-  text-decoration: none;
-  transform: translateY(-1px);
-}
-
-a.pageCard:hover > .arrow,
-.pageCard:focus-visible > .arrow {
-  opacity: 1;
-  transform: none;
-}
-
-a.pageCard:hover .icon,
-.setHead:hover .icon {
-  background: var(--fx-brand-text);
-  color: var(--fx-bg);
-}
-
-/* ---------- A doc set: its overview, then its main parts ---------- */
-
-.setCard {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  box-sizing: border-box;
-  overflow: hidden;
-  border: var(--fx-border-width) solid var(--fx-border);
-  border-radius: var(--fx-radius-card);
-  background: var(--fx-bg);
-  transition:
-    border-color var(--fx-duration-fast) var(--fx-ease),
-    box-shadow var(--fx-duration-fast) var(--fx-ease);
-}
-
-.setCard:hover {
-  border-color: var(--fx-card-hover-border);
-  box-shadow: var(--fx-shadow-card);
-}
-
-.setHead {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--fx-space-3);
-  padding: var(--fx-space-4);
-  color: var(--fx-text);
-}
-
-.setHead:hover {
-  color: var(--fx-text);
-  text-decoration: none;
-}
-
-.setHead .arrow {
-  color: var(--fx-brand-text);
-  opacity: 0;
-  transform: translateX(-4px);
-  transition:
-    opacity var(--fx-duration-fast) var(--fx-ease),
-    transform var(--fx-duration-fast) var(--fx-ease);
-}
-
-.setHead:hover .arrow,
-.setHead:focus-visible .arrow {
-  opacity: 1;
-  transform: none;
-}
-
 /* The main parts: a list under a hairline, two columns where they fit. */
 .setLinks {
   display: grid;
-  flex: 1;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
-  align-content: start;
   gap: 0 var(--fx-space-3);
   margin: 0 var(--fx-space-4);
   padding: var(--fx-space-2) 0 var(--fx-space-3);
@@ -362,6 +313,57 @@ a.pageCard:hover .icon,
   color: var(--fx-brand-text);
   opacity: 1;
   transform: translateX(2px);
+}
+
+/* ---------- A reference tile ---------- */
+
+.refTile {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-3);
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--fx-space-3);
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-card);
+  background: var(--fx-bg);
+  color: var(--fx-text);
+  transition:
+    border-color var(--fx-duration-fast) var(--fx-ease),
+    box-shadow var(--fx-duration-fast) var(--fx-ease);
+}
+
+.refTile .icon {
+  width: var(--fx-space-8);
+  height: var(--fx-space-8);
+  border-radius: var(--fx-radius-md);
+}
+
+.refTile .icon svg {
+  width: var(--fx-space-4);
+  height: var(--fx-space-4);
+}
+
+.refTitle {
+  font-size: var(--fx-text-md);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+a.refTile:hover {
+  border-color: var(--fx-card-hover-border);
+  box-shadow: var(--fx-shadow-card);
+  color: var(--fx-text);
+  text-decoration: none;
+}
+
+a.refTile:hover .icon {
+  background: var(--fx-brand-text);
+  color: var(--fx-bg);
+}
+
+.refTile[data-empty] {
+  opacity: 0.55;
 }
 
 /* ---------- Recently viewed, in the right column ---------- */
@@ -488,8 +490,8 @@ a.pageCard:hover .icon,
   }
 }
 
-.pageCard:focus-visible,
-.setHead:focus-visible,
+.cardHead:focus-visible,
+.refTile:focus-visible,
 .setLink:focus-visible,
 .recentLink:focus-visible,
 .remove:focus-visible {
@@ -538,9 +540,9 @@ a.pageCard:hover .icon,
 
 @media (prefers-reduced-motion: reduce) {
   .icon,
-  .pageCard,
-  .pageCard > .arrow,
-  .setHead .arrow,
+  .card,
+  .refTile,
+  .arrow,
   .setLink,
   .setLink .linkArrow,
   .recentLink {

@@ -127,54 +127,66 @@ const ICONS: Record<DocIcon, ReactNode> = {
   ),
 };
 
-/** A page to go to: its icon, title and one line, all one link (dimmed, not a link, while it has no pages). */
-function PageCard({set}: {set: DocSet}): ReactNode {
-  const inner = (
+/**
+ * A doc set: its icon, title and one line, linking to its overview, then its
+ * main parts under a hairline when it has them. One shape for every card on
+ * the page, so the sections read as one system. Dimmed, not a link, while it
+ * has no pages.
+ */
+function Card({set}: {set: DocSet}): ReactNode {
+  const head = (
     <>
       <Icon name={set.icon} />
       <span className={styles.cardText}>
-        <span className={styles.cardTitle}>{set.title}</span>
+        <span className={styles.cardTitle}>
+          {set.title}
+          {set.href && <ArrowIcon />}
+        </span>
         <span className={styles.cardLine}>{set.line}</span>
       </span>
     </>
   );
-  return set.href ? (
-    <Link to={set.href} className={styles.pageCard}>
-      {inner}
-      <ArrowIcon />
-    </Link>
-  ) : (
-    <span className={styles.pageCard} data-empty="">
-      {inner}
-    </span>
+  return (
+    <div className={styles.card} data-empty={set.href ? undefined : ''}>
+      {set.href ? (
+        <Link to={set.href} className={styles.cardHead}>
+          {head}
+        </Link>
+      ) : (
+        <span className={styles.cardHead}>{head}</span>
+      )}
+      {!!set.links?.length && (
+        <ul className={styles.setLinks} aria-label={`${set.title}, main parts`}>
+          {set.links.map((l) => (
+            <li key={l.href}>
+              <Link to={l.href} className={styles.setLink}>
+                {l.label}
+                <LinkArrow />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 
-/** A doc set: its overview (the head of the card), then its main parts as a list. */
-function SetCard({set}: {set: DocSet}): ReactNode {
-  return (
-    <div className={styles.setCard}>
-      <Link to={set.href!} className={styles.setHead}>
-        <Icon name={set.icon} />
-        <span className={styles.cardText}>
-          <span className={styles.cardTitle}>
-            {set.title}
-            <ArrowIcon />
-          </span>
-          <span className={styles.cardLine}>{set.line}</span>
-        </span>
-      </Link>
-      <ul className={styles.setLinks} aria-label={`${set.title}, main parts`}>
-        {(set.links ?? []).map((l) => (
-          <li key={l.href}>
-            <Link to={l.href} className={styles.setLink}>
-              {l.label}
-              <LinkArrow />
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+/** A reference page: a small tile with its icon and title (the line is its tooltip). */
+function RefTile({set}: {set: DocSet}): ReactNode {
+  const inner = (
+    <>
+      <Icon name={set.icon} />
+      <span className={styles.refTitle}>{set.title}</span>
+    </>
+  );
+  return set.href ? (
+    <Link to={set.href} className={styles.refTile} title={set.line}>
+      {inner}
+    </Link>
+  ) : (
+    <span className={styles.refTile} data-empty="" title={set.line}>
+      {inner}
+    </span>
   );
 }
 
@@ -297,11 +309,11 @@ export default function Home(): ReactNode {
               </p>
             </header>
 
-            <Section id="start-heading" title="Start here">
-              <ul className={styles.pageGrid}>
+            <Section id="start-heading" title="Start here" line="New to Fortanix? Learn what each product does and how TEEs protect code and data.">
+              <ul className={styles.grid}>
                 {startHere.map((set) => (
                   <li key={set.title}>
-                    <PageCard set={set} />
+                    <Card set={set} />
                   </li>
                 ))}
               </ul>
@@ -309,19 +321,21 @@ export default function Home(): ReactNode {
 
             {docGroups.map((group, k) => (
               <Section key={group.title} id={`group-${k}`} title={group.title} line={group.line}>
-                <ul className={group.sets.some((s) => s.links?.length) ? styles.setGrid : styles.pageGrid}>
+                <ul className={styles.grid}>
                   {group.sets.map((set) => (
-                    <li key={set.title}>{set.links?.length ? <SetCard set={set} /> : <PageCard set={set} />}</li>
+                    <li key={set.title}>
+                      <Card set={set} />
+                    </li>
                   ))}
                 </ul>
               </Section>
             ))}
 
-            <Section id="reference-heading" title="Reference">
-              <ul className={styles.startGrid}>
+            <Section id="reference-heading" title="Reference" line="APIs, release notes, security advisories and downloads.">
+              <ul className={styles.refGrid}>
                 {reference.map((set) => (
                   <li key={set.title}>
-                    <PageCard set={set} />
+                    <RefTile set={set} />
                   </li>
                 ))}
               </ul>
