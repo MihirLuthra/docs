@@ -23,13 +23,13 @@ Skip this if the account already uses CCM. Turning it on can't be undone.
 
 ### Create a group
 
-Create a group for the model's application, such as `llm-serving`, or use one you already have.
+Create a group for the model's application, such as `model-serving`, or use one you already have.
 
-<CreateGroup group="llm-serving" />
+<CreateGroup group="model-serving" />
 
 ### Add the application
 
-Add the application `llama-chat` in the group, with the domain of its certificate, such as `chat.northwind.example`. Pick the runtime you [chose](plan-a-deployment.mdx#choose-the-runtime).
+Add the application `model-server` in the group, with the domain of its certificate, such as `model.northwind.example`. Pick the runtime you [chose](plan-a-deployment.mdx#choose-the-runtime).
 
 <Tabs groupId="runtime">
 <Tab label="Confidential Containers">
@@ -52,9 +52,9 @@ You add builds later, once you have the measurements, in [Protect the model](pro
 
 ### Create the consumer's group
 
-In its own Armor account, the consumer [turns on CCM](#turn-on-ccm) if it hasn't yet, then creates a group for the deployment, such as `llm-serving`.
+In its own Armor account, the consumer [turns on CCM](#turn-on-ccm) if it hasn't yet, then creates a group for the deployment, such as `model-serving`.
 
-<CreateGroup group="llm-serving" />
+<CreateGroup group="model-serving" />
 
 ### Share the zone CA
 

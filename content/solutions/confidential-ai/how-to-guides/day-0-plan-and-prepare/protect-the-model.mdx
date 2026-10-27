@@ -50,7 +50,7 @@ With Enclave OS you encrypt the model files separately, with a key stored in DSM
 
    ```bash
    sq-dsm key generate \
-     --dsm-key "llama-chat-model" \
+     --dsm-key "model-key" \
      --cipher-suite "rsa4k" \
      --userid "alex.morgan@northwind.example"
    ```
@@ -60,7 +60,7 @@ With Enclave OS you encrypt the model files separately, with a key stored in DSM
 3. Export its public certificate, and encrypt the model with it.
 
    ```bash
-   sq-dsm key extract-cert --dsm-key "llama-chat-model" --output model.cert.pgp
+   sq-dsm key extract-cert --dsm-key "model-key" --output model.cert.pgp
    sq-dsm encrypt --recipient-cert model.cert.pgp --compression none \
      <MODEL_FILE> -o <ENCRYPTED_MODEL_FILE>
    ```
@@ -72,7 +72,7 @@ With Enclave OS you encrypt the model files separately, with a key stored in DSM
      -inkey /opt/fortanix/enclave-os/default_cert/app_private.pem \
      -in /opt/fortanix/enclave-os/default_cert/app_public.pem
    export FORTANIX_PKCS12_ID=identity.pfx
-   sq-dsm decrypt --dsm-key "llama-chat-model" <ENCRYPTED_MODEL_FILE> -o <MODEL_FILE>
+   sq-dsm decrypt --dsm-key "model-key" <ENCRYPTED_MODEL_FILE> -o <MODEL_FILE>
    ```
 
    Set `FORTANIX_API_ENDPOINT` and `FORTANIX_APP_UUID` in the image too, and never `FORTANIX_API_KEY`.

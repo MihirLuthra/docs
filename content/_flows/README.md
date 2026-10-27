@@ -6,7 +6,7 @@ one inline, so readers never leave the page for a step:
 ```mdx
 import CreateGroup from '../../../_flows/armor/create-a-group.mdx';
 
-<CreateGroup group="llm-serving" />
+<CreateGroup group="model-serving" />
 ```
 
 Folders and files starting with `_` are not pages; this one isn't in the

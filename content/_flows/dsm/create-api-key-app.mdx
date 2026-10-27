@@ -1,6 +1,6 @@
 {/* Shared flow (D16): create a DSM app that authenticates with an API key.
-    Props: name, the app name to suggest (default llama-chat-encrypt);
-    group (default llama-chat-keys). */}
+    Props: name, the app name to suggest (default model-encryption);
+    group (default model-keys). */}
 
 <Walkthrough label="Create an API key app">
 <Step
@@ -22,7 +22,7 @@ In DSM, go to **Apps** and click **ADD APP**.
   marks={[[1.6, 8.5, 48.3, 14.4], [50.4, 11.5, 29.5, 11.5], [1.7, 51.8, 8.4, 13.3]]}
   alt="The new app form, with the app name, the interface and API Key outlined">
 
-Enter the **App name**, such as <code>{props.name ?? 'llama-chat-encrypt'}</code>, set **Interface** to **REST API**, and keep **Authentication method** as **API Key**.
+Enter the **App name**, such as <code>{props.name ?? 'model-encryption'}</code>, set **Interface** to **REST API**, and keep **Authentication method** as **API Key**.
 
 </Step>
 <Step
@@ -33,7 +33,7 @@ Enter the **App name**, such as <code>{props.name ?? 'llama-chat-encrypt'}</code
   marks={[[50.5, 8.8, 46.6, 12.5], [91.2, 90.4, 6.0, 7.7]]}
   alt="The groups the app is assigned to, with the group and SAVE outlined">
 
-Under **Assigning the new app to groups**, click the group, such as <code>{props.group ?? 'llama-chat-keys'}</code>, so that it moves to the list on the right. Click **SAVE**.
+Under **Assigning the new app to groups**, click the group, such as <code>{props.group ?? 'model-keys'}</code>, so that it moves to the list on the right. Click **SAVE**.
 
 </Step>
 <Step

@@ -20,7 +20,7 @@ A new build, and a new certificate domain, are requests on the **Tasks** page. C
 
 ## Certificates
 
-The certificate CCM issues carries the domains you gave the application, such as `chat.northwind.example`. CCM also adds names of its own, under `fortanix.cloud`.
+The certificate CCM issues carries the domains you gave the application, such as `model.northwind.example`. CCM also adds names of its own, under `fortanix.cloud`.
 
 - `<APPLICATION_ID>.app.fortanix.cloud` names the application.
 - A name under `id.fortanix.cloud` is derived from the workload's measurements, in the form `<HASH>.<PLATFORM>.id.fortanix.cloud`. For example, an AMD SEV-SNP workload's name ends in `.sev-snp.id.fortanix.cloud`.

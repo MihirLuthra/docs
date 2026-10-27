@@ -21,7 +21,7 @@ Go to **Applications** and click **ADD APPLICATION**. Select {props.runtime === 
   marks={props.runtime === 'eos' ? [[2.7, 25.9, 44.4, 9.2], [2.7, 39.6, 44.4, 9.3]] : [[2.7, 25.9, 44.4, 9.2], [2.7, 39.6, 44.4, 9.3]]}
   alt="The application details, with the name and the group outlined">
 
-Enter the **Application name**, such as <code>{props.name ?? 'llama-chat'}</code>, a **Description** if you like, and select the **Group**, such as <code>{props.group ?? 'llm-serving'}</code>.
+Enter the **Application name**, such as <code>{props.name ?? 'model-server'}</code>, a **Description** if you like, and select the **Group**, such as <code>{props.group ?? 'model-serving'}</code>.
 
 </Step>
 <Step
@@ -32,7 +32,7 @@ Enter the **Application name**, such as <code>{props.name ?? 'llama-chat'}</code
   marks={[[2.7, 15.9, 44.4, 15.9], [19.1, 91.4, 15.7, 8.6]]}
   alt="The certificate configuration, with the domain and the ADD APPLICATION button outlined">
 
-Under **Certificate Configuration**, click **ADD CERTIFICATE** and enter the **Domain** of the workload's certificate, such as <code>{props.domain ?? 'chat.northwind.example'}</code>. Leave **Type** as **Certificate Issued by Confidential Computing Manager**, and click **ADD APPLICATION**.
+Under **Certificate Configuration**, click **ADD CERTIFICATE** and enter the **Domain** of the workload's certificate, such as <code>{props.domain ?? 'model.northwind.example'}</code>. Leave **Type** as **Certificate Issued by Confidential Computing Manager**, and click **ADD APPLICATION**.
 
 </Step>
 </Walkthrough>

@@ -1,6 +1,6 @@
 {/* Shared flow (D16): create a DSM app that authenticates with a certificate
     from a trusted CA, such as a CCM zone CA.
-    Props: name (default llama-chat-workload); group (default llama-chat-keys). */}
+    Props: name (default model-server-access); group (default model-keys). */}
 
 <Walkthrough label="Create a Trusted CA app">
 <Step
@@ -22,7 +22,7 @@ In DSM, go to **Apps** and click **ADD APP**.
   marks={[[19.2, 6.9, 9.9, 8.2], [1.7, 40.5, 65.1, 10.2], [1.7, 56.2, 95.5, 43.8]]}
   alt="The new app form on Trusted CA, with the method, the DNS name and the CA certificate outlined">
 
-Enter the **App name**, such as <code>{props.name ?? 'llama-chat-workload'}</code>, and set **Interface** to **REST API**. Under **Authentication method**, select **Trusted CA**. Under **Configure Subject Alternative Name (SAN)**, keep **DNS Name** and enter <code>{'<APPLICATION_ID>.app.fortanix.cloud'}</code>. Under **UPLOAD TRUSTED CA CERT**, upload the zone CA certificate, or paste it into the box.
+Enter the **App name**, such as <code>{props.name ?? 'model-server-access'}</code>, and set **Interface** to **REST API**. Under **Authentication method**, select **Trusted CA**. Under **Configure Subject Alternative Name (SAN)**, keep **DNS Name** and enter <code>{'<APPLICATION_ID>.app.fortanix.cloud'}</code>. Under **UPLOAD TRUSTED CA CERT**, upload the zone CA certificate, or paste it into the box.
 
 </Step>
 <Step
@@ -33,7 +33,7 @@ Enter the **App name**, such as <code>{props.name ?? 'llama-chat-workload'}</cod
   marks={[[50.5, 8.8, 46.6, 12.5], [91.2, 90.4, 6.0, 7.7]]}
   alt="The groups the app is assigned to, with the group and SAVE outlined">
 
-Under **Assigning the new app to groups**, click the group, such as <code>{props.group ?? 'llama-chat-keys'}</code>, so that it moves to the list on the right. Click **SAVE**.
+Under **Assigning the new app to groups**, click the group, such as <code>{props.group ?? 'model-keys'}</code>, so that it moves to the list on the right. Click **SAVE**.
 
 </Step>
 <Step
