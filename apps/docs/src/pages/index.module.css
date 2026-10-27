@@ -1,52 +1,29 @@
-/* The home page (index.tsx; D17): laid out like a doc page, in the same
-   theme. 996px is Docusaurus's desktop breakpoint (media queries can't use
-   vars). */
+/* The home page (index.tsx; D19): a band with the title and search, then
+   three rows of the same cards. 996px is Docusaurus's desktop breakpoint
+   (media queries can't use vars). */
 
-.layout {
-  display: flex;
-  /* Fills the page down to the footer, so the sidebar column does too. */
+.page {
   flex: 1 0 auto;
   width: 100%;
 }
 
-.sidebar {
-  position: relative;
-  flex: none;
-  width: var(--fx-sidebar-width);
-  border-right: var(--fx-border-width) solid var(--fx-border);
-  background-color: var(--fx-sidebar-bg);
+/* ---------- The band ---------- */
+
+.band {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--fx-space-12) var(--fx-space-4) var(--fx-space-6);
+  background: linear-gradient(180deg, var(--fx-home-band) 0%, var(--fx-bg) 100%);
+  text-align: center;
 }
 
-.sidebarFrame {
-  position: absolute;
-  inset: 0;
-}
-
-.sidebarScroll {
-  position: sticky;
-  top: var(--fx-header-height);
-  max-height: min(100%, calc(100vh - var(--fx-header-height) - var(--fx-footer-overlap, 0px)));
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-/* The page beside the sidebar, centred in the space left. */
-.content {
-  box-sizing: border-box;
-  flex: 1;
-  min-width: 0;
-  padding: var(--fx-content-top) var(--fx-space-12) var(--fx-space-12);
-}
-
-.main {
-  max-width: var(--fx-home-max);
-  margin: 0 auto;
-}
-
-/* ---------- Title ---------- */
-
-.intro {
-  margin-bottom: var(--fx-space-6);
+.title {
+  margin: 0;
+  font-size: var(--fx-home-title-size);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
 }
 
 .titleBrand {
@@ -55,184 +32,304 @@
   color: transparent;
 }
 
-.title {
-  margin: 0 0 var(--fx-space-2);
-  font-size: var(--fx-home-title-size);
-  font-weight: 750;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-}
-
 .lead {
-  margin: 0 0 var(--fx-space-4);
+  max-width: 40rem;
+  margin: var(--fx-space-2) 0 var(--fx-space-6);
   color: var(--fx-text-secondary);
   font-size: var(--fx-text-xl);
-  line-height: 1.55;
-}
-
-/* The proof-of-concept notice, as a caution callout. */
-.notice {
-  margin: 0;
-  padding: var(--fx-space-2) var(--fx-space-3);
-  border-left: 3px solid var(--fx-notice-accent);
-  border-radius: var(--fx-radius-md);
-  background-color: var(--fx-notice-bg);
-  color: var(--fx-text-secondary);
-  font-size: var(--fx-text-sm);
   line-height: 1.5;
 }
 
+/* Opens the header's search; looks like a large search box. */
+.search {
+  display: flex;
+  align-items: center;
+  gap: var(--fx-space-3);
+  box-sizing: border-box;
+  width: min(100%, 40rem);
+  height: 52px;
+  padding: 0 var(--fx-space-4);
+  border: var(--fx-border-width) solid var(--fx-border-strong);
+  border-radius: var(--fx-radius-card);
+  background: var(--fx-bg);
+  box-shadow: var(--fx-shadow-card);
+  color: var(--fx-text-muted);
+  font: inherit;
+  font-size: var(--fx-text-body);
+  cursor: pointer;
+  transition: border-color var(--fx-duration-fast) var(--fx-ease);
+}
+
+.search:hover,
+:global(html[data-search-pending]) .search {
+  border-color: var(--fx-card-hover-border);
+}
+
+.kbd {
+  margin-left: auto;
+  padding: 2px 7px;
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-md);
+  color: var(--fx-text-muted);
+  font-family: inherit;
+  font-size: var(--fx-text-xs);
+}
+
+.notice {
+  margin: var(--fx-space-4) 0 0;
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-sm);
+}
+
 .notice strong {
-  color: var(--fx-text);
+  color: var(--fx-text-secondary);
 }
 
-/* ---------- Shared pieces ---------- */
+/* ---------- Rows ---------- */
 
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+.body {
+  box-sizing: border-box;
+  max-width: calc(var(--fx-home-wide) + 2 * var(--fx-space-6));
+  margin: 0 auto;
+  padding: 0 var(--fx-space-6) var(--fx-space-12);
 }
 
-/* An icon on a tinted tile, in the brand's purple: the docs tree's section
-   tiles, in the same size. */
+.section {
+  margin-top: var(--fx-space-8);
+}
+
+.section:first-child {
+  margin-top: var(--fx-space-4);
+}
+
+/* The heading and its line on one baseline. */
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--fx-space-1) var(--fx-space-3);
+  margin-bottom: var(--fx-space-3);
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--fx-text-xl);
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+.heading:focus {
+  outline: none;
+}
+
+.sectionLine {
+  margin: 0;
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-md);
+}
+
+.grid,
+.recentGrid,
+.links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.grid li,
+.recentGrid li,
+.links li {
+  margin: 0;
+}
+
+/* Four across; two, then one, when narrower. */
+.grid,
+.recentGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--fx-space-4);
+}
+
+/* ---------- A card ---------- */
+
 .icon {
   display: grid;
   flex: none;
   place-items: center;
-  width: var(--fx-tree-icon-tile);
-  height: var(--fx-tree-icon-tile);
-  border-radius: var(--fx-radius-md);
+  width: var(--fx-space-10);
+  height: var(--fx-space-10);
+  border-radius: var(--fx-radius-lg);
   background: var(--fx-selected-bg);
   color: var(--fx-brand-text);
-}
-
-.icon svg {
-  width: 14px;
-  height: 14px;
-}
-
-/* A page: a row like the docs tree's (32px, the neutral hover grey). */
-.row {
-  display: flex;
-  align-items: center;
-  gap: var(--fx-space-2);
-  box-sizing: border-box;
-  height: var(--fx-tree-row-h);
-  padding: 0 var(--fx-space-2);
-  border-radius: var(--fx-radius-md);
-  color: var(--fx-text);
-  font-size: var(--fx-text-md);
-  line-height: 1.25;
   transition:
     background-color var(--fx-duration-fast) var(--fx-ease),
     color var(--fx-duration-fast) var(--fx-ease);
 }
 
-a.row:hover {
-  background-color: var(--fx-hover);
-  color: var(--fx-brand-text);
-  text-decoration: none;
+.icon svg {
+  width: var(--fx-space-5);
+  height: var(--fx-space-5);
 }
 
-.row[data-empty] {
-  color: var(--fx-text-muted);
-  cursor: default;
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  border: var(--fx-border-width) solid var(--fx-border);
+  border-radius: var(--fx-radius-card);
+  background: var(--fx-bg);
+  transition:
+    border-color var(--fx-duration-fast) var(--fx-ease),
+    box-shadow var(--fx-duration-fast) var(--fx-ease);
 }
 
-.row[data-empty] .icon {
+.card:not([data-empty]):hover {
+  border-color: var(--fx-card-hover-border);
+  box-shadow: var(--fx-shadow-card);
+}
+
+.card[data-empty] {
   opacity: 0.55;
 }
 
-.rowLabel {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-/* Small capitals, like the doc pages' "On this page". */
-.recentHeading {
-  margin: 0 0 var(--fx-space-2);
-  color: var(--fx-text-muted);
-  font-size: var(--fx-text-xs);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.recentHeading:focus {
-  outline: none;
-}
-
-/* ---------- Recently viewed: one row ---------- */
-
-.recent {
-  margin-bottom: var(--fx-space-8);
-}
-
-/* One line tall, empty or full: pages that don't fit wrap out of sight. */
-.recentList,
-.recentEmpty {
-  height: var(--fx-tree-row-h);
-}
-
-.recentList {
+.cardHead {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--fx-space-2);
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  list-style: none;
+  padding: var(--fx-space-4);
+  color: var(--fx-text);
 }
 
-.recentEmpty {
+a.cardHead:hover {
+  color: var(--fx-text);
+  text-decoration: none;
+}
+
+a.cardHead:hover .icon {
+  background: var(--fx-brand-text);
+  color: var(--fx-bg);
+}
+
+.cardTitle {
   display: flex;
   align-items: center;
-  margin: 0;
-  color: var(--fx-text-muted);
+  gap: var(--fx-space-2);
+  margin-top: var(--fx-space-1);
+  font-size: var(--fx-text-body);
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.arrow {
+  flex: none;
+  width: var(--fx-space-4);
+  height: var(--fx-space-4);
+  color: var(--fx-brand-text);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity var(--fx-duration-fast) var(--fx-ease),
+    transform var(--fx-duration-fast) var(--fx-ease);
+}
+
+a.cardHead:hover .arrow,
+a.cardHead:focus-visible .arrow {
+  opacity: 1;
+  transform: none;
+}
+
+.cardLine {
+  color: var(--fx-text-secondary);
+  font-size: var(--fx-text-md);
+  line-height: 1.5;
+}
+
+/* Its main pages, wrapped in a row, so a set with several pages is barely
+   taller than one without. */
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fx-space-1) var(--fx-space-3);
+  margin: calc(-1 * var(--fx-space-1)) var(--fx-space-4) 0;
+  padding-bottom: var(--fx-space-4);
+}
+
+.link {
+  color: var(--fx-brand-text);
   font-size: var(--fx-text-sm);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.link:hover {
+  color: var(--fx-selected-text);
+  text-decoration: underline;
+  text-underline-offset: var(--fx-link-underline-offset);
+}
+
+/* A solution's products, at the foot of its card. */
+.uses {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: auto 0 0;
+  padding: 0 var(--fx-space-4) var(--fx-space-4);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-xs);
+}
+
+.use {
+  padding: 2px 7px;
+  border-radius: var(--fx-radius-sm);
+  background: var(--fx-chip);
+  color: var(--fx-text-secondary);
+  font-weight: 600;
+}
+
+/* ---------- Recently viewed: a row of small cards ---------- */
+
+.recentGrid {
+  min-height: 76px;
 }
 
 .recentItem {
   position: relative;
-  display: flex;
-  margin: 0;
 }
 
-.recentLink {
+.recentCard {
   display: flex;
   align-items: center;
-  gap: var(--fx-space-2);
+  gap: var(--fx-space-3);
   box-sizing: border-box;
-  max-width: 18rem;
-  height: var(--fx-tree-row-h);
-  padding: 0 var(--fx-space-8) 0 var(--fx-space-2);
+  height: 76px;
+  padding: 0 var(--fx-space-8) 0 var(--fx-space-4);
   border: var(--fx-border-width) solid var(--fx-border);
-  border-radius: var(--fx-radius-md);
+  border-radius: var(--fx-radius-card);
   background: var(--fx-bg);
   color: var(--fx-text);
-  font-size: var(--fx-text-md);
   transition:
-    background-color var(--fx-duration-fast) var(--fx-ease),
-    border-color var(--fx-duration-fast) var(--fx-ease);
+    border-color var(--fx-duration-fast) var(--fx-ease),
+    box-shadow var(--fx-duration-fast) var(--fx-ease);
 }
 
-.recentLink:hover {
+.recentCard:hover {
   border-color: var(--fx-card-hover-border);
-  background: var(--fx-hover);
+  box-shadow: var(--fx-shadow-card);
   color: var(--fx-text);
   text-decoration: none;
 }
 
-.pageIcon {
-  flex: none;
-  width: 16px;
-  height: 16px;
-  color: var(--fx-brand-text);
+.recentCard:hover .icon {
+  background: var(--fx-brand-text);
+  color: var(--fx-bg);
+}
+
+.recentText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .recentTitle,
@@ -243,8 +340,8 @@ a.row:hover {
 }
 
 .recentTitle {
-  flex: none;
-  max-width: 10rem;
+  font-size: var(--fx-text-md);
+  font-weight: 600;
 }
 
 .recentPath {
@@ -252,10 +349,23 @@ a.row:hover {
   font-size: var(--fx-text-xs);
 }
 
+.recentEmpty {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  box-sizing: border-box;
+  height: 76px;
+  padding: 0 var(--fx-space-4);
+  border: var(--fx-border-width) dashed var(--fx-border-strong);
+  border-radius: var(--fx-radius-card);
+  color: var(--fx-text-muted);
+  font-size: var(--fx-text-md);
+}
+
 .remove {
   position: absolute;
   top: 50%;
-  right: var(--fx-space-1);
+  right: var(--fx-space-2);
   display: grid;
   place-items: center;
   width: var(--fx-space-6);
@@ -287,104 +397,34 @@ a.row:hover {
   }
 }
 
-/* ---------- The directory: two columns of doc sets ---------- */
-
-/* Four columns side by side; two when they can't fit; one on phones. Never
-   three, which would leave one alone on a row. */
-.main {
-  container-type: inline-size;
-}
-
-.directory {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--fx-space-8) var(--fx-space-6);
-  padding-top: var(--fx-space-6);
-  border-top: var(--fx-border-width) solid var(--fx-border);
-}
-
-.dirColumn {
-  min-width: 0;
-}
-
-/* The set's name on its tile, like a top-level row of the docs tree. */
-.dirHeading {
-  display: flex;
-  align-items: center;
-  gap: var(--fx-space-2);
-  margin: 0 0 var(--fx-space-1);
-  padding-left: var(--fx-space-2);
-  font-size: var(--fx-text-md);
-  font-weight: 600;
-  line-height: 1.35;
-  white-space: nowrap;
-}
-
-/* Its pages hang from a guide line under the tile, as in the tree. */
-.dirList {
-  margin: 0 0 0 calc(var(--fx-space-2) + var(--fx-tree-icon-tile) / 2);
-  padding: 0 0 0 var(--fx-space-2);
-  border-left: var(--fx-border-width) solid var(--fx-border);
-  list-style: none;
-}
-
-.dirList li {
-  margin: 0;
-}
-
-/* ---------- Reference: one row of pages ---------- */
-
-.reference {
-  margin-top: var(--fx-space-8);
-  padding-top: var(--fx-space-4);
-  border-top: var(--fx-border-width) solid var(--fx-border);
-}
-
-.refList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--fx-space-1) var(--fx-space-4);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.refList li {
-  margin: 0;
-}
-
-.row:focus-visible,
-.recentLink:focus-visible,
+.search:focus-visible,
+.cardHead:focus-visible,
+.link:focus-visible,
+.recentCard:focus-visible,
 .remove:focus-visible {
   outline: var(--fx-focus-width) solid var(--fx-focus);
   outline-offset: 2px;
 }
 
-@container (max-width: 860px) {
-  .directory {
+/* ---------- Narrower screens ---------- */
+
+@media (max-width: 996px) {
+  .grid,
+  .recentGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@container (max-width: 420px) {
-  .directory {
+@media (max-width: 575px) {
+  .grid,
+  .recentGrid {
     grid-template-columns: minmax(0, 1fr);
   }
-}
 
-/* ---------- Narrower screens ---------- */
-
-@media (max-width: 996px) {
-  .sidebar {
-    display: none;
+  .band {
+    padding-top: var(--fx-space-8);
   }
 
-  .content {
-    padding: var(--fx-content-top) var(--fx-space-4) var(--fx-space-8);
-  }
-}
-
-@media (max-width: 575px) {
   .title {
     font-size: var(--fx-title-size);
   }
@@ -395,8 +435,12 @@ a.row:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .row,
-  .recentLink,
+  .icon,
+  .card,
+  .arrow,
+  .link,
+  .search,
+  .recentCard,
   .remove {
     transition: none;
   }

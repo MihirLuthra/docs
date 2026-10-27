@@ -42,23 +42,17 @@ The reference prototype is `docs-meta/prototypes/N5-SearchAI.dc.html`. Its `<scr
 
 ## Home
 
-D17: a page of the docs, in the same theme and layout as a doc page, so a reader lands in the documentation, not on a website. The first screen shows the paths into the docs.
+D19 (changes D17's layout): a map of what the docs cover, in the docs' own theme. The first screen shows the solutions and the products.
 
-- **Grid:** sidebar (the docs tree with Home and "Go to page", as on doc pages) | main column (max 960px), centred in the space beside the sidebar. No right column.
-- **One visual language:** the page speaks the docs tree's language. Doc sets are headings on the tree's 22px icon tiles, and their pages are the tree's 32px rows hanging from a guide line, with the neutral hover grey and purple text on hover. No cards.
-- **Search:** the header's, as on every page. No second search box.
+- **A map of what the docs cover**, from a developer's point of view: what the solutions are, what the products are, and where each one's docs start. No docs tree on this page (it is one click away in the header's menu).
+- **Band:** a tint fading into the page, with the title, one lead line, a large search box (the header's search, opened from here; the header hides its own search on this page) and the proof-of-concept line.
+- **Rows:** Solutions, then Products, then Recently viewed. Each row is a heading with one line beside it (Solutions: "Products put together for one use case, end to end". Products: "The Fortanix Armor services you set up, call and integrate with"), then four cards across (two, then one, when narrower).
+- **Card:** an icon tile, the title, one line, all linking to the set's overview; on hover the border turns purple, the tile fills, and an arrow comes in after the title. A set's main pages follow as purple links wrapped in a row; a solution then says which products it uses ("Uses CCM DSM"), only where the docs say so. A set with no pages yet is dimmed and not a link.
+- **Recently viewed:** up to four pages as small cards (page icon, title, closest section; full path in the tooltip; × on hover, always faintly on touch screens). Empty: a dashed card, "Pages you open show up here." The row keeps its height empty or full, so it fills in without moving anything.
 - **Colours:** the docs' own tokens, light and dark.
-- Doc sets are grouped by what they do, not as "products" and "solutions".
-- No layout shift: Recently viewed keeps one row's height, empty or full.
 
-1. **Title**: "Fortanix Documentation" (36px, 28px on phones), "Fortanix" in the brand gradient; one lead line, then the **proof-of-concept notice** as a caution callout (amber bar on the left).
-2. **Recently viewed** (localStorage, newest first, max 12): a small capitals heading, then one row of pages, each a page icon, its title and its closest section (full path in the tooltip), in a thin outlined box. Pages that don't fit the row are left out. A **×** shows on hover (always, faintly, on touch screens) to remove one. Empty: "Pages you open show up here." Stored pages that no longer exist are dropped.
-3. **Directory**, under a hairline: four columns side by side, two when they don't fit, one on phones (never three, which would leave one alone):
-   - Start here: What Fortanix does, TEE technologies.
-   - Confidential AI: Overview, Use cases, Plan a deployment, Deploy and operate, Support matrix.
-   - Confidential Computing: Overview, CCM concepts, Enroll an Intel TDX node, Confidential Containers, Enclave OS.
-   - Data protection: Data Security Manager, Tokenization, File system encryption, PQC readiness.
-4. **Reference**, under a hairline: one row of pages, each on its icon tile: Release notes, Advisories, Downloads, API reference (dimmed, not a link, until it has pages).
+1. Solutions: Confidential AI (Use cases, Plan a deployment, Deploy and operate, Support matrix; uses CCM and DSM), Tokenization, File system encryption, PQC readiness.
+2. Products: Confidential Computing (CCM concepts, Enroll an Intel TDX node, Confidential Containers, Enclave OS), Data Security Manager, Platform, Key Insight (no pages yet).
 
 ## Search bar
 

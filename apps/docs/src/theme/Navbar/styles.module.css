@@ -62,6 +62,12 @@
   min-width: 0;
 }
 
+/* On the home page the band has its own, larger search box. Hidden, not
+   removed, so the header's layout is the same on every page. */
+:global(body:has(.fx-home)) .searchTrigger {
+  visibility: hidden;
+}
+
 /* A soft field: a faint fill and a hairline; on hover it lifts to the page
    colour with a purple ring. */
 .searchTrigger {
