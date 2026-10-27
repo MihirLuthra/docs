@@ -32,10 +32,11 @@ function ArrowIcon(): ReactNode {
   );
 }
 
-function ChevronIcon(): ReactNode {
+// After a set card's link: it goes to a page (a chevron before it read as "expands").
+function LinkArrow(): ReactNode {
   return (
     <svg className={styles.linkArrow} viewBox="0 0 24 24" aria-hidden="true">
-      <path {...stroke} strokeWidth={2.4} d="M9 6l6 6-6 6" />
+      <path {...stroke} strokeWidth={2.2} d="M5 12h13M13 6l6 6-6 6" />
     </svg>
   );
 }
@@ -167,8 +168,8 @@ function SetCard({set}: {set: DocSet}): ReactNode {
         {(set.links ?? []).map((l) => (
           <li key={l.href}>
             <Link to={l.href} className={styles.setLink}>
-              <ChevronIcon />
               {l.label}
+              <LinkArrow />
             </Link>
           </li>
         ))}

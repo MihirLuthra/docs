@@ -341,10 +341,14 @@ a.pageCard:hover .icon,
 
 .setLink .linkArrow {
   flex: none;
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   color: var(--fx-text-muted);
-  transition: color var(--fx-duration-fast) var(--fx-ease);
+  opacity: 0.6;
+  transition:
+    color var(--fx-duration-fast) var(--fx-ease),
+    opacity var(--fx-duration-fast) var(--fx-ease),
+    transform var(--fx-duration-fast) var(--fx-ease);
 }
 
 .setLink:hover {
@@ -353,8 +357,11 @@ a.pageCard:hover .icon,
   text-decoration: none;
 }
 
-.setLink:hover .linkArrow {
+.setLink:hover .linkArrow,
+.setLink:focus-visible .linkArrow {
   color: var(--fx-brand-text);
+  opacity: 1;
+  transform: translateX(2px);
 }
 
 /* ---------- Recently viewed, in the right column ---------- */
@@ -535,6 +542,7 @@ a.pageCard:hover .icon,
   .pageCard > .arrow,
   .setHead .arrow,
   .setLink,
+  .setLink .linkArrow,
   .recentLink {
     transition: none;
   }
