@@ -265,20 +265,6 @@
   margin-bottom: var(--fx-space-2);
 }
 
-/* A narrow frame: a wide screenshot (a whole page) zooms in around the
-   control the step uses, so it reads without opening it full screen. */
-@container (max-width: 520px) {
-  .frame[data-wide] {
-    transform: scale(1.9);
-    transform-origin: var(--focus-x) var(--focus-y);
-  }
-
-  /* Zoomed in, the number would crowd the control; the step's number is right below. */
-  .frame[data-wide] .badge {
-    display: none;
-  }
-}
-
 @media (max-width: 575px) {
   .viewer {
     aspect-ratio: 4 / 3;

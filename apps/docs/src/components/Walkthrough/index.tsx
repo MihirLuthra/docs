@@ -52,15 +52,7 @@ export function Shot({step, n, eager, whole}: {step: StepProps; n: number; eager
   return (
     <div
       className={styles.frame}
-      // On a narrow screen, a wide screenshot zooms in around its first mark (styles.module.css).
-      data-wide={(!whole && step.width / step.height > 1.6) || undefined}
-      style={
-        {
-          '--ratio': step.width / step.height,
-          '--focus-x': step.marks?.[0] ? `${step.marks[0][0] + step.marks[0][2] / 2}%` : '50%',
-          '--focus-y': step.marks?.[0] ? `${step.marks[0][1] + step.marks[0][3] / 2}%` : '50%',
-        } as CSSProperties
-      }>
+      style={{'--ratio': step.width / step.height} as CSSProperties}>
       <img
         className={styles.image}
         src={src}

@@ -35,6 +35,10 @@ No troubleshooting sections in how-tos.
 - Never write a version out: use the versions data (`{{component.version}}` in code, `<Version of="…" />` in text; see `versions/README.md`). Show real expected output.
 - Put platform differences (SGX, TDX, SEV-SNP, Nitro, OS) in tabs or admonitions, not in separate near-identical pages.
 - Every screenshot has alt text. Prefer text over a screenshot when either works.
+- A screenshot is the whole browser window, always at the same size. Never crop or zoom it. A dialog shows over the page it opens from.
+- A screenshot shows only what the task creates or uses. Lists hold only those items, never other groups, apps or users from the account it was taken in.
+- Skip no step. When a button opens a form, the button gets its own step, with the page it is on, before the form.
+- Example names say what the thing is, such as `model-server`, `model-serving` and `model-keys`. No product or model names, such as a model family.
 - Security pages state their trust assumptions: what is trusted, and by whom.
 - Never invent facts. If unsure, write `<!-- TODO(verify): reason -->`.
 
